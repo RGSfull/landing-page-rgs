@@ -924,6 +924,55 @@
       max-width: 520px;
       margin: 0 auto;
     }
+	
+	.tier-matcher {
+      margin: 16px auto 10px;
+      max-width: 520px;
+      border-radius: 18px;
+      border: 1px dashed #3a3152;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(4,2,12,0.9);
+    }
+    .tier-matcher-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .tier-matcher-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.7rem;
+      color: #8c7da5;
+    }
+    .tier-matcher-select,
+    .tier-matcher-select-small {
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      background: rgba(6,3,18,0.95);
+      color: #f4f3ff;
+      font-size: 0.8rem;
+      padding: 5px 8px;
+      font-family: inherit;
+    }
+    .tier-matcher-select {
+      min-width: 180px;
+    }
+    .tier-matcher-select-small {
+      min-width: 120px;
+    }
+    .tier-matcher-result {
+      font-size: 0.8rem;
+      color: #c8c2ff;
+      margin-top: 4px;
+    }
+    .tier-card--highlight {
+      outline: 2px solid #5df2ff;
+      box-shadow: 0 0 18px rgba(93,242,255,0.55);
+    }
 
     .tiers-grid {
       display: grid;
@@ -1055,6 +1104,38 @@
     .support-wall {
       margin-top: 40px;
     }
+	
+	.command-console {
+      margin-top: 28px;
+      border-radius: 18px;
+      border: 1px dashed #3a3152;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      background: rgba(5, 2, 12, 0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .command-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.7rem;
+      color: #8c7da5;
+    }
+    .command-input {
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      background: rgba(8,4,20,0.95);
+      color: #f4f3ff;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+    .command-status {
+      font-size: 0.75rem;
+      color: #a8a4c8;
+      min-height: 16px;
+    }
 
     .support-grid {
       display: grid;
@@ -1112,6 +1193,60 @@
       font-size: 0.72rem;
       color: #8c7da5;
       margin-top: 6px;
+    }
+	
+    .session-hud {
+      margin-top: 32px;
+      border-radius: 18px;
+      border: 1px solid #312544;
+      background:
+        radial-gradient(circle at top, rgba(12, 9, 28, 0.95), rgba(3,0,12,0.98));
+      padding: 12px 14px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .session-hud-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8c7da5;
+      font-size: 0.72rem;
+    }
+    .session-hud-rows {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+    .session-hud-pill {
+      border-radius: 999px;
+      border: 1px solid #3a3152;
+      padding: 3px 9px;
+      font-size: 0.74rem;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      color: #c5c0f0;
+    }
+    .session-hud-pill span:first-child {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #8f86c0;
+      font-size: 0.7rem;
+    }
+    .session-hud-pill--ok {
+      border-color: #7cffb2;
+      color: #7cffb2;
+    }
+    .session-hud-pill--warn {
+      border-color: #f5b4a8;
+      color: #f5b4a8;
+    }
+    .session-hud-pill--bad {
+      border-color: #ff6f91;
+      color: #ff6f91;
     }
 
     /* Burn Lane schovaný defaultně */
@@ -1507,6 +1642,31 @@
               feedbacku a toho, jak moc chceš být součást kostry, ne jen publika.
             </p>
           </div>
+		  
+		  <div class="tier-matcher" id="tierMatcher">
+          <div class="tier-matcher-row">
+            <span class="tier-matcher-label">Kam patříš?</span>
+            <select id="tierRoleSelect" class="tier-matcher-select">
+              <option value="">— vyber směr —</option>
+              <option value="signal">Chci jen být uvnitř a rozumně sledovat</option>
+              <option value="operator">Chci aktivně obchodovat / tvořit nabídky</option>
+              <option value="architect">Chci pomáhat stavět systém (kód, logika, struktura)</option>
+              <option value="black">Jsem heavy player, kapitál + zodpovědnost</option>
+            </select>
+          </div>
+          <div class="tier-matcher-row">
+            <span class="tier-matcher-label">Co víc dáváš?</span>
+            <select id="tierFocusSelect" class="tier-matcher-select-small">
+              <option value="">— mix —</option>
+              <option value="time">Čas / testování / feedback</option>
+              <option value="capital">On-chain support / kapitál</option>
+              <option value="knowledge">Know-how / kontakty</option>
+            </select>
+          </div>
+          <div class="tier-matcher-result" id="tierMatcherResult">
+            Vyber směr a fokus – doporučíme ti roli, kterou máš mířit.
+          </div>
+        </div>
 
           <div class="tiers-grid">
             <!-- Signal -->
@@ -1647,6 +1807,25 @@
             </div>
           </div>
         </div>
+		
+		<!-- SESSION HUD -->
+        <div class="session-hud" id="sessionHud">
+          <div class="session-hud-label">Session status</div>
+          <div class="session-hud-rows">
+            <div class="session-hud-pill" id="hudGate">
+              <span>Gate</span><span>…</span>
+            </div>
+            <div class="session-hud-pill" id="hudBurn">
+              <span>Burn Lane</span><span>…</span>
+            </div>
+            <div class="session-hud-pill" id="hudSupport">
+              <span>Support</span><span>…</span>
+            </div>
+            <div class="session-hud-pill" id="hudAttempts">
+              <span>Gate pokusy</span><span>…</span>
+            </div>
+          </div>
+        </div>
 
         <!-- BURN LANE / PRIVNOTE -->
         <div class="form-section" id="burn-lane">
@@ -1711,6 +1890,20 @@
               </div>
             </div>
           </div>
+        </div>
+		
+		<!-- COMMAND CONSOLE -->
+        <div class="command-console">
+          <div class="command-label">Syndicate console</div>
+          <input
+            id="commandInput"
+            class="command-input"
+            placeholder="/help, /burn, /gate-reset, /debug"
+            autocomplete="off"
+          />
+          <p class="command-status" id="commandStatus">
+            Příkazy začínají lomítkem. Není to chat, je to konzole.
+          </p>
         </div>
 
         <div class="footer">
@@ -1846,6 +2039,10 @@
     }
 
     function checkGate() {
+	
+	let attempts = parseInt(localStorage.getItem("rgsGateAttempts") || "0", 10);
+    localStorage.setItem("rgsGateAttempts", String(attempts + 1));
+	
       const inviteVal = normaliseCode(inviteInput.value);
       const codeOk = inviteVal === INVITE_CODE;
       const seqOk = GLYPH_SEQUENCE.every((val, idx) => glyphClicks[idx] === val);
@@ -2051,6 +2248,40 @@
       });
       localStorage.setItem("rgsFeatureProgress", JSON.stringify(map));
     }
+	
+	function updateSessionHud() {
+      const hudGate = document.getElementById("hudGate");
+      const hudBurn = document.getElementById("hudBurn");
+      const hudSupport = document.getElementById("hudSupport");
+      const hudAttempts = document.getElementById("hudAttempts");
+
+      if (!hudGate || !hudBurn || !hudSupport || !hudAttempts) return;
+
+      const gateUnlocked = localStorage.getItem("rgsInnerUnlocked") === "1";
+      const burnUnlocked = localStorage.getItem("rgsBurnLaneUnlocked") === "1";
+      const supportSent = localStorage.getItem("rgsSupportSubmitted") === "1";
+      const attempts = parseInt(localStorage.getItem("rgsGateAttempts") || "0", 10);
+
+      // Gate
+      hudGate.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudGate.classList.add(gateUnlocked ? "session-hud-pill--ok" : "session-hud-pill--bad");
+      hudGate.querySelector("span:last-child").textContent = gateUnlocked ? "UNLOCKED" : "LOCKED";
+
+      // Burn
+      hudBurn.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudBurn.classList.add(burnUnlocked ? "session-hud-pill--ok" : "session-hud-pill--warn");
+      hudBurn.querySelector("span:last-child").textContent = burnUnlocked ? "UNLOCKED" : "LOCKED";
+
+      // Support
+      hudSupport.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudSupport.classList.add(supportSent ? "session-hud-pill--ok" : "session-hud-pill--warn");
+      hudSupport.querySelector("span:last-child").textContent = supportSent ? "SENT" : "NOT SENT";
+
+      // Attempts
+      hudAttempts.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudAttempts.classList.add(attempts > 0 ? "session-hud-pill--warn" : "session-hud-pill--ok");
+      hudAttempts.querySelector("span:last-child").textContent = String(attempts);
+    }
 
     function updateDashSummary() {
       let currentSum = 0;
@@ -2088,6 +2319,118 @@
       dashSummary.appendChild(chip1);
       dashSummary.appendChild(chip2);
       dashSummary.appendChild(totalChip);
+    }
+	
+	function highlightTierCard(tierCode) {
+      document.querySelectorAll(".tier-card").forEach(card => {
+        card.classList.remove("tier-card--highlight");
+      });
+      if (!tierCode) return;
+      const card = document.querySelector(".tier-card.tier-tier-" + tierCode);
+      if (card) card.classList.add("tier-card--highlight");
+    }
+
+    function computeTierSuggestion(roleVal, focusVal) {
+      if (!roleVal) return null;
+
+      // jednoduchá logika: role tě vede, focus drobně modifikuje
+      if (roleVal === "signal") {
+        return "signal";
+      }
+      if (roleVal === "operator") {
+        if (focusVal === "capital") return "black";
+        return "operator";
+      }
+      if (roleVal === "architect") {
+        if (focusVal === "capital") return "black";
+        return "architect";
+      }
+      if (roleVal === "black") {
+        return "black";
+      }
+      return null;
+    }
+
+    function setupTierMatcher() {
+      const roleSel = document.getElementById("tierRoleSelect");
+      const focusSel = document.getElementById("tierFocusSelect");
+      const resultEl = document.getElementById("tierMatcherResult");
+      if (!roleSel || !focusSel || !resultEl) return;
+
+      function update() {
+        const roleVal = roleSel.value;
+        const focusVal = focusSel.value;
+        const tier = computeTierSuggestion(roleVal, focusVal);
+
+        if (!tier) {
+          resultEl.textContent = "Vyber směr a fokus – doporučíme ti roli, kterou máš mířit.";
+          highlightTierCard(null);
+          return;
+        }
+
+        let label = "";
+        if (tier === "signal") label = "Signal · tichý pozorovatel, první signál dovnitř.";
+        if (tier === "operator") label = "Operator · člověk, který s appkou operuje, ne ji jen sleduje.";
+        if (tier === "architect") label = "Architect · pomáháš stavět kostru systému.";
+        if (tier === "black") label = "Black · těžká váha, kapitál + zodpovědnost.";
+
+        resultEl.textContent = "Cílová role pro tvůj mindset: " + label;
+        highlightTierCard(tier);
+      }
+
+      roleSel.addEventListener("change", update);
+      focusSel.addEventListener("change", update);
+    }
+	
+	function handleCommand(cmd, statusEl) {
+      if (!cmd.startsWith("/")) {
+        statusEl.textContent = "Tohle není příkaz. Všechno začíná lomítkem.";
+        statusEl.style.color = "#ff6f91";
+        return;
+      }
+
+      const parts = cmd.slice(1).trim().split(/\s+/);
+      const name = parts[0].toLowerCase();
+
+      if (name === "help") {
+        statusEl.textContent = "Dostupné příkazy: /help, /burn, /gate-reset, /debug";
+        statusEl.style.color = "#a8a4c8";
+        return;
+      }
+
+      if (name === "burn" || name === "burn-on") {
+        document.body.classList.add("burn-unlocked");
+        localStorage.setItem("rgsBurnLaneUnlocked", "1");
+        updateSessionHud();
+        statusEl.textContent = "Burn Lane odemknutá přes konzoli.";
+        statusEl.style.color = "#7cffb2";
+        return;
+      }
+
+      if (name === "gate-reset") {
+        localStorage.removeItem("rgsInnerUnlocked");
+        localStorage.removeItem("rgsGateAttempts");
+        document.body.classList.remove("unlocked");
+        if (gateWrapper) gateWrapper.style.display = "";
+        statusEl.textContent = "Gate resetnutá pro tohle zařízení. Reload a rituál odznova.";
+        statusEl.style.color = "#f5b4a8";
+        return;
+      }
+
+      if (name === "debug") {
+        const state = {
+          innerUnlocked: localStorage.getItem("rgsInnerUnlocked"),
+          burnUnlocked: localStorage.getItem("rgsBurnLaneUnlocked"),
+          supportSubmitted: localStorage.getItem("rgsSupportSubmitted"),
+          gateAttempts: localStorage.getItem("rgsGateAttempts"),
+        };
+        statusEl.textContent = "Session state: " + JSON.stringify(state);
+        statusEl.style.color = "#7cffb2";
+        return;
+      }
+
+      statusEl.textContent = "Neznámý příkaz. Zkus /help.";
+      statusEl.style.color = "#ff6f91";
     }
 
     function renderDashboard() {
@@ -2215,15 +2558,33 @@
         formStatus.style.color = "#a8a4c8";
         formStatus.textContent = "Zapisujeme žádost / support do vnitřní vrstvy…";
 
-        fetch("/", {
+        // připravíme payload pro Neon
+        const payload = {
+          alias: (formData.get("alias") || "").toString().trim(),
+          invite: (formData.get("invite") || "").toString().trim(),
+          contact: (formData.get("contact") || "").toString().trim(),
+          role: (formData.get("role") || "").toString().trim(),
+          message: (formData.get("message") || "").toString().trim(),
+          chain: chain,
+          tx: tx,
+          support_message: (formData.get("support_message") || "").toString().trim()
+        };
+
+        formStatus.style.display = "block";
+        formStatus.style.color = "#a8a4c8";
+        formStatus.textContent = "Zapisujeme žádost / support do vnitřní vrstvy…";
+
+        fetch("/.netlify/functions/inner-access", {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: encoded
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
         }).then((res) => {
           if (res.ok) {
             formStatus.textContent = "Zapsáno. Když to bude dávat smysl, ozveme se.";
             formStatus.style.color = "#7cffb2";
             accessForm.reset();
+            localStorage.setItem("rgsSupportSubmitted", "1");
+            updateSessionHud();
           } else {
             formStatus.textContent = "Server odpověděl divně. Zkus to za chvíli znovu.";
             formStatus.style.color = "#ff6f91";
@@ -2267,7 +2628,30 @@
       }
 
       renderDashboard();
-    });
+      updateSessionHud();
+      setupTierMatcher();
+
+      const burnBtn = document.getElementById("burnCreateBtn");
+      if (burnBtn) {
+        burnBtn.addEventListener("click", handleBurnCreate);
+      }
+      handleBurnReadIfPresent();
+
+      // command konzole
+      const cmdInput = document.getElementById("commandInput");
+      const cmdStatus = document.getElementById("commandStatus");
+      if (cmdInput && cmdStatus) {
+        cmdInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const val = cmdInput.value.trim();
+            if (!val) return;
+            handleCommand(val, cmdStatus);
+            cmdInput.value = "";
+          }
+        });
+      }
+    }); // <<< TADY CHYBĚLO
+	
 
     // ===== BURN LANE / PRIVNOTE MODUL =====
 
