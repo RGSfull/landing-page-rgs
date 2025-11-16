@@ -1931,6 +1931,8 @@
       startMatrix();
 
       setTimeout(() => {
+	  
+	  localStorage.setItem("rgsInnerUnlocked", "1");
         document.body.classList.add("unlocked");
         gateWrapper.style.display = "none";
         matrixCanvas.style.opacity = 0;
@@ -2202,22 +2204,29 @@
     }
 
     // Kontext gate textu (noc / opakovaná návštěva)
-    document.addEventListener("DOMContentLoaded", () => {
-      const visited = localStorage.getItem("rgsInnerVisited");
-      const hour = new Date().getHours();
+document.addEventListener("DOMContentLoaded", () => {
+  const unlocked = localStorage.getItem("rgsInnerUnlocked");
+  if (unlocked === "1") {
+    document.body.classList.add("unlocked");
+    if (gateWrapper) gateWrapper.style.display = "none";
+    if (matrixCanvas) matrixCanvas.style.opacity = 0;
+  }
 
-      if (!visited) {
-        localStorage.setItem("rgsInnerVisited", "1");
-      } else {
-        gateSub.textContent =
-          "Vstup znáš. Gate sleduje, jestli jsi přišel pracovat, nebo jen zírat na tmu.";
-      }
+  const visited = localStorage.getItem("rgsInnerVisited");
+  const hour = new Date().getHours();
 
-      if (hour >= 23 || hour <= 4) {
-        gateSub.textContent =
-          "Noční režim. Všichni normální už spí. To je tvoje výhoda.";
-      }
-    });
+  if (!visited) {
+    localStorage.setItem("rgsInnerVisited", "1");
+  } else {
+    gateSub.textContent =
+      "Vstup znáš. Gate sleduje, jestli jsi přišel pracovat, nebo jen zírat na tmu.";
+  }
+
+  if (hour >= 23 || hour <= 4) {
+    gateSub.textContent =
+      "Noční režim. Všichni normální už spí. To je tvoje výhoda.";
+  }
+});
   
 
     // ===== BURN LANE / PRIVNOTE MODUL =====
