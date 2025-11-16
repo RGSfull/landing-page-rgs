@@ -33,21 +33,23 @@ export async function handler(event) {
     });
 
     if (!getRes.ok) {
-      console.error("Redis GET failed:", await getRes.text());
+      const txt = await getRes.text();
+      console.error("Redis GET failed:", txt);
       return { statusCode: 500, body: "Redis error" };
     }
 
-  const json = await getRes.json();
-  console.log("note-read token:", token);
-  console.log("Redis GET json:", JSON.stringify(json));
-  const result = json.result;
+    const json = await getRes.json();
+    console.log("note-read token:", token);
+    console.log("Redis GET json:", JSON.stringify(json));
+
+    const result = json.result;
 
     if (result === null) {
       // note není v Redis – buď expirovala, nebo už byla přečtená
       return { statusCode: 410, body: "Gone" };
     }
 
-    // Burn = delete from Redis
+    // Burn = delete from Redis (fire and forget)
     fetch(`${redisUrl}/del/${token}`, {
       method: "GET",
       headers: { Authorization: `Bearer ${redisToken}` }
@@ -55,9 +57,10 @@ export async function handler(event) {
 
     let payload;
     try {
-      payload = JSON.parse(decodeURIComponent(result));
+      // v Redis máme čistý JSON string, bez URI encodingu
+      payload = JSON.parse(result);
     } catch (e) {
-      console.error("Payload parse error:", e);
+      console.error("Payload parse error:", e, "result:", result);
       return { statusCode: 500, body: "Payload error" };
     }
 
