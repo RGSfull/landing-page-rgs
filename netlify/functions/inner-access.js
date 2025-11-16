@@ -1,67 +1,54 @@
-// netlify/functions/inner-access.js
-// Zapíše inner-access žádost + případný on-chain support do Neon (Postgres).
+import { Client } from "pg";
 
-const { Client } = require("pg");
-
-const DATABASE_URL = process.env.DATABASE_URL;
-
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
-  if (!DATABASE_URL) {
-    return { statusCode: 500, body: "Missing DATABASE_URL" };
-  }
-
+export async function handler(event, context) {
   try {
-    const body = JSON.parse(event.body || "{}");
-
-    const alias   = (body.alias || "").toString().trim();
-    const invite  = (body.invite || "").toString().trim();
-    const contact = (body.contact || "").toString().trim();
-    const role    = (body.role || "").toString().trim();
-    const message = (body.message || "").toString().trim();
-    const chain   = (body.chain || "").toString().trim();
-    const tx      = (body.tx || "").toString().trim();
-    const support = (body.support_message || "").toString().trim();
-
-    if (!alias) {
-      return { statusCode: 400, body: "Missing alias" };
+    if (event.httpMethod !== "POST") {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ ok: true, info: "inner-access alive" })
+      };
     }
 
-    const client = new Client({ connectionString: DATABASE_URL });
+    const data = JSON.parse(event.body || "{}");
+
+    const client = new Client({
+      connectionString:
+        process.env.DATABASE_URL ||
+        process.env.NETLIFY_DATABASE_URL
+    });
+
     await client.connect();
 
-    // 1) inner_access_requests
     await client.query(
       `INSERT INTO inner_access_requests
-       (alias, invite, contact, role_wanted, message, chain, tx_hash, support_note)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [alias, invite, contact, role, message, chain, tx, support]
+      (alias, invite, contact, role_wanted, message, chain, tx_hash, support_note)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [
+        data.alias || null,
+        data.invite || null,
+        data.contact || null,
+        data.role || null,
+        data.message || null,
+        data.chain || null,
+        data.tx || null,
+        data.support_message || null
+      ]
     );
-
-    // 2) support_events – jen když má něco on-chain
-    if (chain || tx) {
-      await client.query(
-        `INSERT INTO support_events (alias, contact, chain, tx_hash, message)
-         VALUES ($1,$2,$3,$4,$5)`,
-        [alias, contact, chain, tx, support]
-      );
-    }
 
     await client.end();
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ok: true })
+      body: JSON.stringify({ ok: true }),
+      headers: { "Content-Type": "application/json" }
     };
-  } catch (err) {
-    console.error("inner-access error:", err);
+
+  } catch (error) {
+    console.error("inner-access error:", error);
     return {
       statusCode: 500,
-      body: "Server error"
+      body: JSON.stringify({ ok: false, error: error.message }),
+      headers: { "Content-Type": "application/json" }
     };
   }
-};
+}
