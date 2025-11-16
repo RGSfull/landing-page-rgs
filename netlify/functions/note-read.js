@@ -1,69 +1,88 @@
 // netlify/functions/note-read.js
-// Jednorázové přečtení: vrátí cipher+iv a smaže klíč z Redis.
+// Burn Lane v2 – jednorázové přečtení, smazání z Redis, burned_at v Neon
 
-const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
-const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+import { Client } from "pg";
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+const connectionString =
+  process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL;
 
-  if (!REDIS_URL || !REDIS_TOKEN) {
-    return { statusCode: 500, body: "Missing Redis config" };
-  }
-
+export async function handler(event) {
   try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
+    }
+
+    if (!redisUrl || !redisToken || !connectionString) {
+      console.error("Missing Redis/DB env");
+      return { statusCode: 500, body: "Server misconfigured" };
+    }
+
     const body = JSON.parse(event.body || "{}");
-    const { token } = body;
+    const token = (body.token || "").trim();
 
     if (!token) {
       return { statusCode: 400, body: "Missing token" };
     }
 
-    // 1) GET
-    const getUrl = `${REDIS_URL}/get/${token}`;
-    const getRes = await fetch(getUrl, {
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+    // Redis GET
+    const getRes = await fetch(`${redisUrl}/get/${token}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${redisToken}` }
     });
 
     if (!getRes.ok) {
-      const text = await getRes.text();
-      return {
-        statusCode: 500,
-        body: `Redis error: ${getRes.status} ${text}`,
-      };
+      console.error("Redis GET failed:", await getRes.text());
+      return { statusCode: 500, body: "Redis error" };
     }
 
-    const getData = await getRes.json();
+    const json = await getRes.json();
+    const result = json.result;
 
-    // Upstash vrací { result: null } když nic není
-    if (!getData || getData.result == null) {
-      return {
-        statusCode: 410, // Gone
-        body: "Note already burned or not found",
-      };
+    if (result === null) {
+      // note není v Redis – buď expirovala, nebo už byla přečtená
+      return { statusCode: 410, body: "Gone" };
     }
 
-    const payloadEncoded = getData.result;
-    const payload = JSON.parse(decodeURIComponent(payloadEncoded));
-
-    // 2) DEL (burn)
-    const delUrl = `${REDIS_URL}/del/${token}`;
-    await fetch(delUrl, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+    // Burn = delete from Redis
+    fetch(`${redisUrl}/del/${token}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${redisToken}` }
     }).catch(() => {});
+
+    let payload;
+    try {
+      payload = JSON.parse(decodeURIComponent(result));
+    } catch (e) {
+      console.error("Payload parse error:", e);
+      return { statusCode: 500, body: "Payload error" };
+    }
+
+    // Update burned_at v Neon
+    const client = new Client({ connectionString });
+    await client.connect();
+
+    await client.query(
+      `UPDATE burn_notes
+       SET burned_at = now()
+       WHERE token = $1 AND burned_at IS NULL`,
+      [token]
+    );
+
+    await client.end();
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload), // { cipher, iv }
+      body: JSON.stringify({
+        ok: true,
+        cipher: payload.cipher,
+        iv: payload.iv
+      })
     };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: "Server error: " + (err && err.message ? err.message : String(err)),
-    };
+    console.error("note-read error:", err);
+    return { statusCode: 500, body: "Server error" };
   }
-};
+}

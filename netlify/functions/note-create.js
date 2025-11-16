@@ -1,63 +1,90 @@
 // netlify/functions/note-create.js
-// Vytvoření burn-note: uloží cipher+iv pod jednorázový token a vrátí token.
+// Burn Lane v2 – vytvoření zprávy (cipher+iv uložené v Redis, metadata v Neon)
 
-const crypto = require("crypto");
+import { Client } from "pg";
+import crypto from "crypto";
 
-const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
-const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const TTL_SECONDS = 60 * 60 * 24; // 24h životnost
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+const connectionString =
+  process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL;
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
-  if (!REDIS_URL || !REDIS_TOKEN) {
-    return { statusCode: 500, body: "Missing Redis config" };
-  }
-
+export async function handler(event) {
   try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
+    }
+
+    if (!redisUrl || !redisToken || !connectionString) {
+      console.error("Missing Redis/DB env");
+      return { statusCode: 500, body: "Server misconfigured" };
+    }
+
     const body = JSON.parse(event.body || "{}");
-    const { cipher, iv } = body;
+    const cipher = (body.cipher || "").trim();
+    const iv = (body.iv || "").trim();
+    let ttlHours = parseInt(body.ttlHours, 10);
+    let slugRaw = (body.slug || "").trim();
 
     if (!cipher || !iv) {
-      return { statusCode: 400, body: "Missing cipher/iv" };
+      return { statusCode: 400, body: "Missing cipher or iv" };
     }
 
-    // token = random, bez pomlček
+    if (isNaN(ttlHours)) ttlHours = 24;
+    ttlHours = Math.min(Math.max(ttlHours, 1), 24);
+    const ttlSeconds = ttlHours * 3600;
+
+    if (!slugRaw) {
+      slugRaw =
+        "note-" +
+        Math.random()
+          .toString(36)
+          .slice(2, 8);
+    }
+
     const token = crypto.randomUUID().replace(/-/g, "");
 
-    const payload = JSON.stringify({ cipher, iv });
+    // Redis: setex token ttl payload
+    const payload = encodeURIComponent(JSON.stringify({ cipher, iv }));
+    const redisRes = await fetch(
+      `${redisUrl}/setex/${token}/${ttlSeconds}/${payload}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${redisToken}`
+        }
+      }
+    );
 
-    // Upstash Redis REST: SETEX token TTL value
-    const url = `${REDIS_URL}/setex/${token}/${TTL_SECONDS}/${encodeURIComponent(
-      payload
-    )}`;
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${REDIS_TOKEN}`,
-      },
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      return {
-        statusCode: 500,
-        body: `Redis error: ${res.status} ${text}`,
-      };
+    if (!redisRes.ok) {
+      console.error("Redis SETEX failed:", await redisRes.text());
+      return { statusCode: 500, body: "Redis error" };
     }
+
+    // Neon: ulož meta info
+    const client = new Client({ connectionString });
+    await client.connect();
+
+    await client.query(
+      `INSERT INTO burn_notes (token, slug, ttl_hours)
+       VALUES ($1,$2,$3)`,
+      [token, slugRaw, ttlHours]
+    );
+
+    await client.end();
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({
+        ok: true,
+        token,
+        slug: slugRaw,
+        ttl_hours: ttlHours
+      })
     };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: "Server error: " + (err && err.message ? err.message : String(err)),
-    };
+    console.error("note-create error:", err);
+    return { statusCode: 500, body: "Server error" };
   }
-};
+}
