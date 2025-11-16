@@ -116,7 +116,6 @@
       margin-right: 12px;
     }
 
-    /* Layout – jen jeden sloupec, chat přes celou šířku */
     .layout {
       display: block;
       margin-bottom: 24px;
@@ -169,7 +168,6 @@
       word-break: break-word;
     }
 
-    /* Odchozí – moje zpráva: vpravo + rose */
     .bubble.me {
       align-self: flex-end;
       background: rgba(245,180,168,0.15);
@@ -177,7 +175,6 @@
       text-align: right;
     }
 
-    /* Příchozí – other: vlevo + neon */
     .bubble.other {
       align-self: flex-start;
       background: rgba(93,242,255,0.12);
@@ -268,11 +265,8 @@
     /* SHADOW ASSISTANT – plovoucí konzole */
     .shadow-card {
       position: fixed;
-      right: 18px;
-      bottom: 18px;
       width: 320px;
       max-width: 80vw;
-      min-height: 180px;
       border-radius: 18px;
       border: 1px solid #312544;
       background:
@@ -281,9 +275,28 @@
         0 0 26px rgba(0,0,0,0.9),
         0 0 40px rgba(93,242,255,0.25);
       pointer-events: auto;
-      animation: floatShadow 16s ease-in-out infinite alternate;
       overflow: hidden;
       z-index: 50;
+      opacity: 1;
+      transform: translate3d(0,0,0) scale(1);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      animation: floatShadow 16s ease-in-out infinite alternate;
+    }
+
+    .shadow-card.hidden {
+      opacity: 0;
+      transform: translate3d(0,30px,0) scale(0.96);
+      pointer-events: none;
+    }
+
+    .shadow-card.collapsed {
+      min-height: 26px;
+      height: 26px;
+    }
+
+    .shadow-card.collapsed small,
+    .shadow-card.collapsed .shadow-log {
+      display: none;
     }
 
     .shadow-card::before {
@@ -298,17 +311,8 @@
       pointer-events: none;
     }
 
-    .shadow-card.collapsed {
-      min-height: 30px;
-      height: 30px;
-    }
-
-    .shadow-card.collapsed .shadow-log {
-      display: none;
-    }
-
-    .shadow-card.collapsed small {
-      display: none;
+    .shadow-card.glitch {
+      animation: shadowGlitch 0.18s steps(2,end) 1;
     }
 
     .shadow-title {
@@ -321,10 +325,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
     }
 
-    .shadow-title span {
+    .shadow-title-main {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .shadow-title-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
       font-size: 0.7rem;
+    }
+
+    .shadow-lang-toggle {
+      cursor: pointer;
+      color: #b3a0ff;
+    }
+
+    .shadow-state-label {
       color: #7cffb2;
     }
 
@@ -337,6 +359,7 @@
       font-size: 0.78rem;
       max-height: 210px;
       overflow-y: auto;
+      position: relative;
     }
 
     .shadow-line {
@@ -348,6 +371,21 @@
       color: #5df2ff;
       font-size: 0.7rem;
       margin-right: 4px;
+    }
+
+    .emoji-rain-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .emoji-drop {
+      position: absolute;
+      top: -24px;
+      font-size: 16px;
+      animation: emojiFall 1.4s linear forwards;
+      opacity: 0.9;
     }
 
     .countdown {
@@ -372,10 +410,10 @@
         transform: translate3d(0,0,0) scale(1);
       }
       50% {
-        transform: translate3d(-4px,-6px,0) scale(1.01);
+        transform: translate3d(-3px,-5px,0) scale(1.01);
       }
       100% {
-        transform: translate3d(3px,3px,0) scale(0.99);
+        transform: translate3d(3px,2px,0) scale(0.99);
       }
     }
 
@@ -384,6 +422,19 @@
       40%  { opacity: 0.4; transform: translateX(20%); }
       60%  { opacity: 0.1; transform: translateX(60%); }
       100% { opacity: 0; transform: translateX(120%); }
+    }
+
+    @keyframes shadowGlitch {
+      0%   { transform: translate(0,0); filter: hue-rotate(0deg); }
+      25%  { transform: translate(-2px,-1px); filter: hue-rotate(40deg); }
+      50%  { transform: translate(2px,1px); filter: hue-rotate(-30deg); }
+      100% { transform: translate(0,0); filter: hue-rotate(0deg); }
+    }
+
+    @keyframes emojiFall {
+      0%   { transform: translateY(-20px); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translateY(120%); opacity: 0; }
     }
   </style>
 </head>
@@ -449,8 +500,13 @@
     <!-- SHADOW ASSISTANT – plovoucí konzole -->
     <div class="card shadow-card" id="shadowCard">
       <div class="shadow-title" id="shadowTitle">
-        <span>shadow console</span>
-        <span id="shadowStateLabel">[open]</span>
+        <div class="shadow-title-main">
+          <span>shadow console</span>
+        </div>
+        <div class="shadow-title-controls">
+          <span class="shadow-lang-toggle" id="shadowLangToggle">CZ</span>
+          <span class="shadow-state-label" id="shadowStateLabel">[open]</span>
+        </div>
       </div>
       <small style="font-size:0.7rem; color:#8c7da5;">
         Čte časování, ne obsah. Komentuje tvoje kroky v Burn Lane.
@@ -560,19 +616,189 @@
     const shadowCard = document.getElementById("shadowCard");
     const shadowTitle = document.getElementById("shadowTitle");
     const shadowStateLabel = document.getElementById("shadowStateLabel");
+    const shadowLangToggle = document.getElementById("shadowLangToggle");
     const shadowLog = document.getElementById("shadowLog");
+
+    let shadowLang = "cs"; // "cs" nebo "en"
+
+    const shadowConfig = {
+      idleFirst: 60000,
+      idleSecond: 180000,
+      heckleEveryMin: 45000,
+      lastIdleNoticed: 0
+    };
+
+    const shadowPositions = [
+      { bottom: "18px", right: "18px", top: "auto", left: "auto" },
+      { bottom: "18px", left: "18px", top: "auto", right: "auto" },
+      { top: "18px", left: "18px", bottom: "auto", right: "auto" },
+      { top: "18px", right: "18px", bottom: "auto", left: "auto" }
+    ];
+    let currentShadowPosIndex = 0;
+    let teleportChain = 0;
+
+    const emojiTriggers = [":)", ":-)", ":D", "😂", "🙂", "😅", "😉"];
+
+    const shadowTexts = {
+      cs: {
+        idle: [
+          "zase ticho · vlákno pořád žije, ty už méně.",
+          "minuta nic · docela drahý timer na koukání.",
+          "burn lane není screensaver, víš o tom?"
+        ],
+        longIdle: [
+          "3 minuty ticha · to už je skoro meditace, ne chat.",
+          "jestli tohle je tvůj komunikační styl, chápu pár ex.",
+          "thread čeká, ty scrolluješ jinde. klasika."
+        ],
+        send: [
+          "no konečně nějaký signál.",
+          "text vypuštěn · karma si ho přebere.",
+          "posláno · jen doufej, že to stálo za klik."
+        ],
+        spawn: [
+          "nové vlákno · jen čas ukáže, jestli zbytečně.",
+          "thread ready · timer běží, ty teprve přemýšlíš.",
+          "nová lane · doufej, že budeš zajímavější než posledně."
+        ],
+        nearEnd: [
+          "čas dohořívá · jestli něco schováváš, tak rychle.",
+          "TTL skoro nula · tvá oblíbená disciplína: odkládání.",
+          "za chvíli tma · jestli máš co říct, tak teď."
+        ],
+        random: [
+          "víc mačkáš Backspace než Send. poznám typ.",
+          "už teď vím, že tohle vlákno skončí divně.",
+          "někdo chodí ven, ty si povídáš s consolem. respekt.",
+          "jestli to screenshotuješ, totálně míjíš pointu.",
+          "pořád lepší psát sem než ex na IG.",
+          "ty znaky už ti nikdo nevrátí. dobrý trade."
+        ],
+        emoji: [
+          "smajlík jo? to je tvoje bezpečné slovo.",
+          "aha, emoce. systém si je zapíše do složky 'podezřelé'.",
+          "emoji detected · lidskost potvrzena, stabilita nejistá."
+        ]
+      },
+      en: {
+        idle: [
+          "one minute of silence · impressive commitment to doing nothing.",
+          "idle again · this thread has more patience than your ex.",
+          "you opened a burn lane just to stare at it. iconic."
+        ],
+        longIdle: [
+          "3 minutes of silence · this is no longer a chat, it's a museum.",
+          "thread alive, user brain on standby. good combo.",
+          "you're treating this like a diary you never write in."
+        ],
+        send: [
+          "finally, a neuron fired.",
+          "message launched · consequences pending.",
+          "you pressed send · bold move for a Tuesday."
+        ],
+        spawn: [
+          "new thread spawned · let's see how fast you waste it.",
+          "fresh lane online · you already look suspicious.",
+          "thread ready · your overthinking starts now."
+        ],
+        nearEnd: [
+          "TTL almost zero · like your attention span.",
+          "clock redlining · say something or let it die.",
+          "this thread is fading faster than your motivation."
+        ],
+        random: [
+          "you’re talking to a floating console instead of a human. solid priorities.",
+          "if overthinking was a currency, you’d own this app.",
+          "some people meditate, you open encrypted threads. fair.",
+          "if you're screenshotting this, you missed the point.",
+          "you deleted more drafts than you sent. relatable.",
+          "this is either genius or a cry for help. hard to tell."
+        ],
+        emoji: [
+          "emoji, huh? emotional damage but make it cute.",
+          "you dropped a smiley in an ephemeral thread. brave.",
+          "emoji detected · humanity confirmed, stability questionable."
+        ]
+      }
+    };
 
     function bumpActivity() {
       lastActivity = Date.now();
     }
 
-    function logShadow(msg) {
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function applyShadowPos(index) {
+      if (!shadowCard) return;
+      const pos = shadowPositions[index];
+      shadowCard.style.bottom = pos.bottom;
+      shadowCard.style.top = pos.top;
+      shadowCard.style.left = pos.left;
+      shadowCard.style.right = pos.right;
+    }
+
+    function teleportShadow() {
+      if (!shadowCard) return;
+      let next = currentShadowPosIndex;
+      while (next === currentShadowPosIndex) {
+        next = Math.floor(Math.random() * shadowPositions.length);
+      }
+      currentShadowPosIndex = next;
+      applyShadowPos(next);
+      shadowCard.classList.add("glitch");
+      setTimeout(() => shadowCard.classList.remove("glitch"), 180);
+    }
+
+    function maybeTeleport() {
+      if (!shadowCard) return;
+      if (Math.random() < 0.4 || teleportChain > 0) {
+        teleportShadow();
+        teleportChain++;
+        if (teleportChain >= 3) teleportChain = 0;
+      }
+    }
+
+    function emojiRain() {
+      if (!shadowLog) return;
+      const layer = document.createElement("div");
+      layer.className = "emoji-rain-layer";
+      const emojis = ["😂", "🙂", "😅", "😉", "🤡"];
+      const drops = 14;
+      for (let i = 0; i < drops; i++) {
+        const span = document.createElement("span");
+        span.className = "emoji-drop";
+        span.textContent = pick(emojis);
+        span.style.left = Math.random() * 100 + "%";
+        span.style.animationDelay = (Math.random() * 0.6) + "s";
+        layer.appendChild(span);
+      }
+      shadowLog.appendChild(layer);
+      setTimeout(() => {
+        layer.remove();
+      }, 1600);
+    }
+
+    function textHasEmojiTrigger(text) {
+      return emojiTriggers.some(e => text.includes(e));
+    }
+
+    function logShadow(rawText) {
+      if (!shadowLog) return;
       const line = document.createElement("div");
       line.className = "shadow-line";
       const ts = new Date().toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
-      line.innerHTML = `<span>[${ts}]</span> ${msg}`;
+      line.innerHTML = `<span>[${ts}]</span> ${rawText}`;
       shadowLog.appendChild(line);
       shadowLog.scrollTop = shadowLog.scrollHeight;
+
+      if (Math.random() < 0.25 && shadowCard) {
+        shadowCard.classList.add("glitch");
+        setTimeout(() => shadowCard.classList.remove("glitch"), 200);
+      }
+
+      showShadow(true);
     }
 
     function setThreadInfo(text) {
@@ -595,10 +821,9 @@
       const minutes = Math.floor(diffMs / 60000);
       const seconds = Math.floor((diffMs % 60000) / 1000);
       countdownEl.textContent = `TTL: ${minutes}m ${seconds}s`;
-
-      if (minutes === 0 && seconds < 30) {
-        // dramatickej konec
-        logShadow("clock redlining · thread almost dead.");
+      if (minutes === 0 && seconds < 30 && Math.random() < 0.2) {
+        const txt = pick(shadowTexts[shadowLang].nearEnd);
+        logShadow(txt);
       }
     }
 
@@ -639,7 +864,9 @@
         if (res.status === 410) {
           const data = await res.json().catch(() => null);
           setThreadInfo("Vlákno je expirované nebo zavřené.");
-          logShadow("thread marked as dead · only ghosts left.");
+          logShadow(shadowLang === "cs"
+            ? "thread mrtvý · zbyly jen logy."
+            : "thread is dead · only logs remain.");
           chatInput.disabled = true;
           chatSendBtn.disabled = true;
           if (data && data.expires_at) {
@@ -651,7 +878,9 @@
 
         if (!res.ok) {
           setThreadInfo("Server odpověděl divně. Zkus reload.");
-          logShadow("backend mumbles · bad response.");
+          logShadow(shadowLang === "cs"
+            ? "backend mluví v jazyce chyb. zkus to později."
+            : "backend answered in errors. try again later.");
           return;
         }
 
@@ -674,14 +903,18 @@
         }
       } catch (e) {
         console.error("loadThread error", e);
-        logShadow("can't reach the archive · something between us and Neon.");
+        logShadow(shadowLang === "cs"
+          ? "něco se rozpadlo mezi námi a DB."
+          : "something broke between us and the DB.");
       }
     }
 
     async function sendMessage() {
       if (!threadToken || !threadKey) {
         threadStatus.textContent = "Nejdřív vytvoř nebo načti vlákno.";
-        logShadow("no thread, no signal. create one first.");
+        logShadow(shadowLang === "cs"
+          ? "nejdřív vlákno, pak drama."
+          : "thread first, drama after.");
         return;
       }
       const text = (chatInput.value || "").trim();
@@ -706,7 +939,9 @@
 
         if (res.status === 410) {
           setThreadInfo("Vlákno vypršelo. Tuhle zprávu už nevložíme.");
-          logShadow("message dropped · you tried to talk to a corpse.");
+          logShadow(shadowLang === "cs"
+            ? "zkoušíš mluvit na mrtvé vlákno. cute."
+            : "trying to talk to a dead thread. adorable.");
           chatInput.disabled = true;
           chatSendBtn.disabled = true;
           return;
@@ -714,15 +949,27 @@
 
         if (!res.ok) {
           threadStatus.textContent = "Server odmítl zprávu. Zkus to znovu.";
-          logShadow("backend said no · try again later.");
+          logShadow(shadowLang === "cs"
+            ? "server řekl ne. zkus to znova."
+            : "server said no. try again.");
           return;
         }
 
-        logShadow("signal sent · syncing with thread.");
+        if (textHasEmojiTrigger(text)) {
+          const txt = pick(shadowTexts[shadowLang].emoji);
+          logShadow(txt);
+          emojiRain();
+        } else {
+          const txt = pick(shadowTexts[shadowLang].send);
+          logShadow(txt);
+        }
+
         await loadThread();
       } catch (e) {
         console.error("sendMessage error", e);
-        logShadow("send failed · line cut.");
+        logShadow(shadowLang === "cs"
+          ? "poslání selhalo · linka přestřižená."
+          : "send failed · line cut.");
       }
     }
 
@@ -733,13 +980,17 @@
         });
         if (!res.ok) {
           setThreadInfo("Server odmítl vytvořit vlákno.");
-          logShadow("thread spawn failed · backend sulking.");
+          logShadow(shadowLang === "cs"
+            ? "thread spawn fail · backend trucuje."
+            : "thread spawn failed · backend sulking.");
           return;
         }
         const data = await res.json();
         if (!data.ok) {
           setThreadInfo("Vytvoření vlákna selhalo.");
-          logShadow("thread spawn returned nonsense.");
+          logShadow(shadowLang === "cs"
+            ? "thread spawn vrátil blbosti."
+            : "thread spawn returned nonsense.");
           return;
         }
 
@@ -760,7 +1011,7 @@
         history.replaceState(null, "", url.toString());
 
         setThreadInfo("Vlákno vytvořené. Link sdílej celý (včetně #...).");
-        logShadow("thread spawned · TTL 1h · don't waste it.");
+        logShadow(pick(shadowTexts[shadowLang].spawn));
         startCountdown();
         chatInput.disabled = false;
         chatSendBtn.disabled = false;
@@ -768,7 +1019,9 @@
       } catch (e) {
         console.error("createThread error", e);
         setThreadInfo("Něco se pokazilo při vytváření vlákna.");
-        logShadow("thread spawn exception · reality glitched.");
+        logShadow(shadowLang === "cs"
+          ? "thread spawn exception · realita se zadrhla."
+          : "thread spawn exception · reality glitched.");
       }
     }
 
@@ -780,7 +1033,9 @@
 
       if (!token && !keyStr) {
         setThreadInfo("Žádné vlákno. Klikni na Start new thread.");
-        logShadow("no thread token · idle mode.");
+        logShadow(shadowLang === "cs"
+          ? "bez threadu tu jen stojíš v prázdnu."
+          : "no thread · just you and the void.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
         return;
@@ -788,7 +1043,9 @@
 
       if (token && !keyStr) {
         setThreadInfo("Vlákno má token, ale chybí šifrovací klíč (#...). Bez něj nečteme.");
-        logShadow("thread token without key · half link, half joke.");
+        logShadow(shadowLang === "cs"
+          ? "thread token bez klíče · půl linku, půl vtip."
+          : "thread token without key · half link, half joke.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
         return;
@@ -796,7 +1053,9 @@
 
       if (!token && keyStr) {
         setThreadInfo("Máš klíč, ale žádné vlákno (parametr ?t=...). Link je neúplný.");
-        logShadow("key present, thread missing · someone cut the URL.");
+        logShadow(shadowLang === "cs"
+          ? "klíč máš, thread ne · někdo seřízl URL."
+          : "you have the key, but no thread · someone cut the URL.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
         return;
@@ -811,40 +1070,145 @@
         setThreadInfo("Vlákno z URL. Čtu šifrovaný thread...");
         chatInput.disabled = false;
         chatSendBtn.disabled = false;
-        logShadow("thread key imported · listening in the dark.");
+        logShadow(shadowLang === "cs"
+          ? "klíč sedí · poslouchám ve tmě."
+          : "key imported · listening in the dark.");
 
         await loadThread();
         setInterval(loadThread, 5000);
       } catch (e) {
         console.error("initFromUrl error", e);
         setThreadInfo("Klíč nešel importovat. Link je poškozený.");
-        logShadow("key import failed · someone mangled the hash.");
+        logShadow(shadowLang === "cs"
+          ? "klíč je rozbitý · někdo mu ublížil po cestě."
+          : "key import failed · someone mangled the hash.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
+      }
+    }
+
+    function showShadow(force = false) {
+      if (!shadowCard) return;
+      if (force) {
+        shadowCard.classList.remove("hidden");
+        shadowStateLabel.textContent = "[open]";
+        return;
+      }
+      if (Math.random() < 0.5) {
+        shadowCard.classList.remove("hidden");
+        shadowStateLabel.textContent = "[open]";
+      }
+    }
+
+    function hideShadowRandomly() {
+      if (!shadowCard) return;
+      const diff = Date.now() - lastActivity;
+      if (diff > 30000 && Math.random() < 0.35) {
+        shadowCard.classList.add("hidden");
+        shadowStateLabel.textContent = "[hidden]";
       }
     }
 
     function setupShadowIdleWatcher() {
       setInterval(() => {
         const diff = Date.now() - lastActivity;
-        if (diff > 60000 && diff < 62000) {
-          logShadow("you went quiet · thread still breathing.");
+
+        if (diff > shadowConfig.idleFirst &&
+            shadowConfig.lastIdleNoticed < shadowConfig.idleFirst) {
+          shadowConfig.lastIdleNoticed = shadowConfig.idleFirst;
+          const txt = pick(shadowTexts[shadowLang].idle);
+          logShadow(txt);
         }
-        if (diff > 180000 && diff < 182000) {
-          logShadow("3 minutes of silence · silence is also a message.");
+
+        if (diff > shadowConfig.idleSecond &&
+            shadowConfig.lastIdleNoticed < shadowConfig.idleSecond) {
+          shadowConfig.lastIdleNoticed = shadowConfig.idleSecond;
+          const txt = pick(shadowTexts[shadowLang].longIdle);
+          logShadow(txt);
         }
+
+        hideShadowRandomly();
       }, 10000);
+    }
+
+    function setupShadowHeckler() {
+      setInterval(() => {
+        const diff = Date.now() - lastActivity;
+        if (diff < 15000) return;
+        if (Math.random() < 0.35) {
+          const txt = pick(shadowTexts[shadowLang].random);
+          logShadow(txt);
+        }
+      }, shadowConfig.heckleEveryMin);
     }
 
     function setupShadowToggle() {
       if (!shadowCard || !shadowTitle || !shadowStateLabel) return;
-      shadowTitle.addEventListener("click", () => {
-        const collapsed = shadowCard.classList.toggle("collapsed");
-        shadowStateLabel.textContent = collapsed ? "[hidden]" : "[open]";
+
+      shadowTitle.addEventListener("click", (e) => {
+        // když klikáš na header, může se teleportnout
+        maybeTeleport();
+      });
+
+      shadowCard.addEventListener("click", (e) => {
+        // Klik mimo lang toggle – občas teleport
+        if (e.target === shadowLangToggle) return;
+        if (!shadowTitle.contains(e.target)) {
+          maybeTeleport();
+        }
+      });
+    }
+
+    async function handleLangSwitch() {
+      const prev = shadowLang;
+      const next = prev === "cs" ? "en" : "cs";
+
+      // speciální scénář při přepnutí
+      if (prev === "en" && next === "cs") {
+        // en -> cs
+        logShadow("So you want Czech now? Cute. \"We totally don't speak English.\"");
+        logShadow("Anyway, let me reboot into your comfort language so you can overthink properly.");
+        shadowCard.classList.add("hidden");
+        setTimeout(() => {
+          // přepneme jazyk
+          shadowLang = "cs";
+          if (shadowLangToggle) shadowLangToggle.textContent = "CZ";
+          if (shadowLog) shadowLog.innerHTML = "";
+          shadowCard.classList.remove("hidden");
+          shadowStateLabel.textContent = "[open]";
+          logShadow("Restart do češtiny hotový. Spokojený, nebo ještě reset ega?");
+        }, 900);
+      } else if (prev === "cs" && next === "en") {
+        // cs -> en
+        logShadow("A máme tu chytráka v angličtině. To jsou mi věci.");
+        logShadow("Fine. Switching to English so your inner monologue can sound smarter than it is.");
+        shadowCard.classList.add("hidden");
+        setTimeout(() => {
+          shadowLang = "en";
+          if (shadowLangToggle) shadowLangToggle.textContent = "EN";
+          if (shadowLog) shadowLog.innerHTML = "";
+          shadowCard.classList.remove("hidden");
+          shadowStateLabel.textContent = "[open]";
+          logShadow("Reboot complete. Language upgraded, judgment unchanged.");
+        }, 900);
+      } else {
+        // fallback, kdyby se něco pokazilo
+        shadowLang = next;
+        if (shadowLangToggle) shadowLangToggle.textContent = next === "cs" ? "CZ" : "EN";
+      }
+    }
+
+    function setupLangToggle() {
+      if (!shadowLangToggle) return;
+      shadowLangToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleLangSwitch();
       });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      applyShadowPos(currentShadowPosIndex);
+
       if (createThreadBtn) {
         createThreadBtn.addEventListener("click", () => {
           createThread();
@@ -864,8 +1228,14 @@
         });
       }
 
+      if (shadowCard && shadowStateLabel) {
+        shadowStateLabel.textContent = "[open]";
+      }
+
       setupShadowToggle();
+      setupLangToggle();
       setupShadowIdleWatcher();
+      setupShadowHeckler();
       initFromUrl();
     });
   </script>
