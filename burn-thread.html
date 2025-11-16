@@ -589,52 +589,46 @@
     }
 
     async function sendMessage() {
-      if (!threadToken || !threadKey) {
-        threadStatus.textContent = "Nejdřív vytvoř nebo načti vlákno.";
-        return;
-      }
-      const text = (chatInput.value || "").trim();
-      if (!text) return;
-      chatInput.value = "";
+  if (!threadToken || !threadKey) {
+    threadStatus.textContent = "Nejdřív vytvoř nebo načti vlákno.";
+    return;
+  }
+  const text = (chatInput.value || "").trim();
+  if (!text) return;
+  chatInput.value = "";
 
-      try {
-        const { cipherB64, ivB64 } = await encryptText(threadKey, text);
-        const res = await fetch("/.netlify/functions/thread-post", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            token: threadToken,
-            cipher: cipherB64,
-            iv: ivB64
-          })
-        });
+  try {
+    const { cipherB64, ivB64 } = await encryptText(threadKey, text);
+    const res = await fetch("/.netlify/functions/thread-post", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: threadToken,
+        cipher: cipherB64,
+        iv: ivB64
+      })
+    });
 
-        if (res.status === 410) {
-          setThreadInfo("Vlákno vypršelo. Tuhle zprávu už nevložíme.");
-          logShadow("message dropped; thread is dead.");
-          chatInput.disabled = true;
-          chatSendBtn.disabled = true;
-          return;
-        }
-
-        if (!res.ok) {
-          threadStatus.textContent = "Server odmítl zprávu. Zkus to znovu.";
-          return;
-        }
-
-        // Lokálně zobraz hned
-        renderMessageBubble(
-          "local-" + Date.now(),
-          new Date().toISOString(),
-          text,
-          true
-        );
-
-        logShadow("signal sent.");
-      } catch (e) {
-        console.error("sendMessage error", e);
-      }
+    if (res.status === 410) {
+      setThreadInfo("Vlákno vypršelo. Tuhle zprávu už nevložíme.");
+      logShadow("message dropped; thread is dead.");
+      chatInput.disabled = true;
+      chatSendBtn.disabled = true;
+      return;
     }
+
+    if (!res.ok) {
+      threadStatus.textContent = "Server odmítl zprávu. Zkus to znovu.";
+      return;
+    }
+
+    // Žádné lokální bubliny – počkáme na server
+    logShadow("signal sent; syncing with thread...");
+    await loadThread();
+  } catch (e) {
+    console.error("sendMessage error", e);
+  }
+}
 
     async function createThread() {
       try {
