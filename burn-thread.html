@@ -174,7 +174,7 @@
       word-break: break-word;
     }
 
-    /* Odchozí – moje zpráva: vpravo + rose/neon */
+    /* Odchozí – moje zpráva: vpravo + rose */
     .bubble.me {
       align-self: flex-end;
       background: rgba(245,180,168,0.15);
@@ -182,7 +182,7 @@
       text-align: right;
     }
 
-    /* Příchozí – other: vlevo + neon mlha */
+    /* Příchozí – other: vlevo + neon */
     .bubble.other {
       align-self: flex-start;
       background: rgba(93,242,255,0.12);
@@ -360,7 +360,7 @@
           </div>
 
           <div class="chat-window" id="chatWindow">
-            <!-- bubliny -->
+            <!-- zprávy -->
           </div>
 
           <div class="chat-input-row">
@@ -478,6 +478,7 @@
     let threadKey = null;
     let threadKeyB64 = null;
     let lastMessageIds = new Set();
+    let mySentSignatures = new Set(); // podpisy mých zpráv (cipher|iv) pro rozlišení me/other
     let expiresAt = null;
     let countdownTimer = null;
 
@@ -583,7 +584,8 @@
         for (const msg of messages) {
           try {
             const plain = await decryptText(threadKey, msg.cipher, msg.iv);
-            const isMe = false; // vlákno je anonymní
+            const sig = msg.cipher + "|" + msg.iv;
+            const isMe = mySentSignatures.has(sig);
             renderMessageBubble(msg.id, msg.created_at, plain, isMe);
           } catch {
             // ignore decrypt errors
@@ -605,6 +607,9 @@
 
       try {
         const { cipherB64, ivB64 } = await encryptText(threadKey, text);
+        const signature = cipherB64 + "|" + ivB64; // zapamatuj si, co jsi poslal
+        mySentSignatures.add(signature);
+
         const res = await fetch("/.netlify/functions/thread-post", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -628,7 +633,6 @@
           return;
         }
 
-        // žádné lokální bubliny – počkáme na server
         logShadow("signal sent; syncing with thread...");
         await loadThread();
       } catch (e) {
@@ -653,8 +657,10 @@
 
         threadToken = data.token;
         expiresAt = data.expires_at;
+        mySentSignatures = new Set();
+        lastMessageIds = new Set();
+        chatWindow.innerHTML = "";
 
-        // vygeneruj klíč a zapiš do hash
         const { key, keyB64 } = await generateThreadKey();
         threadKey = key;
         threadKeyB64 = keyB64;
@@ -706,7 +712,6 @@
         return;
       }
 
-      // máme obojí
       try {
         threadToken = token;
         threadKeyB64 = keyStr;
@@ -718,7 +723,6 @@
         logShadow("thread key imported. listening...");
 
         await loadThread();
-        // Polling – soft
         setInterval(loadThread, 5000);
       } catch (e) {
         console.error("initFromUrl error", e);
