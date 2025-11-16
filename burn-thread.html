@@ -165,23 +165,29 @@
     }
 
     .bubble {
-      max-width: 78%;
-      padding: 6px 10px;
-      border-radius: 12px;
-      font-size: 0.8rem;
+      max-width: 75%;
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin: 4px 0;
       line-height: 1.4;
+      font-size: 0.88rem;
+      word-break: break-word;
     }
 
+    /* Odchozí – moje zpráva: vpravo + rose/neon */
     .bubble.me {
-      margin-left: auto;
-      background: radial-gradient(circle at top, #1b6070, #07141a);
-      border: 1px solid #4ccde0;
+      align-self: flex-end;
+      background: rgba(245,180,168,0.15);
+      border: 1px solid rgba(245,180,168,0.4);
+      text-align: right;
     }
 
+    /* Příchozí – other: vlevo + neon mlha */
     .bubble.other {
-      margin-right: auto;
-      background: radial-gradient(circle at top, #321531, #090511);
-      border: 1px solid #5b3a70;
+      align-self: flex-start;
+      background: rgba(93,242,255,0.12);
+      border: 1px solid rgba(93,242,255,0.25);
+      text-align: left;
     }
 
     .bubble-meta {
@@ -589,46 +595,46 @@
     }
 
     async function sendMessage() {
-  if (!threadToken || !threadKey) {
-    threadStatus.textContent = "Nejdřív vytvoř nebo načti vlákno.";
-    return;
-  }
-  const text = (chatInput.value || "").trim();
-  if (!text) return;
-  chatInput.value = "";
+      if (!threadToken || !threadKey) {
+        threadStatus.textContent = "Nejdřív vytvoř nebo načti vlákno.";
+        return;
+      }
+      const text = (chatInput.value || "").trim();
+      if (!text) return;
+      chatInput.value = "";
 
-  try {
-    const { cipherB64, ivB64 } = await encryptText(threadKey, text);
-    const res = await fetch("/.netlify/functions/thread-post", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: threadToken,
-        cipher: cipherB64,
-        iv: ivB64
-      })
-    });
+      try {
+        const { cipherB64, ivB64 } = await encryptText(threadKey, text);
+        const res = await fetch("/.netlify/functions/thread-post", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: threadToken,
+            cipher: cipherB64,
+            iv: ivB64
+          })
+        });
 
-    if (res.status === 410) {
-      setThreadInfo("Vlákno vypršelo. Tuhle zprávu už nevložíme.");
-      logShadow("message dropped; thread is dead.");
-      chatInput.disabled = true;
-      chatSendBtn.disabled = true;
-      return;
+        if (res.status === 410) {
+          setThreadInfo("Vlákno vypršelo. Tuhle zprávu už nevložíme.");
+          logShadow("message dropped; thread is dead.");
+          chatInput.disabled = true;
+          chatSendBtn.disabled = true;
+          return;
+        }
+
+        if (!res.ok) {
+          threadStatus.textContent = "Server odmítl zprávu. Zkus to znovu.";
+          return;
+        }
+
+        // žádné lokální bubliny – počkáme na server
+        logShadow("signal sent; syncing with thread...");
+        await loadThread();
+      } catch (e) {
+        console.error("sendMessage error", e);
+      }
     }
-
-    if (!res.ok) {
-      threadStatus.textContent = "Server odmítl zprávu. Zkus to znovu.";
-      return;
-    }
-
-    // Žádné lokální bubliny – počkáme na server
-    logShadow("signal sent; syncing with thread...");
-    await loadThread();
-  } catch (e) {
-    console.error("sendMessage error", e);
-  }
-}
 
     async function createThread() {
       try {
