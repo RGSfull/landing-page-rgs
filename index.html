@@ -1114,6 +1114,14 @@
       margin-top: 6px;
     }
 
+    /* Burn Lane schovaný defaultně */
+    #burn-lane {
+      display: none;
+    }
+    body.burn-unlocked #burn-lane {
+      display: block;
+    }
+
     .footer {
       text-align: center;
       padding: 18px;
@@ -1280,6 +1288,19 @@
               která z toho dokáže skládat další krok – ne jen hezké věty.
             </p>
           </div>
+
+          <!-- Burn Lane unlock -->
+          <div class="ultra-lock" style="margin-top: 14px;">
+            <input
+              id="burnUnlockInput"
+              class="ultra-input"
+              type="password"
+              placeholder="BURN LANE CODE"
+              autocomplete="off"
+            />
+            <button class="ultra-btn" id="burnUnlockBtn">Unlock Burn Lane</button>
+          </div>
+          <p class="ultra-status" id="burnUnlockStatus"></p>
         </div>
 
         <!-- SINGLE CULT FORM -->
@@ -1626,8 +1647,8 @@
             </div>
           </div>
         </div>
-		
-		<!-- BURN LANE / PRIVNOTE -->
+
+        <!-- BURN LANE / PRIVNOTE -->
         <div class="form-section" id="burn-lane">
           <div class="divider" style="margin-top:40px;">
             <div class="divider-line"></div>
@@ -1727,6 +1748,7 @@
     const ULTRA_CODE      = decodeSeq(_encUltra);
     const OWNER_DASH_CODE = decodeSeq(_encOwner);
     const GLYPH_SEQUENCE  = ["◎", "Σ", "Ψ"];
+    const BURN_CODE       = "BURN-LANE-777";
 
     const inviteInput = document.getElementById("inviteInput");
     const gateBtn = document.getElementById("gateBtn");
@@ -1798,7 +1820,6 @@
       }, 350);
     }
 
-    // Logování pokusu do Netlify Forms (gate-log)
     function logGateAttempt(resultType, codeOk, seqOk) {
       const formName = "gate-log";
       const glyphSeq = glyphClicks.join("");
@@ -1821,9 +1842,7 @@
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: data.toString()
-      }).catch(() => {
-        // když log failne, neřešíme – gate musí reagovat dál
-      });
+      }).catch(() => {});
     }
 
     function checkGate() {
@@ -1837,7 +1856,6 @@
       else if (!codeOk) resultType = "bad_code";
       else resultType = "bad_seq";
 
-      // log vždy, bez ohledu na výsledek
       logGateAttempt(resultType, codeOk, seqOk);
 
       if (!codeOk && !seqOk) {
@@ -1922,17 +1940,13 @@
       matrixCanvas.style.opacity = 0;
     }
 
-    window.addEventListener("resize", () => {
-      if (!matrixCanvas) return;
-      initMatrixCanvas();
-    });
-
     function triggerMatrixAndReveal() {
       startMatrix();
 
       setTimeout(() => {
-	  
-	  localStorage.setItem("rgsInnerUnlocked", "1");
+        // zapamatuj si, že zařízení prošlo bránou
+        localStorage.setItem("rgsInnerUnlocked", "1");
+
         document.body.classList.add("unlocked");
         gateWrapper.style.display = "none";
         matrixCanvas.style.opacity = 0;
@@ -1968,6 +1982,26 @@
         checkUltra();
       }
     });
+
+    // Burn Lane unlock
+    const burnUnlockInput = document.getElementById("burnUnlockInput");
+    const burnUnlockBtn = document.getElementById("burnUnlockBtn");
+    const burnUnlockStatus = document.getElementById("burnUnlockStatus");
+
+    if (burnUnlockBtn && burnUnlockInput && burnUnlockStatus) {
+      burnUnlockBtn.addEventListener("click", () => {
+        const val = normaliseCode(burnUnlockInput.value);
+        if (val === BURN_CODE) {
+          document.body.classList.add("burn-unlocked");
+          localStorage.setItem("rgsBurnLaneUnlocked", "1");
+          burnUnlockStatus.textContent = "Burn Lane je otevřená.";
+          burnUnlockStatus.className = "ultra-status ok";
+        } else {
+          burnUnlockStatus.textContent = "Tohle není kód pro Burn Lane.";
+          burnUnlockStatus.className = "ultra-status err";
+        }
+      });
+    }
 
     // FEATURE DASHBOARD DATA
     const features = [
@@ -2150,8 +2184,6 @@
       }
     });
 
-    renderDashboard();
-
     // Support Wall napojení na formulář (lokálně + Netlify)
     const accessForm = document.querySelector('form[name="inner-access"]');
     const supportDynamicList = document.getElementById("supportDynamicList");
@@ -2203,34 +2235,42 @@
       });
     }
 
-    // Kontext gate textu (noc / opakovaná návštěva)
-document.addEventListener("DOMContentLoaded", () => {
-  const unlocked = localStorage.getItem("rgsInnerUnlocked");
-  if (unlocked === "1") {
-    document.body.classList.add("unlocked");
-    if (gateWrapper) gateWrapper.style.display = "none";
-    if (matrixCanvas) matrixCanvas.style.opacity = 0;
-  }
+    // Kontext gate textu (noc / opakovaná návštěva + Burn Lane unlock)
+    document.addEventListener("DOMContentLoaded", () => {
+      // skip gate, pokud už byla odemčena
+      const unlocked = localStorage.getItem("rgsInnerUnlocked");
+      if (unlocked === "1") {
+        document.body.classList.add("unlocked");
+        if (gateWrapper) gateWrapper.style.display = "none";
+        if (matrixCanvas) matrixCanvas.style.opacity = 0;
+      }
 
-  const visited = localStorage.getItem("rgsInnerVisited");
-  const hour = new Date().getHours();
+      // respektuj Burn Lane unlock
+      const burnUnlocked = localStorage.getItem("rgsBurnLaneUnlocked");
+      if (burnUnlocked === "1") {
+        document.body.classList.add("burn-unlocked");
+      }
 
-  if (!visited) {
-    localStorage.setItem("rgsInnerVisited", "1");
-  } else {
-    gateSub.textContent =
-      "Vstup znáš. Gate sleduje, jestli jsi přišel pracovat, nebo jen zírat na tmu.";
-  }
+      const visited = localStorage.getItem("rgsInnerVisited");
+      const hour = new Date().getHours();
 
-  if (hour >= 23 || hour <= 4) {
-    gateSub.textContent =
-      "Noční režim. Všichni normální už spí. To je tvoje výhoda.";
-  }
-});
-  
+      if (!visited) {
+        localStorage.setItem("rgsInnerVisited", "1");
+      } else {
+        gateSub.textContent =
+          "Vstup znáš. Gate sleduje, jestli jsi přišel pracovat, nebo jen zírat na tmu.";
+      }
+
+      if (hour >= 23 || hour <= 4) {
+        gateSub.textContent =
+          "Noční režim. Všichni normální už spí. To je tvoje výhoda.";
+      }
+
+      renderDashboard();
+    });
 
     // ===== BURN LANE / PRIVNOTE MODUL =====
-    // helpers pro base64url
+
     function b64urlEncode(bytes) {
       let str = "";
       bytes = new Uint8Array(bytes);
@@ -2256,8 +2296,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function encryptBurnNote(plainText) {
       const enc = new TextEncoder();
-      const keyBytes = crypto.getRandomValues(new Uint8Array(32)); // 256-bit
-      const ivBytes = crypto.getRandomValues(new Uint8Array(12)); // GCM standard
+      const keyBytes = crypto.getRandomValues(new Uint8Array(32));
+      const ivBytes = crypto.getRandomValues(new Uint8Array(12));
 
       const key = await crypto.subtle.importKey(
         "raw",
@@ -2396,7 +2436,6 @@ document.addEventListener("DOMContentLoaded", () => {
         readStatus.style.color = "#7cffb2";
         readStatus.textContent = "Tohle je jediné zobrazení téhle zprávy. Po reloadu je pryč.";
 
-        // spálit URL – odstranit token i key z adresy
         history.replaceState(null, "", window.location.pathname + "#burned");
       } catch (err) {
         readBox.textContent = "";
@@ -2406,7 +2445,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Hooky pro Burn Lane
     document.addEventListener("DOMContentLoaded", () => {
       const burnBtn = document.getElementById("burnCreateBtn");
       if (burnBtn) {
