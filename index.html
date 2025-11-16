@@ -336,6 +336,33 @@
       margin-bottom: 8px;
     }
 
+    .top-nav-links {
+      margin-top: 14px;
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .top-nav-link {
+      border-radius: 999px;
+      border: 1px solid #3a3152;
+      background: rgba(5, 2, 16, 0.9);
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #c5c0f0;
+      cursor: pointer;
+    }
+
+    .top-nav-link:hover {
+      border-color: var(--neon);
+      color: var(--neon);
+      box-shadow: 0 0 12px rgba(93,242,255,0.45);
+      transform: translateY(-1px);
+    }
+
     .content-title {
       font-size: 1.6rem;
       letter-spacing: 0.08em;
@@ -1335,6 +1362,15 @@
             organismus. Social lane, marker, wallet, reputace a vlastní AI entita
             v jednom kódu.
           </p>
+		  <div class="top-nav-links">
+            <button
+              class="top-nav-link"
+              type="button"
+              onclick="scrollToSection('burn-lane')"
+            >
+              Burn Lane · one-shot notes
+            </button>
+          </div>
         </div>
 
         <div class="content-grid">
@@ -2007,6 +2043,19 @@
     const OWNER_DASH_CODE = decodeSeq(_encOwner);
     const GLYPH_SEQUENCE  = ["◎", "Σ", "Ψ"];
     const BURN_CODE       = "BURN-LANE-777";
+	
+	function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      try {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch {
+        const rect = el.getBoundingClientRect();
+        const target = rect.top + window.pageYOffset - 20;
+        window.scrollTo(0, target);
+      }
+    }
 
   const burnTtlInput  = document.getElementById("burnTtl");
   const burnTtlLabel  = document.getElementById("burnTtlLabel");
