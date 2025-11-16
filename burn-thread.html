@@ -116,15 +116,10 @@
       margin-right: 12px;
     }
 
+    /* Layout – jen jeden sloupec, chat přes celou šířku */
     .layout {
-      display: grid;
-      gap: 16px;
-    }
-
-    @media (min-width: 900px) {
-      .layout {
-        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
-      }
+      display: block;
+      margin-bottom: 24px;
     }
 
     .card {
@@ -270,18 +265,77 @@
       margin-top: 6px;
     }
 
+    /* SHADOW ASSISTANT – plovoucí konzole */
     .shadow-card {
-      min-height: 260px;
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 320px;
+      max-width: 80vw;
+      min-height: 180px;
+      border-radius: 18px;
+      border: 1px solid #312544;
+      background:
+        radial-gradient(circle at top, #06020f, #020008);
+      box-shadow:
+        0 0 26px rgba(0,0,0,0.9),
+        0 0 40px rgba(93,242,255,0.25);
+      pointer-events: auto;
+      animation: floatShadow 16s ease-in-out infinite alternate;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .shadow-card::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background:
+        linear-gradient(120deg, transparent 0%, rgba(93,242,255,0.12) 40%, transparent 80%);
+      mix-blend-mode: screen;
+      opacity: 0;
+      animation: glitchSweep 9s infinite;
+      pointer-events: none;
+    }
+
+    .shadow-card.collapsed {
+      min-height: 30px;
+      height: 30px;
+    }
+
+    .shadow-card.collapsed .shadow-log {
+      display: none;
+    }
+
+    .shadow-card.collapsed small {
+      display: none;
+    }
+
+    .shadow-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #f5b4a8;
+      margin-bottom: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shadow-title span {
+      font-size: 0.7rem;
+      color: #7cffb2;
     }
 
     .shadow-log {
-      margin-top: 8px;
+      margin-top: 4px;
       border-radius: 12px;
       border: 1px solid #362941;
-      padding: 8px 10px;
+      padding: 6px 8px;
       background: rgba(5, 2, 16, 0.95);
       font-size: 0.78rem;
-      max-height: 260px;
+      max-height: 210px;
       overflow-y: auto;
     }
 
@@ -294,14 +348,6 @@
       color: #5df2ff;
       font-size: 0.7rem;
       margin-right: 4px;
-    }
-
-    .shadow-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: #f5b4a8;
-      margin-bottom: 4px;
     }
 
     .countdown {
@@ -319,6 +365,25 @@
       color: #8f7fa7;
       letter-spacing: 0.2em;
       text-transform: uppercase;
+    }
+
+    @keyframes floatShadow {
+      0% {
+        transform: translate3d(0,0,0) scale(1);
+      }
+      50% {
+        transform: translate3d(-4px,-6px,0) scale(1.01);
+      }
+      100% {
+        transform: translate3d(3px,3px,0) scale(0.99);
+      }
+    }
+
+    @keyframes glitchSweep {
+      0%   { opacity: 0; transform: translateX(-120%); }
+      40%  { opacity: 0.4; transform: translateX(20%); }
+      60%  { opacity: 0.1; transform: translateX(60%); }
+      100% { opacity: 0; transform: translateX(120%); }
     }
   </style>
 </head>
@@ -347,7 +412,6 @@
       </section>
 
       <section class="layout">
-        <!-- CHAT / THREAD -->
         <div class="card">
           <h2>Vlákno</h2>
           <small id="threadInfo">Žádné vlákno není aktivní. Vytvoř nové nebo vlož URL.</small>
@@ -379,19 +443,21 @@
             za <code>#</code> – ten server nikdy neuvidí.
           </p>
         </div>
-
-        <!-- SHADOW ASSISTANT -->
-        <div class="card shadow-card">
-          <div class="shadow-title">Shadow assistant</div>
-          <small>
-            Nečte zprávy. Jen sleduje čas, rytmus a to, jak používáš vlákno.
-            Mluví k tobě, ne o tobě.
-          </small>
-          <div class="shadow-log" id="shadowLog">
-            <div class="shadow-line"><span>[boot]</span> link opened · waiting for thread...</div>
-          </div>
-        </div>
       </section>
+    </div>
+
+    <!-- SHADOW ASSISTANT – plovoucí konzole -->
+    <div class="card shadow-card" id="shadowCard">
+      <div class="shadow-title" id="shadowTitle">
+        <span>shadow console</span>
+        <span id="shadowStateLabel">[open]</span>
+      </div>
+      <small style="font-size:0.7rem; color:#8c7da5;">
+        Čte časování, ne obsah. Komentuje tvoje kroky v Burn Lane.
+      </small>
+      <div class="shadow-log" id="shadowLog">
+        <div class="shadow-line"><span>[boot]</span> link loaded · waiting for thread...</div>
+      </div>
     </div>
 
     <footer>
@@ -478,9 +544,10 @@
     let threadKey = null;
     let threadKeyB64 = null;
     let lastMessageIds = new Set();
-    let mySentSignatures = new Set(); // podpisy mých zpráv (cipher|iv) pro rozlišení me/other
+    let mySentSignatures = new Set(); // cipher|iv pro moje zprávy
     let expiresAt = null;
     let countdownTimer = null;
+    let lastActivity = Date.now();
 
     const chatWindow = document.getElementById("chatWindow");
     const chatInput = document.getElementById("chatInput");
@@ -489,7 +556,15 @@
     const threadInfo = document.getElementById("threadInfo");
     const threadStatus = document.getElementById("threadStatus");
     const countdownEl = document.getElementById("countdown");
+
+    const shadowCard = document.getElementById("shadowCard");
+    const shadowTitle = document.getElementById("shadowTitle");
+    const shadowStateLabel = document.getElementById("shadowStateLabel");
     const shadowLog = document.getElementById("shadowLog");
+
+    function bumpActivity() {
+      lastActivity = Date.now();
+    }
 
     function logShadow(msg) {
       const line = document.createElement("div");
@@ -520,6 +595,11 @@
       const minutes = Math.floor(diffMs / 60000);
       const seconds = Math.floor((diffMs % 60000) / 1000);
       countdownEl.textContent = `TTL: ${minutes}m ${seconds}s`;
+
+      if (minutes === 0 && seconds < 30) {
+        // dramatickej konec
+        logShadow("clock redlining · thread almost dead.");
+      }
     }
 
     function startCountdown() {
@@ -559,7 +639,7 @@
         if (res.status === 410) {
           const data = await res.json().catch(() => null);
           setThreadInfo("Vlákno je expirované nebo zavřené.");
-          logShadow("thread marked as dead. no more messages.");
+          logShadow("thread marked as dead · only ghosts left.");
           chatInput.disabled = true;
           chatSendBtn.disabled = true;
           if (data && data.expires_at) {
@@ -571,6 +651,7 @@
 
         if (!res.ok) {
           setThreadInfo("Server odpověděl divně. Zkus reload.");
+          logShadow("backend mumbles · bad response.");
           return;
         }
 
@@ -593,21 +674,24 @@
         }
       } catch (e) {
         console.error("loadThread error", e);
+        logShadow("can't reach the archive · something between us and Neon.");
       }
     }
 
     async function sendMessage() {
       if (!threadToken || !threadKey) {
         threadStatus.textContent = "Nejdřív vytvoř nebo načti vlákno.";
+        logShadow("no thread, no signal. create one first.");
         return;
       }
       const text = (chatInput.value || "").trim();
       if (!text) return;
       chatInput.value = "";
+      bumpActivity();
 
       try {
         const { cipherB64, ivB64 } = await encryptText(threadKey, text);
-        const signature = cipherB64 + "|" + ivB64; // zapamatuj si, co jsi poslal
+        const signature = cipherB64 + "|" + ivB64;
         mySentSignatures.add(signature);
 
         const res = await fetch("/.netlify/functions/thread-post", {
@@ -622,7 +706,7 @@
 
         if (res.status === 410) {
           setThreadInfo("Vlákno vypršelo. Tuhle zprávu už nevložíme.");
-          logShadow("message dropped; thread is dead.");
+          logShadow("message dropped · you tried to talk to a corpse.");
           chatInput.disabled = true;
           chatSendBtn.disabled = true;
           return;
@@ -630,13 +714,15 @@
 
         if (!res.ok) {
           threadStatus.textContent = "Server odmítl zprávu. Zkus to znovu.";
+          logShadow("backend said no · try again later.");
           return;
         }
 
-        logShadow("signal sent; syncing with thread...");
+        logShadow("signal sent · syncing with thread.");
         await loadThread();
       } catch (e) {
         console.error("sendMessage error", e);
+        logShadow("send failed · line cut.");
       }
     }
 
@@ -647,11 +733,13 @@
         });
         if (!res.ok) {
           setThreadInfo("Server odmítl vytvořit vlákno.");
+          logShadow("thread spawn failed · backend sulking.");
           return;
         }
         const data = await res.json();
         if (!data.ok) {
           setThreadInfo("Vytvoření vlákna selhalo.");
+          logShadow("thread spawn returned nonsense.");
           return;
         }
 
@@ -660,6 +748,7 @@
         mySentSignatures = new Set();
         lastMessageIds = new Set();
         chatWindow.innerHTML = "";
+        bumpActivity();
 
         const { key, keyB64 } = await generateThreadKey();
         threadKey = key;
@@ -671,7 +760,7 @@
         history.replaceState(null, "", url.toString());
 
         setThreadInfo("Vlákno vytvořené. Link sdílej celý (včetně #...).");
-        logShadow("thread spawned with 1h TTL.");
+        logShadow("thread spawned · TTL 1h · don't waste it.");
         startCountdown();
         chatInput.disabled = false;
         chatSendBtn.disabled = false;
@@ -679,6 +768,7 @@
       } catch (e) {
         console.error("createThread error", e);
         setThreadInfo("Něco se pokazilo při vytváření vlákna.");
+        logShadow("thread spawn exception · reality glitched.");
       }
     }
 
@@ -690,7 +780,7 @@
 
       if (!token && !keyStr) {
         setThreadInfo("Žádné vlákno. Klikni na Start new thread.");
-        logShadow("no thread token. waiting for spawn.");
+        logShadow("no thread token · idle mode.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
         return;
@@ -698,7 +788,7 @@
 
       if (token && !keyStr) {
         setThreadInfo("Vlákno má token, ale chybí šifrovací klíč (#...). Bez něj nečteme.");
-        logShadow("thread token found, but key hash is missing.");
+        logShadow("thread token without key · half link, half joke.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
         return;
@@ -706,7 +796,7 @@
 
       if (!token && keyStr) {
         setThreadInfo("Máš klíč, ale žádné vlákno (parametr ?t=...). Link je neúplný.");
-        logShadow("key present, thread missing.");
+        logShadow("key present, thread missing · someone cut the URL.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
         return;
@@ -716,37 +806,66 @@
         threadToken = token;
         threadKeyB64 = keyStr;
         threadKey = await importThreadKey(keyStr);
+        bumpActivity();
 
         setThreadInfo("Vlákno z URL. Čtu šifrovaný thread...");
         chatInput.disabled = false;
         chatSendBtn.disabled = false;
-        logShadow("thread key imported. listening...");
+        logShadow("thread key imported · listening in the dark.");
 
         await loadThread();
         setInterval(loadThread, 5000);
       } catch (e) {
         console.error("initFromUrl error", e);
         setThreadInfo("Klíč nešel importovat. Link je poškozený.");
+        logShadow("key import failed · someone mangled the hash.");
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
-        logShadow("key import failed. dead link.");
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      createThreadBtn.addEventListener("click", () => {
-        createThread();
-      });
-      chatSendBtn.addEventListener("click", () => {
-        sendMessage();
-      });
-      chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          sendMessage();
+    function setupShadowIdleWatcher() {
+      setInterval(() => {
+        const diff = Date.now() - lastActivity;
+        if (diff > 60000 && diff < 62000) {
+          logShadow("you went quiet · thread still breathing.");
         }
-      });
+        if (diff > 180000 && diff < 182000) {
+          logShadow("3 minutes of silence · silence is also a message.");
+        }
+      }, 10000);
+    }
 
+    function setupShadowToggle() {
+      if (!shadowCard || !shadowTitle || !shadowStateLabel) return;
+      shadowTitle.addEventListener("click", () => {
+        const collapsed = shadowCard.classList.toggle("collapsed");
+        shadowStateLabel.textContent = collapsed ? "[hidden]" : "[open]";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (createThreadBtn) {
+        createThreadBtn.addEventListener("click", () => {
+          createThread();
+        });
+      }
+      if (chatSendBtn) {
+        chatSendBtn.addEventListener("click", () => {
+          sendMessage();
+        });
+      }
+      if (chatInput) {
+        chatInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+      }
+
+      setupShadowToggle();
+      setupShadowIdleWatcher();
       initFromUrl();
     });
   </script>
