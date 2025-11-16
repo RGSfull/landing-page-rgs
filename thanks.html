@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RGS & UFO — Žádost odeslaná</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: radial-gradient(circle at top, #1a0f2b, #05000b 60%);
+      color: #f3f1ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .orb {
+      position: fixed;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(111,244,255,0.9), transparent 70%);
+      filter: blur(3px);
+      opacity: 0.23;
+      pointer-events: none;
+      animation: float 18s infinite ease-in-out alternate;
+    }
+    .orb1 { width: 260px; height: 260px; top: 15%; left: 8%; }
+    .orb2 { width: 200px; height: 200px; bottom: 10%; right: 15%; animation-delay: 4s; }
+
+    @keyframes float {
+      0% { transform: translate3d(0,0,0); opacity: 0.15; }
+      100% { transform: translate3d(-30px,20px,0); opacity: 0.35; }
+    }
+
+    .card {
+      padding: 32px;
+      max-width: 480px;
+      text-align: center;
+      background: rgba(5, 3, 14, 0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(94,240,255,0.32);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 1.7rem;
+      letter-spacing: 0.06em;
+      color: #7cffb2;
+    }
+    p {
+      margin: 0 0 16px;
+      font-size: 0.96rem;
+      color: #c3b8e8;
+      line-height: 1.5;
+    }
+    .btn {
+      margin-top: 12px;
+      padding: 10px 26px;
+      border-radius: 999px;
+      border: 1px solid #5df2ff;
+      background: radial-gradient(circle at top left, #0d3d4f, #02060c);
+      font-size: 0.82rem;
+      color: #eaffff;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(93,242,255,0.4);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="card">
+    <h1>Žádost zapsána</h1>
+    <p>
+      Tvůj signál dorazil do Syndikátu.<br>
+      Pokud tě vybereme, ozve se ti člověk nebo AI.<br>
+      Ticho. Žádný spam. Žádné cirkusy.
+    </p>
+
+    <a href="/" class="btn">Zpět na hlavní bránu</a>
+  </div>
+</body>
+</html>

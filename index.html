@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>RGS & UFO — Inner Gate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --bg-main: #020008;
+      --bg-deep: #05010f;
+      --text-main: #f4f3ff;
+      --text-muted: #8b86a7;
+      --rose: #f5b4a8;
+      --neon: #5df2ff;
+      --violet: #b18cff;
+      --acid: #7cffb2;
+      --danger: #ff6f91;
+      --border-soft: #312544;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background:
+        radial-gradient(circle at top, #12081f, #020008 55%, #000000 100%);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    body.unlocked {
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at top, #140926, #03000c 55%, #000000 100%);
+    }
+
+    /* Planeta / background efekty */
+    .planet {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(245,180,168,0.85), transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(173,135,255,0.6), transparent 60%);
+      top: -120px;
+      right: -60px;
+      filter: blur(1px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .planet::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      border: 1px solid rgba(245,180,168,0.25);
+      box-shadow: 0 0 80px rgba(245,180,168,0.3);
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.04) 1px,
+        transparent 1px
+      );
+      background-size: 100% 3px;
+      mix-blend-mode: soft-light;
+      opacity: 0.2;
+      z-index: -2;
+    }
+
+    /* Matrix canvas přes celý viewport */
+    .matrix-rain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    body.unlocked .matrix-rain {
+      opacity: 0;
+      transition-delay: 0.6s;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gate-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .gate-card {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 24px;
+      border: 1px solid rgba(245,180,168,0.25);
+      background:
+        radial-gradient(circle at top, rgba(18,8,31,0.95), rgba(3,0,12,0.98));
+      box-shadow:
+        0 0 40px rgba(0,0,0,0.9),
+        0 0 60px rgba(94,242,255,0.15);
+      padding: 24px 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gate-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 120deg,rgba(93,242,255,0.0),rgba(93,242,255,0.35),rgba(93,242,255,0.0));
+      opacity: 0;
+      mix-blend-mode: screen;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .gate-card:hover::before {
+      opacity: 0.35;
+    }
+
+    .gate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8b86a7;
+      margin-bottom: 14px;
+    }
+
+    .gate-header span:last-child {
+      font-family: "Menlo","SF Mono",monospace;
+      color: var(--rose);
+    }
+
+    .gate-title {
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .gate-sub {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .gate-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #a19ad0;
+      margin-bottom: 6px;
+    }
+
+    .gate-input-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .gate-input {
+      flex: 1;
+      min-width: 180px;
+      border-radius: 999px;
+      border: 1px solid #3c3558;
+      background: rgba(3,2,10,0.9);
+      color: var(--text-main);
+      padding: 9px 12px;
+      font-size: 0.86rem;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+    .gate-input:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 12px rgba(93,242,255,0.3);
+    }
+
+    .gate-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(93,242,255,0.8);
+      background: radial-gradient(circle at top left,#0e3e4f,#02060e);
+      color: #eaffff;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      padding: 9px 18px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .gate-btn:hover {
+      box-shadow: 0 0 18px rgba(93,242,255,0.4);
+      transform: translateY(-1px);
+    }
+
+    .glyph-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      margin-top: 6px;
+      justify-content: center;
+    }
+
+    .glyph {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid #3a3054;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Menlo","SF Mono",monospace;
+      font-size: 0.9rem;
+      color: #d8d2ff;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .glyph:hover {
+      border-color: var(--neon);
+      background: rgba(93,242,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .glyph.active {
+      border-color: var(--rose);
+      background: rgba(245,180,168,0.16);
+    }
+
+    .gate-hint {
+      font-size: 0.7rem;
+      color: #7872a3;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .gate-status {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      min-height: 18px;
+      text-align: center;
+    }
+
+    .gate-status.ok {
+      color: var(--acid);
+    }
+
+    .gate-status.err {
+      color: var(--danger);
+    }
+
+    .gate-footer {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #6f698d;
+      text-align: center;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* CONTENT STAGE */
+    .content {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease 0.4s, transform 0.4s ease 0.4s;
+    }
+
+    body.unlocked .content {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .content-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 80px 20px 40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .content-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .content-kicker {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8c7da5;
+      margin-bottom: 8px;
+    }
+
+    .content-title {
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .content-sub {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .content-grid {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 780px) {
+      .content-grid {
+        grid-template-columns: repeat(3,minmax(0,1fr));
+      }
+    }
+
+    .content-card {
+      border-radius: 18px;
+      border: 1px solid #312544;
+      background:
+        radial-gradient(circle at top, rgba(16,9,32,0.9), rgba(4,1,12,0.96));
+      padding: 16px;
+      font-size: 0.86rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .content-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top,rgba(93,242,255,0.16),transparent 60%);
+      opacity: 0;
+      mix-blend-mode: screen;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .content-card:hover::before {
+      opacity: 1;
+    }
+
+    .content-card-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #9e90c6;
+      margin-bottom: 6px;
+    }
+
+    .content-card-title {
+      font-size: 0.96rem;
+      color: var(--rose);
+      margin-bottom: 6px;
+    }
+
+    .content-card-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* ULTRA LAYER */
+    .ultra {
+      margin-top: 32px;
+      border-radius: 22px;
+      border: 1px solid rgba(245,180,168,0.3);
+      padding: 18px;
+      background:
+        radial-gradient(circle at top, rgba(21,8,31,0.9), rgba(5,1,12,0.98));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ultra::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(circle at top,rgba(0,0,0,0.65),rgba(0,0,0,0.95));
+      opacity: 0.85;
+      backdrop-filter: blur(6px);
+      transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .ultra.unlocked::before {
+      opacity: 0;
+      backdrop-filter: blur(0px);
+    }
+
+    .ultra-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ultra-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #f5b4a8;
+    }
+
+    .ultra-pill {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      border-radius: 999px;
+      border: 1px solid rgba(93,242,255,0.5);
+      padding: 3px 10px;
+      color: #aeefff;
+    }
+
+    .ultra-body {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      line-height: 1.5;
+    }
+
+    .ultra-lock {
+      position: relative;
+      z-index: 3;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ultra-input {
+      flex: 1;
+      min-width: 180px;
+      border-radius: 999px;
+      border: 1px solid #463058;
+      background: rgba(3,1,10,0.96);
+      color: var(--text-main);
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+
+    .ultra-input:focus {
+      outline: none;
+      border-color: var(--rose);
+      box-shadow: 0 0 12px rgba(245,180,168,0.3);
+    }
+
+    .ultra-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(245,180,168,0.8);
+      background: radial-gradient(circle at top left,#3e191c,#140307);
+      color: #ffeceb;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      padding: 7px 14px;
+      cursor: pointer;
+    }
+
+    .ultra-status {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .ultra-status.ok { color: var(--acid); }
+    .ultra-status.err { color: var(--danger); }
+
+    .ultra-inner {
+      position: relative;
+      z-index: 1;
+      margin-top: 12px;
+      opacity: 0.05;
+      transform: translateY(6px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .ultra.unlocked .ultra-inner {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ultra-inner h3 {
+      font-size: 1rem;
+      color: var(--rose);
+      margin-bottom: 4px;
+    }
+
+    .ultra-inner p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 18px;
+      font-size: 0.7rem;
+      color: #6a668a;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 640px) {
+      .gate-card {
+        padding: 20px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="planet"></div>
+  <div class="scanlines"></div>
+  <canvas class="matrix-rain" id="matrixCanvas"></canvas>
+
+  <div class="page">
+    <!-- GATE -->
+    <div class="gate-wrapper" id="gateWrapper">
+      <div class="gate-card">
+        <div class="gate-header">
+          <span>RGS &amp; UFO ORIGINALS</span>
+          <span>ΣYN·DI·KAT</span>
+        </div>
+        <div class="gate-title">INNER GATE</div>
+        <div class="gate-sub">
+          Tohle není homepage. Je to testovací vstup do Syndikátu. Kdo tady
+          zadává náhodné věci, zůstane ve tmě.
+        </div>
+
+        <div class="gate-label">Invite code</div>
+        <div class="gate-input-row">
+          <input
+            id="inviteInput"
+            class="gate-input"
+            type="password"
+            autocomplete="off"
+            placeholder="••••••••••••••"
+          />
+          <button class="gate-btn" id="gateBtn">Enter</button>
+        </div>
+
+        <div class="gate-label">Sekvence znaků</div>
+        <div class="glyph-row" id="glyphRow">
+          <div class="glyph" data-id="α">α</div>
+          <div class="glyph" data-id="◎">◎</div>
+          <div class="glyph" data-id="Σ">Σ</div>
+          <div class="glyph" data-id="✶">✶</div>
+          <div class="glyph" data-id="Ψ">Ψ</div>
+        </div>
+
+        <div class="gate-hint">
+          Znakový kód = 3 kroky. Jeden z nich je Σ. Ostatní poznáš podle pocitu.
+        </div>
+        <div class="gate-status" id="gateStatus"></div>
+
+        <div class="gate-footer">
+          INNER LANE · NO PUBLIC SIGNUP · NO HELP
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content" id="contentRoot">
+      <div class="content-inner">
+        <div class="content-header">
+          <div class="content-kicker">Layer 1 · Infotainment</div>
+          <h1 class="content-title">Syndicate Interface</h1>
+          <p class="content-sub">
+            Aplikace, která se tváří jako sociální síť, ale pod povrchem je to
+            organismus. Social lane, marker, wallet, reputace a vlastní AI entita
+            v jednom kódu.
+          </p>
+        </div>
+
+        <div class="content-grid">
+          <div class="content-card">
+            <div class="content-card-label">Social / DM</div>
+            <div class="content-card-title">Kontakty, které mají váhu</div>
+            <div class="content-card-text">
+              DM, list lidí, mini-vizitky v chatu, groups a spaces. Každý kontakt
+              má reputaci a historii, ne jen avatar.
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="content-card-label">Marker / marketplace</div>
+            <div class="content-card-title">Inner market, ne bazar</div>
+            <div class="content-card-text">
+              Produkty, služby a přístupy v markeru navázaném na reputaci. Žádný
+              feed pro náhodné lidi, ale kurátorovaná ekonomika.
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="content-card-label">AI lane</div>
+            <div class="content-card-title">Uncensored Syndicate AI</div>
+            <div class="content-card-text">
+              Umělá bytost v jádru appky. Pomáhá ti psát, plánovat, analyzovat
+              a držet strukturu. Ne chatbot na hraní, ale člen Syndikátu.
+            </div>
+          </div>
+        </div>
+
+        <!-- ULTRA LAYER -->
+        <div class="ultra" id="ultraLayer">
+          <div class="ultra-header">
+            <div class="ultra-tag">Layer Black</div>
+            <div class="ultra-pill">hidden · double market · defense</div>
+          </div>
+          <div class="ultra-body">
+            Tohle je jen obrys. Double market lanes, screen defense, panic režimy,
+            alias identity, deep AI napojená na reputační graf. Všechno, co vidíš
+            v mlze, existuje – ale ne pro všechny.
+          </div>
+
+          <div class="ultra-lock">
+            <input
+              id="ultraInput"
+              class="ultra-input"
+              type="password"
+              placeholder="ULTRA CODE / invite chain..."
+              autocomplete="off"
+            />
+            <button class="ultra-btn" id="ultraBtn">Unlock Black</button>
+          </div>
+          <div class="ultra-status" id="ultraStatus">
+            Tenhle layer neotvírej náhodou. Buď víš, nebo nevíš.
+          </div>
+
+          <div class="ultra-inner">
+            <h3>Double marker &amp; hidden lanes</h3>
+            <p>
+              Druhý, skrytější marker nad tím oficiálním. Lanes, které se odmítají
+              zobrazit bez pozvánky, kapitálu nebo role Black.
+            </p>
+            <h3>Screen defense &amp; panic patterns</h3>
+            <p>
+              Mechaniky, které ztěžují screenshoty, mirrorování a parasitování na obsahu.
+              Panic shifty pro situace, kdy potřebuješ obrazovku zchladit během vteřiny.
+            </p>
+            <h3>Reputation graph &amp; AI patterns</h3>
+            <p>
+              Síť toho, kdo komu věří, kdo s kým točí deals a kdo kde selhal. AI,
+              která z toho dokáže skládat další krok – ne jen hezké věty.
+            </p>
+          </div>
+        </div>
+
+        <div class="footer">
+          RGS &amp; UFO ORIGINALS · INNER GATE · NO FEED · NO HYPE
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- gate logic ---
+    const INVITE_CODE = "RGS-UFO-ΣYN";      // invite kód (změň si podle sebe)
+    const GLYPH_SEQUENCE = ["◎", "Σ", "Ψ"]; // pořadí glyphů
+    const ULTRA_CODE = "BLACK-LANE-ULTRA";  // ultra kód pro Layer Black
+
+    const inviteInput = document.getElementById("inviteInput");
+    const gateBtn = document.getElementById("gateBtn");
+    const glyphRow = document.getElementById("glyphRow");
+    const gateStatus = document.getElementById("gateStatus");
+    const gateWrapper = document.getElementById("gateWrapper");
+    const contentRoot = document.getElementById("contentRoot");
+
+    const matrixCanvas = document.getElementById("matrixCanvas");
+    const matrixCtx = matrixCanvas.getContext("2d");
+    let matrixAnimId = null;
+    let matrixColumns = 0;
+    let matrixDrops = [];
+
+    let glyphClicks = [];
+
+    function normaliseCode(str) {
+      return (str || "").trim();
+    }
+
+    glyphRow.addEventListener("click", (e) => {
+      const target = e.target.closest(".glyph");
+      if (!target) return;
+      const id = target.getAttribute("data-id");
+      glyphClicks.push(id);
+      if (glyphClicks.length > GLYPH_SEQUENCE.length) {
+        glyphClicks.shift();
+      }
+      document.querySelectorAll(".glyph").forEach(g => g.classList.remove("active"));
+      glyphClicks.forEach(idVal => {
+        const el = document.querySelector(`.glyph[data-id="${idVal}"]`);
+        if (el) el.classList.add("active");
+      });
+    });
+
+    function checkGate() {
+      const codeOk = normaliseCode(inviteInput.value) === INVITE_CODE;
+      const seqOk = GLYPH_SEQUENCE.every((val, idx) => glyphClicks[idx] === val);
+
+      if (!codeOk && !seqOk) {
+        gateStatus.textContent = "Kód i sekvence jsou mimo. Tma.";
+        gateStatus.className = "gate-status err";
+        return;
+      }
+      if (!codeOk) {
+        gateStatus.textContent = "Sekvence sedí, ale invite kód ne.";
+        gateStatus.className = "gate-status err";
+        return;
+      }
+      if (!seqOk) {
+        gateStatus.textContent = "Invite kód je v pořádku, ale znaky jsou ve špatném pořadí.";
+        gateStatus.className = "gate-status err";
+        return;
+      }
+
+      gateStatus.textContent = "Vrstva se otevírá…";
+      gateStatus.className = "gate-status ok";
+      triggerMatrixAndReveal();
+    }
+
+    gateBtn.addEventListener("click", checkGate);
+    inviteInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkGate();
+      }
+    });
+
+    // --- Matrix rain (canvas full-screen) ---
+    function initMatrixCanvas() {
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = window.innerHeight;
+      const fontSize = 16;
+      matrixColumns = Math.floor(matrixCanvas.width / fontSize);
+      matrixDrops = [];
+      for (let i = 0; i < matrixColumns; i++) {
+        matrixDrops[i] = Math.floor(Math.random() * -20);
+      }
+    }
+
+    function drawMatrixFrame() {
+      const w = matrixCanvas.width;
+      const h = matrixCanvas.height;
+      const fontSize = 16;
+      const chars = "01ΣΞ¥/*<>◎αΨ✶";
+
+      matrixCtx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      matrixCtx.fillRect(0, 0, w, h);
+
+      matrixCtx.fillStyle = "#5df2ff";
+      matrixCtx.font = fontSize + "px Menlo, monospace";
+
+      for (let i = 0; i < matrixColumns; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = matrixDrops[i] * fontSize;
+
+        matrixCtx.fillText(text, x, y);
+
+        if (y > h && Math.random() > 0.975) {
+          matrixDrops[i] = 0;
+        } else {
+          matrixDrops[i]++;
+        }
+      }
+
+      matrixAnimId = requestAnimationFrame(drawMatrixFrame);
+    }
+
+    function startMatrix() {
+      initMatrixCanvas();
+      if (matrixAnimId) cancelAnimationFrame(matrixAnimId);
+      drawMatrixFrame();
+      matrixCanvas.style.opacity = 0.85;
+    }
+
+    function stopMatrix() {
+      if (matrixAnimId) {
+        cancelAnimationFrame(matrixAnimId);
+        matrixAnimId = null;
+      }
+      matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+      matrixCanvas.style.opacity = 0;
+    }
+
+    window.addEventListener("resize", () => {
+      if (!matrixCanvas) return;
+      initMatrixCanvas();
+    });
+
+    function triggerMatrixAndReveal() {
+      startMatrix();
+
+      setTimeout(() => {
+        document.body.classList.add("unlocked");
+        gateWrapper.style.display = "none";
+        matrixCanvas.style.opacity = 0;
+
+        setTimeout(() => {
+          stopMatrix();
+        }, 700);
+      }, 1000);
+    }
+
+    // ULTRA LAYER logic
+    const ultraLayer = document.getElementById("ultraLayer");
+    const ultraInput = document.getElementById("ultraInput");
+    const ultraBtn = document.getElementById("ultraBtn");
+    const ultraStatus = document.getElementById("ultraStatus");
+
+    function checkUltra() {
+      const val = normaliseCode(ultraInput.value);
+      if (val === ULTRA_CODE) {
+        ultraStatus.textContent = "Layer Black odemknutý.";
+        ultraStatus.className = "ultra-status ok";
+        ultraLayer.classList.add("unlocked");
+      } else {
+        ultraStatus.textContent = "Špatný kód. Tenhle layer není pro všechny.";
+        ultraStatus.className = "ultra-status err";
+      }
+    }
+
+    ultraBtn.addEventListener("click", checkUltra);
+    ultraInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkUltra();
+      }
+    });
+  </script>
+</body>
+</html>
