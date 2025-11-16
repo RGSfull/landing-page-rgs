@@ -40,7 +40,6 @@
         radial-gradient(circle at top, #140926, #03000c 55%, #000000 100%);
     }
 
-    /* Planeta / background efekty */
     .planet {
       position: fixed;
       width: 420px;
@@ -81,7 +80,6 @@
       z-index: -2;
     }
 
-    /* Matrix canvas přes celý viewport */
     .matrix-rain {
       position: fixed;
       top: 0;
@@ -113,6 +111,19 @@
       padding: 24px;
       position: relative;
       z-index: 10;
+    }
+
+    .gate-wrapper.glitch {
+      animation: gate-glitch 0.35s linear;
+    }
+
+    @keyframes gate-glitch {
+      0% { transform: translate(0,0); filter: hue-rotate(0deg); }
+      20% { transform: translate(-4px,2px); filter: hue-rotate(40deg); }
+      40% { transform: translate(3px,-3px); filter: hue-rotate(-20deg); }
+      60% { transform: translate(-2px,3px); filter: hue-rotate(10deg); }
+      80% { transform: translate(2px,-1px); filter: hue-rotate(-30deg); }
+      100% { transform: translate(0,0); filter: hue-rotate(0deg); }
     }
 
     .gate-card {
@@ -271,6 +282,7 @@
       color: var(--text-muted);
       min-height: 18px;
       text-align: center;
+      transition: color 0.2s ease;
     }
 
     .gate-status.ok {
@@ -290,7 +302,6 @@
       text-transform: uppercase;
     }
 
-    /* CONTENT STAGE */
     .content {
       opacity: 0;
       pointer-events: none;
@@ -397,9 +408,172 @@
       line-height: 1.45;
     }
 
-    /* ULTRA LAYER */
+    .dash-wrapper {
+      margin-top: 40px;
+    }
+
+    .dash-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .dash-title {
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #d6d2ff;
+      cursor: default;
+    }
+
+    .dash-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .dash-chip {
+      border-radius: 999px;
+      border: 1px solid #3a3152;
+      padding: 3px 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .dash-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+      .dash-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+      }
+    }
+
+    .dash-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border-radius: 14px;
+      border: 1px solid #312544;
+      padding: 10px 12px;
+      background:
+        radial-gradient(circle at top, rgba(17,10,32,0.9), rgba(4,1,12,0.96));
+      font-size: 0.8rem;
+    }
+
+    .dash-icon {
+      font-size: 1.2rem;
+      width: 26px;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .dash-main {
+      flex: 1;
+    }
+
+    .dash-name {
+      font-size: 0.9rem;
+      color: var(--rose);
+      margin-bottom: 2px;
+    }
+
+    .dash-meta {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8f86b8;
+      margin-bottom: 6px;
+    }
+
+    .dash-bar-wrap {
+      margin-bottom: 4px;
+    }
+
+    .dash-bar-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #171222;
+      overflow: hidden;
+    }
+
+    .dash-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg,#5df2ff,#f5b4a8);
+      width: 0;
+      transition: width 0.2s ease;
+    }
+
+    .dash-bar-label {
+      font-size: 0.72rem;
+      color: #b2a8dd;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+
+    .dash-edit {
+      font-size: 0.7rem;
+      color: #77719d;
+      display: none;
+      gap: 6px;
+      align-items: center;
+    }
+
+    body.edit-mode .dash-edit {
+      display: flex;
+    }
+
+    .dash-edit input {
+      width: 52px;
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      background: rgba(4,2,12,0.95);
+      color: var(--text-main);
+      font-size: 0.72rem;
+      padding: 3px 6px;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+
+    .dash-pill {
+      border-radius: 999px;
+      border: 1px solid #42345c;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #a59fd4;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .dash-pill.live { border-color: #7cffb2; color: #7cffb2; }
+    .dash-pill.alpha { border-color: #f5b4a8; color: #f5b4a8; }
+    .dash-pill.planned { border-color: #b18cff; color: #b18cff; }
+
+    .dash-admin-hint {
+      font-size: 0.7rem;
+      color: #696191;
+      margin-top: 4px;
+      opacity: 0.6;
+    }
+
+    body.edit-mode .dash-admin-hint {
+      opacity: 1;
+      color: #7cffb2;
+    }
+
     .ultra {
-      margin-top: 32px;
+      margin-top: 40px;
       border-radius: 22px;
       border: 1px solid rgba(245,180,168,0.3);
       padding: 18px;
@@ -536,6 +710,410 @@
       margin-bottom: 4px;
     }
 
+    .form-section {
+      margin-top: 40px;
+    }
+
+    .divider {
+      width: 100%;
+      margin: 6px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #78709b;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.26em;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #44325c, transparent);
+    }
+
+    .form-grid-single {
+      display: grid;
+      gap: 18px;
+    }
+
+    .form-card {
+      border-radius: 26px;
+      border: 1px solid rgba(93,242,255,0.4);
+      padding: 20px;
+      background:
+        radial-gradient(circle at top, rgba(10, 31, 52, 0.9), #02030a);
+      box-shadow: 0 0 28px rgba(0,0,0,0.9);
+      font-size: 0.88rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 210deg,rgba(93,242,255,0.0),rgba(93,242,255,0.45),rgba(245,180,168,0.3),rgba(93,242,255,0.0));
+      opacity: 0.18;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .form-card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-columns {
+      display: grid;
+      gap: 18px;
+    }
+
+    @media (min-width: 880px) {
+      .form-columns {
+        grid-template-columns: minmax(0,1.15fr) minmax(0,0.85fr);
+      }
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      color: #d0e8ff;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .form-label small {
+      font-size: 0.65rem;
+      color: #8a9bb8;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .form-input,
+    .form-textarea {
+      border-radius: 12px;
+      border: 1px solid #395b74;
+      background: rgba(2,6,12,0.9);
+      padding: 8px 10px;
+      font-size: 0.86rem;
+      color: var(--text-main);
+      font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 12px rgba(93,242,255,0.35);
+    }
+
+    .form-textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .form-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .wallet-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(3, 8, 16, 0.9);
+      border: 1px solid #30475e;
+    }
+
+    .wallet-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9fb9d8;
+    }
+
+    .wallet-address-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wallet-address-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #f3f1ff;
+      font-family: "Menlo","SF Mono",monospace;
+      font-size: 0.78rem;
+      padding: 0;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .wallet-address-input::selection {
+      background: rgba(93,242,255,0.25);
+    }
+
+    .wallet-copy {
+      border-radius: 999px;
+      border: 1px solid rgba(93,242,255,0.7);
+      background: rgba(8, 32, 44, 0.9);
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #eaffff;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .wallet-copy:hover {
+      background: rgba(14, 59, 79, 0.95);
+      box-shadow: 0 0 10px rgba(93,242,255,0.35);
+    }
+
+    .tiers-wrapper {
+      margin-top: 40px;
+    }
+
+    .tiers-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .tiers-kicker {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8c7da5;
+      margin-bottom: 6px;
+    }
+
+    .tiers-title {
+      font-size: 1.1rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .tiers-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .tiers-grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    @media (min-width: 900px) {
+      .tiers-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .tiers-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    .tier-card {
+      border-radius: 18px;
+      border: 1px solid #3a2b4e;
+      background:
+        radial-gradient(circle at top, rgba(22,10,36,0.95), rgba(5,1,12,0.98));
+      padding: 14px;
+      font-size: 0.82rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 16px rgba(0,0,0,0.7);
+    }
+
+    .tier-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 90deg,rgba(93,242,255,0.0),rgba(93,242,255,0.3),rgba(245,180,168,0.25),rgba(93,242,255,0.0));
+      opacity: 0;
+      mix-blend-mode: screen;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .tier-card:hover::before {
+      opacity: 0.35;
+    }
+
+    .tier-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tier-name {
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .tier-badge {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      border-radius: 999px;
+      border: 1px solid #4b345c;
+      padding: 2px 8px;
+      color: #c5b7f3;
+    }
+
+    .tier-body {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .tier-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .tier-list li::before {
+      content: "✦";
+      margin-right: 6px;
+      color: var(--neon);
+      font-size: 0.7rem;
+    }
+
+    .tier-tagline {
+      font-size: 0.72rem;
+      color: #a38fd1;
+      margin-bottom: 4px;
+    }
+
+    .tier-tier-signal {
+      box-shadow: 0 0 12px rgba(93,242,255,0.25);
+      border-color: rgba(93,242,255,0.4);
+    }
+    .tier-tier-operator {
+      box-shadow: 0 0 16px rgba(245,227,168,0.25);
+      border-color: rgba(245,227,168,0.4);
+    }
+    .tier-tier-architect {
+      box-shadow: 0 0 18px rgba(245,180,168,0.3);
+      border-color: rgba(245,180,168,0.5);
+    }
+    .tier-tier-black {
+      box-shadow: 0 0 26px rgba(0,0,0,0.9), 0 0 18px rgba(255,223,183,0.35);
+      border-color: rgba(255,223,183,0.7);
+      background:
+        radial-gradient(circle at top, rgba(35,15,24,0.95), rgba(6,0,10,0.98));
+    }
+    .tier-tier-phantom {
+      box-shadow: 0 0 30px rgba(0,0,0,0.95), 0 0 22px rgba(208,198,255,0.4);
+      border-color: rgba(208,198,255,0.9);
+      background:
+        radial-gradient(circle at top, rgba(28,14,46,0.97), rgba(5,0,15,0.99));
+    }
+
+    .tier-tier-signal .tier-name { color: #a7f5ff; }
+    .tier-tier-operator .tier-name { color: #f5e3a8; }
+    .tier-tier-architect .tier-name { color: #f5b4a8; }
+    .tier-tier-black .tier-name { color: #ffdfb7; }
+    .tier-tier-phantom .tier-name { color: #d0c6ff; }
+
+    .support-wall {
+      margin-top: 40px;
+    }
+
+    .support-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    @media (min-width: 900px) {
+      .support-grid {
+        grid-template-columns: minmax(0,1.4fr) minmax(0,1fr);
+      }
+    }
+
+    .support-block {
+      border-radius: 18px;
+      border: 1px solid #312544;
+      background:
+        radial-gradient(circle at top, rgba(17,9,33,0.9), rgba(3,0,12,0.96));
+      padding: 16px;
+      font-size: 0.82rem;
+    }
+
+    .support-title {
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      color: #f5b4a8;
+    }
+
+    .support-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .support-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 0.8rem;
+      color: var(--text-main);
+    }
+
+    .support-list li {
+      margin-bottom: 4px;
+    }
+
+    .support-list li::before {
+      content: "◎";
+      margin-right: 6px;
+      color: var(--neon);
+      font-size: 0.7rem;
+    }
+
+    .support-note {
+      font-size: 0.72rem;
+      color: #8c7da5;
+      margin-top: 6px;
+    }
+
     .footer {
       text-align: center;
       padding: 18px;
@@ -566,7 +1144,7 @@
           <span>ΣYN·DI·KAT</span>
         </div>
         <div class="gate-title">INNER GATE</div>
-        <div class="gate-sub">
+        <div class="gate-sub" id="gateSub">
           Tohle není homepage. Je to testovací vstup do Syndikátu. Kdo tady
           zadává náhodné věci, zůstane ve tmě.
         </div>
@@ -643,6 +1221,22 @@
           </div>
         </div>
 
+        <!-- DASHBOARD -->
+        <div class="dash-wrapper">
+          <div class="dash-header">
+            <div class="dash-title" id="dashTitle">Function Dashboard</div>
+            <div class="dash-summary" id="dashSummary"></div>
+          </div>
+          <div class="dash-admin-hint">
+            (Double-click na „Function Dashboard“ + admin kód = edit mód jen v tomhle prohlížeči.)
+          </div>
+          <div class="dash-grid" id="dashGrid"></div>
+          <p class="form-note" style="margin-top:8px;">
+            Úprava % v edit módu se ukládá jen do tvého prohlížeče (localStorage).
+            Pro globální změnu pro všechny upravuješ feature seznam v kódu.
+          </p>
+        </div>
+
         <!-- ULTRA LAYER -->
         <div class="ultra" id="ultraLayer">
           <div class="ultra-header">
@@ -688,6 +1282,416 @@
           </div>
         </div>
 
+        <!-- SINGLE CULT FORM -->
+        <div class="form-section">
+          <div class="divider" style="margin-top:40px;">
+            <div class="divider-line"></div>
+            <span>INNER ACCESS · ON-CHAIN SUPPORT</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="form-grid-single">
+            <form
+              name="inner-access"
+              method="POST"
+              data-netlify="true"
+              netlify-honeypot="bot-field"
+              class="form-card"
+            >
+              <div class="form-card-inner">
+                <input type="hidden" name="form-name" value="inner-access" />
+                <p style="display:none;">
+                  <label>Don’t fill this out: <input name="bot-field" /></label>
+                </p>
+
+                <div class="form-columns">
+                  <!-- Levá strana: vstup do Syndikátu -->
+                  <div>
+                    <div class="form-field">
+                      <label class="form-label">
+                        Vstupní část
+                        <small>alias, role, signál, že chceš dovnitř</small>
+                      </label>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="inviteField">Invite / referral</label>
+                      <input
+                        id="inviteField"
+                        name="invite"
+                        class="form-input"
+                        placeholder="Kdo tě přivedl? Kód, jméno, nic..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="alias">Alias / jméno</label>
+                      <input
+                        id="alias"
+                        name="alias"
+                        required
+                        class="form-input"
+                        placeholder="RGS Gabriel, Operative, cokoliv..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="contact">Kontakt</label>
+                      <input
+                        id="contact"
+                        name="contact"
+                        class="form-input"
+                        placeholder="E-mail / Signal / cokoliv nebo nic"
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="role">Roli, kterou chceš nést</label>
+                      <input
+                        id="role"
+                        name="role"
+                        class="form-input"
+                        placeholder="Builder, dealer, tester, klient, jiná..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="message">
+                        Proč právě ty?
+                      </label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        class="form-textarea"
+                        placeholder="Co očekáváš od Syndikátu, co do něj chceš přinést, co bys chtěl testovat nebo rozbíjet?"
+                      ></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Pravá strana: on-chain část -->
+                  <div>
+                    <div class="form-field">
+                      <label class="form-label">
+                        On-chain část (volitelné)
+                        <small>pokud chceš rovnou poslat podporu</small>
+                      </label>
+                    </div>
+
+                    <div class="wallet-row">
+                      <div class="wallet-label">ETH / USDT (ERC-20)</div>
+                      <div class="wallet-address-wrap">
+                        <input
+                          type="text"
+                          class="wallet-address-input"
+                          value="0xe57a85329A0A280B9BedE6dD9ccfD5db4cD06829"
+                          readonly
+                          onclick="this.select();"
+                        />
+                        <button
+                          type="button"
+                          class="wallet-copy"
+                          onclick="window.prompt('Zkopíruj adresu peněženky (Ctrl+C / dlouhý tap):','0xe57a85329A0A280B9BedE6dD9ccfD5db4cD06829')"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="wallet-row">
+                      <div class="wallet-label">BTC</div>
+                      <div class="wallet-address-wrap">
+                        <input
+                          type="text"
+                          class="wallet-address-input"
+                          value="bc1qxqmxsnvptl2f2whvagfymvk23uudc2jjluw7an"
+                          readonly
+                          onclick="this.select();"
+                        />
+                        <button
+                          type="button"
+                          class="wallet-copy"
+                          onclick="window.prompt('Zkopíruj adresu peněženky (Ctrl+C / dlouhý tap):','bc1qxqmxsnvptl2f2whvagfymvk23uudc2jjluw7an')"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="support-chain">
+                        Chain / měna <small>(pokud posíláš)</small>
+                      </label>
+                      <input
+                        id="support-chain"
+                        name="chain"
+                        class="form-input"
+                        placeholder="ETH, BTC, USDT, jiný..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="support-tx">
+                        Tx hash <small>(ať to najdeme on-chain)</small>
+                      </label>
+                      <input
+                        id="support-tx"
+                        name="tx"
+                        class="form-input"
+                        placeholder="0x... / txid..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="support-note">
+                        Poznámka k podpoře
+                      </label>
+                      <textarea
+                        id="support-note"
+                        name="support_message"
+                        class="form-textarea"
+                        placeholder="Co jsi poslal / proč / k jaké části systému to chceš přivázat..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="gate-btn">
+                    Zapsat do Syndikátu
+                  </button>
+                  <p class="form-note">
+                    Tenhle formulář je dvouvrstvý: vstupní signál + případná on-chain stopa.
+                    Nic z toho není povinné, ale všechno se počítá.
+                  </p>
+                </div>
+                <p id="formStatus" class="form-note" style="margin-top:6px;display:none;"></p>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- SUPPORT LEVELS -->
+        <div class="tiers-wrapper">
+          <div class="divider" style="margin-top:40px;">
+            <div class="divider-line"></div>
+            <span>SUPPORT LEVELS</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="tiers-header">
+            <div class="tiers-kicker">Role &amp; vrstvy</div>
+            <h2 class="tiers-title">Jak se zapisuješ do Syndikátu</h2>
+            <p class="tiers-sub">
+              Úroveň podpory není jen číslo. Je to kombinace on-chain signálu, času,
+              feedbacku a toho, jak moc chceš být součást kostry, ne jen publika.
+            </p>
+          </div>
+
+          <div class="tiers-grid">
+            <!-- Signal -->
+            <div class="tier-card tier-tier-signal">
+              <div class="tier-head">
+                <div class="tier-name">Signal</div>
+                <div class="tier-badge">#1</div>
+              </div>
+              <div class="tier-tagline">První tichý signál, že nejsi turista.</div>
+              <div class="tier-body">
+                Malý on-chain support nebo dlouhodobý zájem. Zapsaný v systému,
+                ještě ne v nejvyšších vrstvách.
+              </div>
+              <ul class="tier-list">
+                <li>Nick / alias na Support Wall (Signal sekce).</li>
+                <li>Malý badge v profilu (aura / symbol).</li>
+                <li>Dřívější info o nových funkcích a testech.</li>
+                <li>Slevový kód na první merch drop.</li>
+              </ul>
+            </div>
+
+            <!-- Operator -->
+            <div class="tier-card tier-tier-operator">
+              <div class="tier-head">
+                <div class="tier-name">Operator</div>
+                <div class="tier-badge">#2</div>
+              </div>
+              <div class="tier-tagline">Člověk, co nechce jen koukat, ale operovat.</div>
+              <div class="tier-body">
+                Střední support = už nejsi jen v publiku. Máš vliv na formu a priority.
+              </div>
+              <ul class="tier-list">
+                <li>Vlastní karta na Support Wall (Operator sekce).</li>
+                <li>Operator frame kolem avatara v appce.</li>
+                <li>Možnost 1 custom emoji / reakce v chatu.</li>
+                <li>Přístup do uzavřenějšího testingu modulů.</li>
+                <li>Malý fyzický pack (samolepky, mini print, doplňky).</li>
+              </ul>
+            </div>
+
+            <!-- Architect -->
+            <div class="tier-card tier-tier-architect">
+              <div class="tier-head">
+                <div class="tier-name">Architect</div>
+                <div class="tier-badge">#3</div>
+              </div>
+              <div class="tier-tagline">Lidi, co pomáhají stavět kostru.</div>
+              <div class="tier-body">
+                Tady už se neřeší „jestli“, ale „jak“ se věci staví. Jsi součást
+                designových rozhodnutí.
+              </div>
+              <ul class="tier-list">
+                <li>Výrazná karta v sekci „Architects“ na Support Wall.</li>
+                <li>Možnost pojmenovat konkrétní prvek v ekosystému (room, lane, pattern).</li>
+                <li>Priority slot v inner testingu a ve feedback loopu.</li>
+                <li>Přístup k experimentálním AI funkcím dřív, než půjdou ven.</li>
+                <li>Merch pack: heavy tričko / mikina + doplňky.</li>
+              </ul>
+            </div>
+
+            <!-- Black Channel -->
+            <div class="tier-card tier-tier-black">
+              <div class="tier-head">
+                <div class="tier-name">Black</div>
+                <div class="tier-badge">#4</div>
+              </div>
+              <div class="tier-tagline">Těžká váha, nositel Black role.</div>
+              <div class="tier-body">
+                Support + odpovědnost. Dostáváš skutečnou moc – a taky větší závazek
+                vůči projektu.
+              </div>
+              <ul class="tier-list">
+                <li>Black role v appce: přístup k Black market lane a dealům.</li>
+                <li>Jiný pohled na marker (speciální nabídky, ceny, přístupy).</li>
+                <li>Možnost navrhnout 1 konkrétní micro-funkci do roadmapy.</li>
+                <li>Black-only UI skin a viditelný Black badge.</li>
+                <li>Black box: mikina, tričko, drtička, samolepky, limitní print.</li>
+              </ul>
+            </div>
+
+            <!-- Phantom / Founding -->
+            <div class="tier-card tier-tier-phantom">
+              <div class="tier-head">
+                <div class="tier-name">Phantom</div>
+                <div class="tier-badge">Legend</div>
+              </div>
+              <div class="tier-tagline">Ne tabulka, spíš mýtus.</div>
+              <div class="tier-body">
+                Tahle úroveň se neotvírá tlačítkem ani formulářem. Je výsledkem
+                kombinace kapitálu, času a toho, co do Syndikátu přineseš.
+              </div>
+              <ul class="tier-list">
+                <li>Alias v „Founding Syndicate“ sekci (web + app + AI prompt).</li>
+                <li>Možnost pojmenovat celý modul / část systému.</li>
+                <li>Přímý vnitřní kanál na řízení směru (v rámci domluvy).</li>
+                <li>Hand-made fyzický kus: art, token, zakázkový objekt.</li>
+                <li>Podrobnosti se řeší osobně, ne přes formulář.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUPPORT WALL -->
+        <div class="support-wall">
+          <div class="divider" style="margin-top:40px;">
+            <div class="divider-line"></div>
+            <span>SUPPORT WALL</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="support-grid">
+            <div class="support-block">
+              <div class="support-title">Founding / Early names</div>
+              <div class="support-sub">
+                Ručně kurátorovaný seznam lidí, kteří nesou projekt v základech.
+              </div>
+              <ul class="support-list">
+                <li>RGS Gabriel — Architect / Founder</li>
+                <li>Inner Syndicate #01 — Phantom tier</li>
+                <li>Signal Lane — Early operator crew</li>
+              </ul>
+              <p class="support-note">
+                Tohle je „vytesané v kameni“. Není to automatický výpis, ale promyšlený
+                seznam.
+              </p>
+            </div>
+
+            <div class="support-block">
+              <div class="support-title">Live session support</div>
+              <div class="support-sub">
+                Kdokoliv, kdo teď vyplní formulář a nechá on-chain stopu, se pro tuhle
+                session vypíše sem.
+              </div>
+              <ul class="support-list" id="supportDynamicList"></ul>
+              <p class="support-note">
+                Lokální výpis, jen pro tvoje oči. Skutečnou mapu tierů řeší appka.
+              </p>
+            </div>
+          </div>
+        </div>
+		
+		<!-- BURN LANE / PRIVNOTE -->
+        <div class="form-section" id="burn-lane">
+          <div class="divider" style="margin-top:40px;">
+            <div class="divider-line"></div>
+            <span>BURN LANE · ONE-SHOT NOTE</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="form-grid-single">
+            <div class="form-card">
+              <div class="form-card-inner">
+                <div class="form-field">
+                  <label class="form-label" for="burnText">
+                    Vytvořit tajnou zprávu
+                    <small>text se zašifruje v prohlížeči a uloží jako burn-after-read</small>
+                  </label>
+                  <textarea
+                    id="burnText"
+                    class="form-textarea"
+                    placeholder="Napiš zprávu, kterou chceš jednou ukázat a pak spálit."
+                  ></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="gate-btn" id="burnCreateBtn">
+                    Vytvořit burn link
+                  </button>
+                  <p class="form-note" id="burnCreateStatus">
+                    Zpráva nikdy nejde na server v čisté podobě. Server vidí jen šifrovaný balík.
+                  </p>
+                </div>
+
+                <div class="form-field" id="burnLinkRow" style="display:none; margin-top:10px;">
+                  <label class="form-label" for="burnLinkOutput">
+                    Odkaz na zprávu
+                    <small>po prvním zobrazení přestane fungovat</small>
+                  </label>
+                  <input
+                    id="burnLinkOutput"
+                    class="form-input"
+                    readonly
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card" id="burnReadCard" style="display:none;">
+              <div class="form-card-inner">
+                <div class="form-field">
+                  <label class="form-label">
+                    Burn zpráva
+                    <small>zpráva se načte jen jednou – teď</small>
+                  </label>
+                  <div
+                    id="burnReadBox"
+                    class="form-textarea"
+                    style="min-height:120px; white-space:pre-wrap; overflow:auto;"
+                  ></div>
+                </div>
+                <p class="form-note" id="burnReadStatus"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="footer">
           RGS &amp; UFO ORIGINALS · INNER GATE · NO FEED · NO HYPE
         </div>
@@ -695,18 +1699,41 @@
     </div>
   </div>
 
+  <!-- HIDDEN FORM pro logování pokusů brány (Netlify Forms) -->
+  <form name="gate-log" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="gate-log" />
+    <input type="text" name="attempt_type" />
+    <input type="text" name="invite_value" />
+    <input type="text" name="glyph_sequence" />
+    <input type="text" name="code_ok" />
+    <input type="text" name="seq_ok" />
+    <input type="text" name="timestamp" />
+    <input type="text" name="user_agent" />
+    <p style="display:none;">
+      <label>Don’t fill this out: <input name="bot-field" /></label>
+    </p>
+  </form>
+
   <script>
-    // --- gate logic ---
-    const INVITE_CODE = "RGS-UFO-ΣYN";      // invite kód (změň si podle sebe)
-    const GLYPH_SEQUENCE = ["◎", "Σ", "Ψ"]; // pořadí glyphů
-    const ULTRA_CODE = "BLACK-LANE-ULTRA";  // ultra kód pro Layer Black
+    const _encInvite = [89,78,90,52,92,77,86,52,90,96,85];
+    const _encUltra  = [73,83,72,74,82,52,83,72,85,76,52,92,83,91,89,72];
+    const _encOwner  = [89,78,90,52,75,72,90,79,52,86,94,85,76,89];
+
+    function decodeSeq(arr) {
+      return arr.map(n => String.fromCharCode(n - 7)).join("");
+    }
+
+    const INVITE_CODE     = decodeSeq(_encInvite);
+    const ULTRA_CODE      = decodeSeq(_encUltra);
+    const OWNER_DASH_CODE = decodeSeq(_encOwner);
+    const GLYPH_SEQUENCE  = ["◎", "Σ", "Ψ"];
 
     const inviteInput = document.getElementById("inviteInput");
     const gateBtn = document.getElementById("gateBtn");
     const glyphRow = document.getElementById("glyphRow");
     const gateStatus = document.getElementById("gateStatus");
     const gateWrapper = document.getElementById("gateWrapper");
-    const contentRoot = document.getElementById("contentRoot");
+    const gateSub = document.getElementById("gateSub");
 
     const matrixCanvas = document.getElementById("matrixCanvas");
     const matrixCtx = matrixCanvas.getContext("2d");
@@ -715,6 +1742,30 @@
     let matrixDrops = [];
 
     let glyphClicks = [];
+
+    const snarkBoth = [
+      "Tohle by neodemklo ani chat v Messengeru.",
+      "Kód i sekvence úplně mimo. Jsi si jistý, že jsi na správném internetu?",
+      "Něco z toho možná vypadalo správně. Bohužel to nebylo tady.",
+      "Tma. Ani AI ti tohle nezachrání.",
+      "Pokus číslo ??. Gate se jen dívá a mlčí."
+    ];
+    const snarkCode = [
+      "Sekvence sedí, ale kód smrdí defaultem.",
+      "Znakům rozumíš. Kódu zatím ne.",
+      "Blízko. Tvoje prsty ví, co dělají – hlava ještě ne.",
+      "Kód je špatně. Všechno ostatní se tváří dobře."
+    ];
+    const snarkSeq = [
+      "Kód máš. Znakový tanec ne.",
+      "Invite kód sedí. Tvoje prsty jen netrefily správný rytmus.",
+      "Víš, co napsat, ale ne na co kliknout.",
+      "Znaková sekvence řve 'nope'."
+    ];
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
 
     function normaliseCode(str) {
       return (str || "").trim();
@@ -735,23 +1786,70 @@
       });
     });
 
+    function glitchEffect(messageArr) {
+      const msg = pickRandom(messageArr);
+      gateStatus.textContent = msg.replace("??", String(Math.floor(Math.random()*99)+1));
+      gateStatus.className = "gate-status err";
+      gateWrapper.classList.remove("glitch");
+      void gateWrapper.offsetWidth;
+      gateWrapper.classList.add("glitch");
+      setTimeout(() => {
+        gateWrapper.classList.remove("glitch");
+      }, 350);
+    }
+
+    // Logování pokusu do Netlify Forms (gate-log)
+    function logGateAttempt(resultType, codeOk, seqOk) {
+      const formName = "gate-log";
+      const glyphSeq = glyphClicks.join("");
+      const inviteVal = normaliseCode(inviteInput.value);
+      const now = new Date().toISOString();
+      const ua = navigator.userAgent || "";
+
+      const data = new URLSearchParams();
+      data.append("form-name", formName);
+      data.append("attempt_type", resultType);
+      data.append("invite_value", inviteVal);
+      data.append("glyph_sequence", glyphSeq);
+      data.append("code_ok", codeOk ? "true" : "false");
+      data.append("seq_ok", seqOk ? "true" : "false");
+      data.append("timestamp", now);
+      data.append("user_agent", ua);
+      data.append("bot-field", "");
+
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: data.toString()
+      }).catch(() => {
+        // když log failne, neřešíme – gate musí reagovat dál
+      });
+    }
+
     function checkGate() {
-      const codeOk = normaliseCode(inviteInput.value) === INVITE_CODE;
+      const inviteVal = normaliseCode(inviteInput.value);
+      const codeOk = inviteVal === INVITE_CODE;
       const seqOk = GLYPH_SEQUENCE.every((val, idx) => glyphClicks[idx] === val);
 
+      let resultType;
+      if (codeOk && seqOk) resultType = "success";
+      else if (!codeOk && !seqOk) resultType = "bad_both";
+      else if (!codeOk) resultType = "bad_code";
+      else resultType = "bad_seq";
+
+      // log vždy, bez ohledu na výsledek
+      logGateAttempt(resultType, codeOk, seqOk);
+
       if (!codeOk && !seqOk) {
-        gateStatus.textContent = "Kód i sekvence jsou mimo. Tma.";
-        gateStatus.className = "gate-status err";
+        glitchEffect(snarkBoth);
         return;
       }
       if (!codeOk) {
-        gateStatus.textContent = "Sekvence sedí, ale invite kód ne.";
-        gateStatus.className = "gate-status err";
+        glitchEffect(snarkCode);
         return;
       }
       if (!seqOk) {
-        gateStatus.textContent = "Invite kód je v pořádku, ale znaky jsou ve špatném pořadí.";
-        gateStatus.className = "gate-status err";
+        glitchEffect(snarkSeq);
         return;
       }
 
@@ -768,7 +1866,6 @@
       }
     });
 
-    // --- Matrix rain (canvas full-screen) ---
     function initMatrixCanvas() {
       matrixCanvas.width = window.innerWidth;
       matrixCanvas.height = window.innerHeight;
@@ -868,6 +1965,445 @@
         e.preventDefault();
         checkUltra();
       }
+    });
+
+    // FEATURE DASHBOARD DATA
+    const features = [
+      { key: "dm", name: "DM & chat", icon: "💬", category: "Social", status: "alpha", planned: false, progress: 70 },
+      { key: "contacts", name: "Kontakty & mini profily", icon: "👥", category: "Social", status: "alpha", planned: false, progress: 65 },
+      { key: "groups", name: "Groups & spaces", icon: "🧩", category: "Social", status: "alpha", planned: false, progress: 60 },
+      { key: "market", name: "Marketplace / marker", icon: "🛒", category: "Market", status: "alpha", planned: false, progress: 55 },
+      { key: "wallet", name: "Wallet & payments", icon: "💳", category: "Money", status: "alpha", planned: false, progress: 50 },
+      { key: "rating", name: "Rating & recenze", icon: "⭐", category: "Reputation", status: "alpha", planned: false, progress: 60 },
+      { key: "search", name: "Globální vyhledávání", icon: "🔎", category: "Core", status: "alpha", planned: false, progress: 50 },
+      { key: "ai", name: "Uncensored AI lane", icon: "🤖", category: "AI", status: "alpha", planned: false, progress: 55 },
+
+      { key: "screenDefense", name: "Screen defense", icon: "📵", category: "Security", status: "planned", planned: true, progress: 20 },
+      { key: "panicMode", name: "Panic mode", icon: "🧊", category: "Security", status: "planned", planned: true, progress: 10 },
+      { key: "innerroad", name: "INNERROAD hidden lanes", icon: "🧬", category: "Market", status: "planned", planned: true, progress: 25 },
+      { key: "blackRole", name: "Black role & privileges", icon: "🎯", category: "Access", status: "planned", planned: true, progress: 20 },
+      { key: "cryptoLayer", name: "Crypto layer / on-chain", icon: "⛓️", category: "Money", status: "planned", planned: true, progress: 30 },
+      { key: "dealerMode", name: "Dealer mode", icon: "⚡", category: "Market", status: "planned", planned: true, progress: 25 },
+      { key: "reputationGraph", name: "Reputation graph", icon: "📊", category: "Reputation", status: "planned", planned: true, progress: 15 },
+      { key: "deepAiWeave", name: "Deep AI weave", icon: "🧠", category: "AI", status: "planned", planned: true, progress: 20 },
+      { key: "safeChatPlus", name: "Safe chat+", icon: "🛡️", category: "Security", status: "planned", planned: true, progress: 15 },
+      { key: "vault", name: "Vault / sejf", icon: "🧳", category: "Security", status: "planned", planned: true, progress: 15 },
+      { key: "aliasId", name: "Alias & trusted devices", icon: "🗝️", category: "Identity", status: "planned", planned: true, progress: 10 }
+    ];
+
+    const dashGrid = document.getElementById("dashGrid");
+    const dashSummary = document.getElementById("dashSummary");
+    const dashTitle = document.getElementById("dashTitle");
+
+    const savedProgressRaw = localStorage.getItem("rgsFeatureProgress");
+    if (savedProgressRaw) {
+      try {
+        const saved = JSON.parse(savedProgressRaw);
+        features.forEach((f) => {
+          if (saved[f.key] !== undefined) {
+            const val = parseInt(saved[f.key], 10);
+            if (!isNaN(val)) f.progress = val;
+          }
+        });
+      } catch (e) {}
+    }
+
+    function saveProgressLocal() {
+      const map = {};
+      features.forEach((f) => {
+        map[f.key] = f.progress;
+      });
+      localStorage.setItem("rgsFeatureProgress", JSON.stringify(map));
+    }
+
+    function updateDashSummary() {
+      let currentSum = 0;
+      let currentCount = 0;
+      let plannedSum = 0;
+      let plannedCount = 0;
+
+      features.forEach((f) => {
+        const prog = typeof f.progress === "number" ? f.progress : 0;
+        if (f.planned) {
+          plannedSum += prog;
+          plannedCount++;
+        } else {
+          currentSum += prog;
+          currentCount++;
+        }
+      });
+
+      const currentAvg = currentCount > 0 ? Math.round(currentSum / currentCount) : 0;
+      const plannedAvg = plannedCount > 0 ? Math.round(plannedSum / plannedCount) : 0;
+
+      dashSummary.innerHTML = "";
+      const chip1 = document.createElement("div");
+      chip1.className = "dash-chip";
+      chip1.textContent = `CURRENT · ${currentCount} · ~${currentAvg}%`;
+
+      const chip2 = document.createElement("div");
+      chip2.className = "dash-chip";
+      chip2.textContent = `PLANNED · ${plannedCount} · ~${plannedAvg}%`;
+
+      const totalChip = document.createElement("div");
+      totalChip.className = "dash-chip";
+      totalChip.textContent = `TOTAL FEATURES · ${features.length}`;
+
+      dashSummary.appendChild(chip1);
+      dashSummary.appendChild(chip2);
+      dashSummary.appendChild(totalChip);
+    }
+
+    function renderDashboard() {
+      dashGrid.innerHTML = "";
+      features.forEach((f, idx) => {
+        const isPlanned = !!f.planned;
+        const prog = typeof f.progress === "number" ? f.progress : 0;
+
+        const row = document.createElement("div");
+        row.className = "dash-row";
+
+        const icon = document.createElement("div");
+        icon.className = "dash-icon";
+        icon.textContent = f.icon || "•";
+
+        const main = document.createElement("div");
+        main.className = "dash-main";
+
+        const name = document.createElement("div");
+        name.className = "dash-name";
+        name.textContent = f.name;
+
+        const meta = document.createElement("div");
+        meta.className = "dash-meta";
+        meta.textContent = `${f.category.toUpperCase()} · ${isPlanned ? "PLANNED" : "CURRENT"}`;
+
+        const pill = document.createElement("span");
+        pill.className = "dash-pill " + (isPlanned ? "planned" : "alpha");
+        pill.textContent = isPlanned ? "PLANNED" : f.status.toUpperCase();
+
+        const barWrap = document.createElement("div");
+        barWrap.className = "dash-bar-wrap";
+
+        const barTrack = document.createElement("div");
+        barTrack.className = "dash-bar-track";
+
+        const barFill = document.createElement("div");
+        barFill.className = "dash-bar-fill";
+        barFill.style.width = prog + "%";
+
+        barTrack.appendChild(barFill);
+
+        const barLabel = document.createElement("div");
+        barLabel.className = "dash-bar-label";
+        barLabel.innerHTML = `<span>${prog}%</span><span>${f.status}</span>`;
+
+        barWrap.appendChild(barTrack);
+        barWrap.appendChild(barLabel);
+
+        const edit = document.createElement("div");
+        edit.className = "dash-edit";
+        const label = document.createElement("span");
+        label.textContent = "upravit %:";
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.max = "100";
+        input.value = prog;
+        input.addEventListener("input", () => {
+          let val = parseInt(input.value, 10);
+          if (isNaN(val)) val = 0;
+          if (val < 0) val = 0;
+          if (val > 100) val = 100;
+          features[idx].progress = val;
+          barFill.style.width = val + "%";
+          barLabel.innerHTML = `<span>${val}%</span><span>${f.status}</span>`;
+          updateDashSummary();
+          saveProgressLocal();
+        });
+
+        edit.appendChild(label);
+        edit.appendChild(input);
+
+        main.appendChild(name);
+        main.appendChild(meta);
+        main.appendChild(pill);
+        main.appendChild(barWrap);
+        main.appendChild(edit);
+
+        row.appendChild(icon);
+        row.appendChild(main);
+
+        dashGrid.appendChild(row);
+      });
+
+      updateDashSummary();
+    }
+
+    dashTitle.addEventListener("dblclick", () => {
+      const code = window.prompt("Admin kód pro edit dashboardu:");
+      if (code && code.trim() === OWNER_DASH_CODE) {
+        document.body.classList.add("edit-mode");
+        alert("Edit mód aktivní v tomhle prohlížeči. Úpravy se ukládají lokálně.");
+      }
+    });
+
+    renderDashboard();
+
+    // Support Wall napojení na formulář (lokálně + Netlify)
+    const accessForm = document.querySelector('form[name="inner-access"]');
+    const supportDynamicList = document.getElementById("supportDynamicList");
+    const formStatus = document.getElementById("formStatus");
+
+    if (accessForm && supportDynamicList && formStatus) {
+      accessForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(accessForm);
+        const alias = (formData.get("alias") || "neznámý operative").toString().trim();
+        const chain = (formData.get("chain") || "").toString().trim();
+        const tx    = (formData.get("tx") || "").toString().trim();
+
+        let icon = "";
+        if (/eth/i.test(chain)) icon = "⛓️ ";
+        else if (/btc/i.test(chain)) icon = "₿ ";
+        else if (/usdt|usd[tc]/i.test(chain)) icon = "💠 ";
+
+        const li = document.createElement("li");
+        let line = icon + alias;
+        if (chain) line += " · " + chain;
+        if (tx)    line += " · " + tx;
+        li.textContent = line;
+        supportDynamicList.appendChild(li);
+
+        const encoded = new URLSearchParams(formData).toString();
+        formStatus.style.display = "block";
+        formStatus.style.color = "#a8a4c8";
+        formStatus.textContent = "Zapisujeme žádost / support do vnitřní vrstvy…";
+
+        fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: encoded
+        }).then((res) => {
+          if (res.ok) {
+            formStatus.textContent = "Zapsáno. Když to bude dávat smysl, ozveme se.";
+            formStatus.style.color = "#7cffb2";
+            accessForm.reset();
+          } else {
+            formStatus.textContent = "Server odpověděl divně. Zkus to za chvíli znovu.";
+            formStatus.style.color = "#ff6f91";
+          }
+        }).catch(() => {
+          formStatus.textContent = "Síť padla nebo je něco mezi. Dej tomu čas a zkus to znovu.";
+          formStatus.style.color = "#ff6f91";
+        });
+      });
+    }
+
+    // Kontext gate textu (noc / opakovaná návštěva)
+    document.addEventListener("DOMContentLoaded", () => {
+      const visited = localStorage.getItem("rgsInnerVisited");
+      const hour = new Date().getHours();
+
+      if (!visited) {
+        localStorage.setItem("rgsInnerVisited", "1");
+      } else {
+        gateSub.textContent =
+          "Vstup znáš. Gate sleduje, jestli jsi přišel pracovat, nebo jen zírat na tmu.";
+      }
+
+      if (hour >= 23 || hour <= 4) {
+        gateSub.textContent =
+          "Noční režim. Všichni normální už spí. To je tvoje výhoda.";
+      }
+    });
+  
+
+    // ===== BURN LANE / PRIVNOTE MODUL =====
+    // helpers pro base64url
+    function b64urlEncode(bytes) {
+      let str = "";
+      bytes = new Uint8Array(bytes);
+      for (let i = 0; i < bytes.length; i++) {
+        str += String.fromCharCode(bytes[i]);
+      }
+      return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function b64urlDecode(str) {
+      str = str.replace(/-/g, "+").replace(/_/g, "/");
+      const pad = str.length % 4;
+      if (pad) {
+        str += "====".slice(pad);
+      }
+      const bin = atob(str);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) {
+        bytes[i] = bin.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    async function encryptBurnNote(plainText) {
+      const enc = new TextEncoder();
+      const keyBytes = crypto.getRandomValues(new Uint8Array(32)); // 256-bit
+      const ivBytes = crypto.getRandomValues(new Uint8Array(12)); // GCM standard
+
+      const key = await crypto.subtle.importKey(
+        "raw",
+        keyBytes,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt"]
+      );
+
+      const cipherBuf = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: ivBytes },
+        key,
+        enc.encode(plainText)
+      );
+
+      return {
+        keyB64: b64urlEncode(keyBytes),
+        ivB64: b64urlEncode(ivBytes),
+        cipherB64: b64urlEncode(cipherBuf),
+      };
+    }
+
+    async function decryptBurnNote(cipherB64, ivB64, keyB64) {
+      const dec = new TextDecoder();
+      const keyBytes = b64urlDecode(keyB64);
+      const ivBytes = b64urlDecode(ivB64);
+      const cipherBytes = b64urlDecode(cipherB64);
+
+      const key = await crypto.subtle.importKey(
+        "raw",
+        keyBytes,
+        { name: "AES-GCM" },
+        false,
+        ["decrypt"]
+      );
+
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: ivBytes },
+        key,
+        cipherBytes
+      );
+
+      return dec.decode(plainBuf);
+    }
+
+    async function handleBurnCreate() {
+      const textEl = document.getElementById("burnText");
+      const statusEl = document.getElementById("burnCreateStatus");
+      const linkRow = document.getElementById("burnLinkRow");
+      const linkOutput = document.getElementById("burnLinkOutput");
+
+      const text = (textEl.value || "").trim();
+      if (!text) {
+        statusEl.textContent = "Napiš něco, než to pošleme do ohně.";
+        statusEl.style.color = "#ff6f91";
+        return;
+      }
+
+      statusEl.style.color = "#a8a4c8";
+      statusEl.textContent = "Šifruju a posílám šifrovaný balík…";
+
+      try {
+        const { keyB64, ivB64, cipherB64 } = await encryptBurnNote(text);
+
+        const res = await fetch("/.netlify/functions/note-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cipher: cipherB64, iv: ivB64 }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Server neodpověděl korektně");
+        }
+
+        const data = await res.json();
+        const token = data.token;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("note", token);
+        url.hash = "#" + keyB64;
+
+        linkOutput.value = url.toString();
+        linkRow.style.display = "block";
+
+        statusEl.textContent = "Hotovo. Pošli link tomu, komu má zpráva shořet v rukou.";
+        statusEl.style.color = "#7cffb2";
+        textEl.value = "";
+      } catch (err) {
+        statusEl.textContent = "Něco se pokazilo. Zkus to znovu, nebo to zatím nespaluj.";
+        statusEl.style.color = "#ff6f91";
+      }
+    }
+
+    async function handleBurnReadIfPresent() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("note");
+      const hash = window.location.hash || "";
+      const keyB64 = hash.startsWith("#") ? hash.slice(1) : "";
+
+      const readCard = document.getElementById("burnReadCard");
+      const readBox = document.getElementById("burnReadBox");
+      const readStatus = document.getElementById("burnReadStatus");
+
+      if (!token || !keyB64 || !readCard) return;
+
+      readCard.style.display = "block";
+      readStatus.style.color = "#a8a4c8";
+      readStatus.textContent = "Tahám šifrovanou zprávu a pálím záznam…";
+
+      try {
+        const res = await fetch("/.netlify/functions/note-read", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+
+        if (res.status === 410) {
+          readBox.textContent = "";
+          readStatus.style.color = "#ff6f91";
+          readStatus.textContent = "Zpráva už shořela. Tady nic neuvidíš.";
+          history.replaceState(null, "", window.location.pathname);
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Server odpověděl chybou");
+        }
+
+        const data = await res.json();
+        const cipherB64 = data.cipher;
+        const ivB64 = data.iv;
+
+        const plain = await decryptBurnNote(cipherB64, ivB64, keyB64);
+
+        readBox.textContent = plain;
+        readStatus.style.color = "#7cffb2";
+        readStatus.textContent = "Tohle je jediné zobrazení téhle zprávy. Po reloadu je pryč.";
+
+        // spálit URL – odstranit token i key z adresy
+        history.replaceState(null, "", window.location.pathname + "#burned");
+      } catch (err) {
+        readBox.textContent = "";
+        readStatus.style.color = "#ff6f91";
+        readStatus.textContent = "Zprávu nejde načíst. Možná už shořela, možná něco smrdí na cestě.";
+        history.replaceState(null, "", window.location.pathname);
+      }
+    }
+
+    // Hooky pro Burn Lane
+    document.addEventListener("DOMContentLoaded", () => {
+      const burnBtn = document.getElementById("burnCreateBtn");
+      if (burnBtn) {
+        burnBtn.addEventListener("click", handleBurnCreate);
+      }
+      handleBurnReadIfPresent();
     });
   </script>
 </body>
