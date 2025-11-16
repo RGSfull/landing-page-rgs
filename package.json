@@ -1,0 +1,8 @@
+{
+  "name": "rgs-ufo-landing",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "pg": "^8.12.0"
+  }
+}
