@@ -37,8 +37,10 @@ export async function handler(event) {
       return { statusCode: 500, body: "Redis error" };
     }
 
-    const json = await getRes.json();
-    const result = json.result;
+  const json = await getRes.json();
+  console.log("note-read token:", token);
+  console.log("Redis GET json:", JSON.stringify(json));
+  const result = json.result;
 
     if (result === null) {
       // note není v Redis – buď expirovala, nebo už byla přečtená
