@@ -1371,7 +1371,7 @@
             <div class="dash-summary" id="dashSummary"></div>
           </div>
           <div class="dash-admin-hint">
-            „Function Dashboard“
+            (Double-click na „Function Dashboard“ + admin kód = edit mód jen v tomhle prohlížeči.)
           </div>
           <div class="dash-grid" id="dashGrid"></div>
           <p class="form-note" style="margin-top:8px;">
@@ -1849,70 +1849,113 @@
   </button>
 </div>
 
-        <!-- BURN LANE / PRIVNOTE -->
-        <div class="form-section" id="burn-lane">
-          <div class="divider" style="margin-top:40px;">
-            <div class="divider-line"></div>
-            <span>BURN LANE · ONE-SHOT NOTE</span>
-            <div class="divider-line"></div>
-          </div>
+      <!-- BURN LANE / PRIVNOTE -->
+      <section class="form-section" id="burn-lane">
+        <div class="divider" style="margin-top:40px;">
+          <div class="divider-line"></div>
+          <span>BURN LANE · ONE-SHOT NOTE</span>
+          <div class="divider-line"></div>
+        </div>
 
-          <div class="form-grid-single">
-            <div class="form-card">
-              <div class="form-card-inner">
-                <div class="form-field">
-                  <label class="form-label" for="burnText">
-                    Vytvořit tajnou zprávu
-                    <small>text se zašifruje v prohlížeči a uloží jako burn-after-read</small>
-                  </label>
-                  <textarea
-                    id="burnText"
-                    class="form-textarea"
-                    placeholder="Napiš zprávu, kterou chceš jednou ukázat a pak spálit."
-                  ></textarea>
+        <div class="form-grid-single">
+          <!-- CREATE NOTE -->
+          <div class="form-card">
+            <div class="form-card-inner">
+              <div class="form-field">
+                <label class="form-label" for="burnTtl">
+                  TTL zprávy
+                  <small>max 24 hodin – po té zmizí i bez přečtení</small>
+                </label>
+                <input
+                  id="burnTtl"
+                  type="range"
+                  min="1"
+                  max="24"
+                  step="1"
+                  value="24"
+                  class="burn-ttl-slider"
+                />
+                <div id="burnTtlLabel" class="form-note">
+                  Expirace: 24 h
                 </div>
+              </div>
 
-                <div class="form-actions">
-                  <button type="button" class="gate-btn" id="burnCreateBtn">
-                    Vytvořit burn link
-                  </button>
-                  <p class="form-note" id="burnCreateStatus">
-                    Zpráva nikdy nejde na server v čisté podobě. Server vidí jen šifrovaný balík.
-                  </p>
-                </div>
+              <div class="form-field">
+                <label class="form-label" for="burnSlug">
+                  Slug / název zprávy
+                  <small>volitelné – krátký kód, který si pamatuješ ty</small>
+                </label>
+                <input
+                  id="burnSlug"
+                  class="form-input"
+                  placeholder="např. deal-phi, note-001, rgs-alpha..."
+                />
+              </div>
 
-                <div class="form-field" id="burnLinkRow" style="display:none; margin-top:10px;">
-                  <label class="form-label" for="burnLinkOutput">
-                    Odkaz na zprávu
-                    <small>po prvním zobrazení přestane fungovat</small>
-                  </label>
-                  <input
-                    id="burnLinkOutput"
-                    class="form-input"
-                    readonly
-                  />
-                </div>
+              <div class="form-field">
+                <label class="form-label" for="burnText">
+                  Vytvořit tajnou zprávu
+                  <small>text se zašifruje v prohlížeči a uloží jako burn-after-read</small>
+                </label>
+                <textarea
+                  id="burnText"
+                  class="form-textarea"
+                  placeholder="Napiš zprávu, kterou chceš jednou ukázat a pak spálit."
+                ></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="gate-btn" id="burnCreateBtn">
+                  Vytvořit burn link
+                </button>
+                <p class="form-note" id="burnCreateStatus">
+                  Zpráva nikdy nejde na server v čisté podobě. Server vidí jen šifrovaný balík.
+                </p>
+              </div>
+
+              <div class="form-field" id="burnLinkRow" style="display:none; margin-top:10px;">
+                <label class="form-label" for="burnLinkOutput">
+                  Odkaz na zprávu
+                  <small>po prvním zobrazení přestane fungovat</small>
+                </label>
+                <input
+                  id="burnLinkOutput"
+                  class="form-input"
+                  readonly
+                />
               </div>
             </div>
+          </div>
 
-            <div class="form-card" id="burnReadCard" style="display:none;">
-              <div class="form-card-inner">
-                <div class="form-field">
-                  <label class="form-label">
-                    Burn zpráva
-                    <small>zpráva se načte jen jednou – teď</small>
-                  </label>
-                  <div
-                    id="burnReadBox"
-                    class="form-textarea"
-                    style="min-height:120px; white-space:pre-wrap; overflow:auto;"
-                  ></div>
-                </div>
-                <p class="form-note" id="burnReadStatus"></p>
+          <!-- READ NOTE -->
+          <div class="form-card" id="burnReadCard" style="display:none;">
+            <div class="form-card-inner">
+              <div class="form-field">
+                <label class="form-label">
+                  Burn zpráva
+                  <small>zpráva se načte jen jednou – teď</small>
+                </label>
+                <div
+                  id="burnReadBox"
+                  class="form-textarea"
+                  style="min-height:120px; white-space:pre-wrap; overflow:auto;"
+                ></div>
               </div>
+              <p class="form-note" id="burnReadStatus"></p>
+            </div>
+          </div>
+
+          <!-- GLOBAL STATS -->
+          <div class="form-card" id="burnStatsCard" style="margin-top:16px;">
+            <div class="form-card-inner">
+              <div class="form-label">Burn Lane – statistiky (globální)</div>
+              <p class="form-note" id="burnStatsText">
+                Načítám statistiky Burn Lane…
+              </p>
             </div>
           </div>
         </div>
+      </section>
 		
 		<!-- COMMAND CONSOLE -->
         <div class="command-console">
@@ -1964,6 +2007,11 @@
     const OWNER_DASH_CODE = decodeSeq(_encOwner);
     const GLYPH_SEQUENCE  = ["◎", "Σ", "Ψ"];
     const BURN_CODE       = "BURN-LANE-777";
+
+  const burnTtlInput  = document.getElementById("burnTtl");
+  const burnTtlLabel  = document.getElementById("burnTtlLabel");
+  const burnSlugInput = document.getElementById("burnSlug");
+  const burnStatsText = document.getElementById("burnStatsText");
 
     const inviteInput = document.getElementById("inviteInput");
     const gateBtn = document.getElementById("gateBtn");
@@ -2342,6 +2390,50 @@
       dashSummary.appendChild(chip2);
       dashSummary.appendChild(totalChip);
     }
+
+    // ===== BURN LANE GLOBAL STATS =====
+    async function refreshBurnStats() {
+      if (!burnStatsText) return;
+      try {
+        const res = await fetch("/.netlify/functions/burn-stats");
+        if (!res.ok) {
+          burnStatsText.textContent = "Statistiky nejdou načíst.";
+          return;
+        }
+        const data = await res.json();
+        if (!data.ok) {
+          burnStatsText.textContent = "Statistiky nejdou načíst.";
+          return;
+        }
+        const s = data.stats || {};
+        const total = s.total || 0;
+        const pending = s.pending || 0;
+        const avgTtl =
+          s.avg_ttl != null ? s.avg_ttl.toFixed(1) : "–";
+        let avgBurnText = "zatím žádná zpráva nebyla přečtená";
+
+        if (s.avg_burn_seconds != null) {
+          const sec = s.avg_burn_seconds;
+          const min = Math.round(sec / 60);
+          if (min < 1) {
+            avgBurnText = "průměrně do 1 minuty";
+          } else if (min < 60) {
+            avgBurnText = `průměrně za ${min} min`;
+          } else {
+            const h = Math.floor(min / 60);
+            const m = min % 60;
+            avgBurnText = `průměrně za ${h} h ${m} min`;
+          }
+        }
+
+        burnStatsText.textContent =
+          `Vytvořeno: ${total} · Čeká (nepřečtené): ${pending} · ` +
+          `Průměrně zvolené TTL: ${avgTtl} h · ` +
+          `Průměr rychlosti burn: ${avgBurnText}.`;
+      } catch (e) {
+        burnStatsText.textContent = "Statistiky nejdou načíst.";
+      }
+    }
 	
 	function highlightTierCard(tierCode) {
       document.querySelectorAll(".tier-card").forEach(card => {
@@ -2653,12 +2745,6 @@
       updateSessionHud();
       setupTierMatcher();
 
-      const burnBtn = document.getElementById("burnCreateBtn");
-      if (burnBtn) {
-        burnBtn.addEventListener("click", handleBurnCreate);
-      }
-      handleBurnReadIfPresent();
-
       // command konzole
       const cmdInput = document.getElementById("commandInput");
       const cmdStatus = document.getElementById("commandStatus");
@@ -2768,10 +2854,27 @@
       try {
         const { keyB64, ivB64, cipherB64 } = await encryptBurnNote(text);
 
+        // TTL v hodinách z slideru (1–24)
+        const ttlHours = burnTtlInput
+          ? Math.min(
+              Math.max(parseInt(burnTtlInput.value || "24", 10), 1),
+              24
+            )
+          : 24;
+
+        // slug – volitelný
+        const slugRaw = burnSlugInput ? burnSlugInput.value.trim() : "";
+        const slug =
+          slugRaw ||
+          ("note-" +
+            Math.random()
+              .toString(36)
+              .slice(2, 8));
+
         const res = await fetch("/.netlify/functions/note-create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cipher: cipherB64, iv: ivB64 }),
+          body: JSON.stringify({ cipher: cipherB64, iv: ivB64, ttlHours, slug })
         });
 
         if (!res.ok) {
@@ -2791,7 +2894,14 @@
         statusEl.textContent = "Hotovo. Pošli link tomu, komu má zpráva shořet v rukou.";
         statusEl.style.color = "#7cffb2";
         textEl.value = "";
+
+        // přepiš slug input na reálně použitý slug
+        if (burnSlugInput) burnSlugInput.value = data.slug || slug;
+
+        // obnov statistiky
+        refreshBurnStats();
       } catch (err) {
+        console.error("handleBurnCreate error:", err);
         statusEl.textContent = "Něco se pokazilo. Zkus to znovu, nebo to zatím nespaluj.";
         statusEl.style.color = "#ff6f91";
       }
@@ -2840,8 +2950,13 @@
 
         readBox.textContent = plain;
         readStatus.style.color = "#7cffb2";
-        readStatus.textContent = "Tohle je jediné zobrazení téhle zprávy. Po reloadu je pryč.";
+        readStatus.textContent =
+          "Tohle je jediné zobrazení téhle zprávy. Po reloadu je pryč.";
 
+        // obnov statistiky po burn
+        refreshBurnStats();
+
+        // spálit URL – odstranit token i key z adresy
         history.replaceState(null, "", window.location.pathname + "#burned");
       } catch (err) {
         readBox.textContent = "";
@@ -2857,6 +2972,19 @@
         burnBtn.addEventListener("click", handleBurnCreate);
       }
       handleBurnReadIfPresent();
+
+      // TTL slider label
+      if (burnTtlInput && burnTtlLabel) {
+        const updateTtlLabel = () => {
+          const h = parseInt(burnTtlInput.value || "24", 10);
+          burnTtlLabel.textContent = `Expirace: ${h} h`;
+        };
+        burnTtlInput.addEventListener("input", updateTtlLabel);
+        updateTtlLabel();
+      }
+
+      // globální Burn Lane statistiky
+      refreshBurnStats();
     });
 	
 	// ========== ADMIN PANEL SCRIPT ==========
@@ -3005,5 +3133,4 @@ document.addEventListener("DOMContentLoaded", () => {
 });
   </script>
 </body>
-
 </html>
