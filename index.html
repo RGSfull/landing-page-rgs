@@ -2860,13 +2860,33 @@
     });
 	
 	// ========== ADMIN PANEL SCRIPT ==========
+// ========== ADMIN PANEL SCRIPT ==========
+
+async function updateRequestStatus(id, action) {
+  try {
+    const res = await fetch(`/.netlify/functions/admin-update?key=${OWNER_DASH_CODE}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, action })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await loadAdminList();
+    } else {
+      alert("Admin update error: " + (data.error || "unknown"));
+    }
+  } catch (e) {
+    alert("Admin update fetch failed");
+  }
+}
 
 async function loadAdminList() {
   const adminPanel = document.getElementById("adminPanel");
   const adminList = document.getElementById("adminList");
   const adminStatus = document.getElementById("adminStatus");
+  const adminStats = document.getElementById("adminStats");
 
-  if (!adminPanel || !adminList || !adminStatus) return;
+  if (!adminPanel || !adminList || !adminStatus || !adminStats) return;
 
   adminStatus.textContent = "Loading…";
 
@@ -2875,11 +2895,18 @@ async function loadAdminList() {
 
   if (!data.ok) {
     adminStatus.textContent = "Unauthorized or error.";
+    adminStats.textContent = "";
     return;
   }
 
-  adminStatus.textContent = `${data.items.length} records`;
+  // HUD – stats
+  const s = data.stats || {};
+  adminStats.textContent =
+    `Pending: ${s.pending || 0} · Accepted: ${s.accepted || 0} · Rejected: ${s.rejected || 0} · Today: ${s.today || 0} · Total: ${s.total || 0}`;
 
+  adminStatus.textContent = `Records: ${data.items.length}`;
+
+  // seznam
   adminList.innerHTML = "";
 
   data.items.forEach(item => {
@@ -2889,40 +2916,92 @@ async function loadAdminList() {
     wrap.style.borderRadius = "12px";
     wrap.style.background = "rgba(10,5,20,0.6)";
 
+    const statusColor =
+      item.status === "accepted" ? "#7cffb2" :
+      item.status === "rejected" ? "#ff6f91" :
+      "#f5b4a8";
+
     wrap.innerHTML = `
-      <div style="color:#f5b4a8; font-size:0.9rem; margin-bottom:4px;">
-        ${item.alias || "unknown"} — ${item.role_wanted || "-"}
+      <div class="admin-row-main" style="display:flex; justify-content:space-between; gap:8px; cursor:pointer;">
+        <div>
+          <span style="color:#f5b4a8; font-size:0.9rem;">${item.alias || "unknown"}</span>
+          <span style="color:#a8a4c8; font-size:0.8rem;"> — ${item.role_wanted || "-"}</span>
+        </div>
+        <div style="font-size:0.75rem; color:${statusColor}; text-transform:uppercase; letter-spacing:0.12em;">
+          ${item.status || "pending"}
+        </div>
       </div>
-      <div style="color:#a8a4c8; font-size:0.75rem;">Invite: ${item.invite || "-"}</div>
-      <div style="color:#a8a4c8; font-size:0.75rem;">Contact: ${item.contact || "-"}</div>
-      <div style="color:#a8a4c8; font-size:0.75rem;">Chain: ${item.chain || "-"}</div>
-      <div style="color:#a8a4c8; font-size:0.75rem;">TX: ${item.tx_hash || "-"}</div>
-      <div style="color:#a8a4c8; font-size:0.75rem;">Note: ${item.support_note || "-"}</div>
-      <div style="color:#8c7da5; font-size:0.7rem; margin-top:6px;">
-        ${new Date(item.created_at).toLocaleString()}
+      <div class="admin-row-details" style="display:none; margin-top:6px; font-size:0.78rem; color:#a8a4c8;">
+        <div>Invite: ${item.invite || "-"}</div>
+        <div>Contact: ${item.contact || "-"}</div>
+        <div>Chain: ${item.chain || "-"}</div>
+        <div>TX: ${item.tx_hash || "-"}</div>
+        <div>Message: ${item.message || "-"}</div>
+        <div>Support note: ${item.support_note || "-"}</div>
+        <div style="color:#8c7da5; font-size:0.7rem; margin-top:4px;">
+          ${new Date(item.created_at).toLocaleString()}
+        </div>
+        <div style="margin-top:6px; display:flex; gap:6px;">
+          <button data-id="${item.id}" data-action="accept"
+            style="padding:3px 10px; border-radius:999px; border:1px solid #7cffb2; background:transparent; color:#7cffb2; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer;">
+            Accept
+          </button>
+          <button data-id="${item.id}" data-action="reject"
+            style="padding:3px 10px; border-radius:999px; border:1px solid #ff6f91; background:transparent; color:#ff6f91; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer;">
+            Reject
+          </button>
+          <button data-id="${item.id}" data-action="pending"
+            style="padding:3px 10px; border-radius:999px; border:1px solid #f5b4a8; background:transparent; color:#f5b4a8; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer;">
+            Reset
+          </button>
+        </div>
       </div>
     `;
+
     adminList.appendChild(wrap);
+  });
+
+  // event delegace pro toggle a tlačítka
+  adminList.querySelectorAll(".admin-row-main").forEach(mainRow => {
+    mainRow.addEventListener("click", () => {
+      const details = mainRow.nextElementSibling;
+      if (!details) return;
+      details.style.display = details.style.display === "none" || !details.style.display
+        ? "block"
+        : "none";
+    });
+  });
+
+  adminList.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute("data-id");
+      const action = btn.getAttribute("data-action");
+      updateRequestStatus(id, action);
+    });
   });
 }
 
 // aktivace admin panelu po zadání owner code
 document.addEventListener("DOMContentLoaded", () => {
-  // když se odemkne dashboard
-  dashTitle.addEventListener("dblclick", () => {
-    setTimeout(() => {
-      if (document.body.classList.contains("edit-mode")) {
-        const adminPanel = document.getElementById("adminPanel");
-        adminPanel.style.display = "block";
-        loadAdminList();
-      }
-    }, 100);
-  });
-
+  // doubleclick na název dashboardu už máš na admin kód – navážeme se na to:
   const reloadBtn = document.getElementById("adminReloadBtn");
   if (reloadBtn) {
     reloadBtn.addEventListener("click", loadAdminList);
   }
+
+  // když se odemkne edit-mode, zobraz admin panel
+  dashTitle.addEventListener("dblclick", () => {
+    setTimeout(() => {
+      if (document.body.classList.contains("edit-mode")) {
+        const adminPanel = document.getElementById("adminPanel");
+        if (adminPanel) {
+          adminPanel.style.display = "block";
+          loadAdminList();
+        }
+      }
+    }, 150);
+  });
 });
   </script>
 </body>
