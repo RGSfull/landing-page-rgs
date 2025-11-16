@@ -1,0 +1,3142 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>RGS & UFO — Inner Gate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --bg-main: #020008;
+      --bg-deep: #05010f;
+      --text-main: #f4f3ff;
+      --text-muted: #8b86a7;
+      --rose: #f5b4a8;
+      --neon: #5df2ff;
+      --violet: #b18cff;
+      --acid: #7cffb2;
+      --danger: #ff6f91;
+      --border-soft: #312544;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background:
+        radial-gradient(circle at top, #12081f, #020008 55%, #000000 100%);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    body.unlocked {
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at top, #140926, #03000c 55%, #000000 100%);
+    }
+
+    .planet {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(245,180,168,0.85), transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(173,135,255,0.6), transparent 60%);
+      top: -120px;
+      right: -60px;
+      filter: blur(1px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .planet::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      border: 1px solid rgba(245,180,168,0.25);
+      box-shadow: 0 0 80px rgba(245,180,168,0.3);
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.04) 1px,
+        transparent 1px
+      );
+      background-size: 100% 3px;
+      mix-blend-mode: soft-light;
+      opacity: 0.2;
+      z-index: -2;
+    }
+
+    .matrix-rain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    body.unlocked .matrix-rain {
+      opacity: 0;
+      transition-delay: 0.6s;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gate-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .gate-wrapper.glitch {
+      animation: gate-glitch 0.35s linear;
+    }
+
+    @keyframes gate-glitch {
+      0% { transform: translate(0,0); filter: hue-rotate(0deg); }
+      20% { transform: translate(-4px,2px); filter: hue-rotate(40deg); }
+      40% { transform: translate(3px,-3px); filter: hue-rotate(-20deg); }
+      60% { transform: translate(-2px,3px); filter: hue-rotate(10deg); }
+      80% { transform: translate(2px,-1px); filter: hue-rotate(-30deg); }
+      100% { transform: translate(0,0); filter: hue-rotate(0deg); }
+    }
+
+    .gate-card {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 24px;
+      border: 1px solid rgba(245,180,168,0.25);
+      background:
+        radial-gradient(circle at top, rgba(18,8,31,0.95), rgba(3,0,12,0.98));
+      box-shadow:
+        0 0 40px rgba(0,0,0,0.9),
+        0 0 60px rgba(94,242,255,0.15);
+      padding: 24px 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gate-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 120deg,rgba(93,242,255,0.0),rgba(93,242,255,0.35),rgba(93,242,255,0.0));
+      opacity: 0;
+      mix-blend-mode: screen;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .gate-card:hover::before {
+      opacity: 0.35;
+    }
+
+    .gate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8b86a7;
+      margin-bottom: 14px;
+    }
+
+    .gate-header span:last-child {
+      font-family: "Menlo","SF Mono",monospace;
+      color: var(--rose);
+    }
+
+    .gate-title {
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .gate-sub {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .gate-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #a19ad0;
+      margin-bottom: 6px;
+    }
+
+    .gate-input-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .gate-input {
+      flex: 1;
+      min-width: 180px;
+      border-radius: 999px;
+      border: 1px solid #3c3558;
+      background: rgba(3,2,10,0.9);
+      color: var(--text-main);
+      padding: 9px 12px;
+      font-size: 0.86rem;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+    .gate-input:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 12px rgba(93,242,255,0.3);
+    }
+
+    .gate-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(93,242,255,0.8);
+      background: radial-gradient(circle at top left,#0e3e4f,#02060e);
+      color: #eaffff;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      padding: 9px 18px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .gate-btn:hover {
+      box-shadow: 0 0 18px rgba(93,242,255,0.4);
+      transform: translateY(-1px);
+    }
+
+    .glyph-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      margin-top: 6px;
+      justify-content: center;
+    }
+
+    .glyph {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid #3a3054;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Menlo","SF Mono",monospace;
+      font-size: 0.9rem;
+      color: #d8d2ff;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .glyph:hover {
+      border-color: var(--neon);
+      background: rgba(93,242,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .glyph.active {
+      border-color: var(--rose);
+      background: rgba(245,180,168,0.16);
+    }
+
+    .gate-hint {
+      font-size: 0.7rem;
+      color: #7872a3;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .gate-status {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      min-height: 18px;
+      text-align: center;
+      transition: color 0.2s ease;
+    }
+
+    .gate-status.ok {
+      color: var(--acid);
+    }
+
+    .gate-status.err {
+      color: var(--danger);
+    }
+
+    .gate-footer {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #6f698d;
+      text-align: center;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .content {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease 0.4s, transform 0.4s ease 0.4s;
+    }
+
+    body.unlocked .content {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .content-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 80px 20px 40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .content-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .content-kicker {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8c7da5;
+      margin-bottom: 8px;
+    }
+
+    .content-title {
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .content-sub {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .content-grid {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 780px) {
+      .content-grid {
+        grid-template-columns: repeat(3,minmax(0,1fr));
+      }
+    }
+
+    .content-card {
+      border-radius: 18px;
+      border: 1px solid #312544;
+      background:
+        radial-gradient(circle at top, rgba(16,9,32,0.9), rgba(4,1,12,0.96));
+      padding: 16px;
+      font-size: 0.86rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .content-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top,rgba(93,242,255,0.16),transparent 60%);
+      opacity: 0;
+      mix-blend-mode: screen;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .content-card:hover::before {
+      opacity: 1;
+    }
+
+    .content-card-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #9e90c6;
+      margin-bottom: 6px;
+    }
+
+    .content-card-title {
+      font-size: 0.96rem;
+      color: var(--rose);
+      margin-bottom: 6px;
+    }
+
+    .content-card-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .dash-wrapper {
+      margin-top: 40px;
+    }
+
+    .dash-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .dash-title {
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #d6d2ff;
+      cursor: default;
+    }
+
+    .dash-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .dash-chip {
+      border-radius: 999px;
+      border: 1px solid #3a3152;
+      padding: 3px 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .dash-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+      .dash-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+      }
+    }
+
+    .dash-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border-radius: 14px;
+      border: 1px solid #312544;
+      padding: 10px 12px;
+      background:
+        radial-gradient(circle at top, rgba(17,10,32,0.9), rgba(4,1,12,0.96));
+      font-size: 0.8rem;
+    }
+
+    .dash-icon {
+      font-size: 1.2rem;
+      width: 26px;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .dash-main {
+      flex: 1;
+    }
+
+    .dash-name {
+      font-size: 0.9rem;
+      color: var(--rose);
+      margin-bottom: 2px;
+    }
+
+    .dash-meta {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8f86b8;
+      margin-bottom: 6px;
+    }
+
+    .dash-bar-wrap {
+      margin-bottom: 4px;
+    }
+
+    .dash-bar-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #171222;
+      overflow: hidden;
+    }
+
+    .dash-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg,#5df2ff,#f5b4a8);
+      width: 0;
+      transition: width 0.2s ease;
+    }
+
+    .dash-bar-label {
+      font-size: 0.72rem;
+      color: #b2a8dd;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+
+    .dash-edit {
+      font-size: 0.7rem;
+      color: #77719d;
+      display: none;
+      gap: 6px;
+      align-items: center;
+    }
+
+    body.edit-mode .dash-edit {
+      display: flex;
+    }
+
+    .dash-edit input {
+      width: 52px;
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      background: rgba(4,2,12,0.95);
+      color: var(--text-main);
+      font-size: 0.72rem;
+      padding: 3px 6px;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+
+    .dash-pill {
+      border-radius: 999px;
+      border: 1px solid #42345c;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #a59fd4;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .dash-pill.live { border-color: #7cffb2; color: #7cffb2; }
+    .dash-pill.alpha { border-color: #f5b4a8; color: #f5b4a8; }
+    .dash-pill.planned { border-color: #b18cff; color: #b18cff; }
+
+    .dash-admin-hint {
+      font-size: 0.7rem;
+      color: #696191;
+      margin-top: 4px;
+      opacity: 0.6;
+    }
+
+    body.edit-mode .dash-admin-hint {
+      opacity: 1;
+      color: #7cffb2;
+    }
+
+    .ultra {
+      margin-top: 40px;
+      border-radius: 22px;
+      border: 1px solid rgba(245,180,168,0.3);
+      padding: 18px;
+      background:
+        radial-gradient(circle at top, rgba(21,8,31,0.9), rgba(5,1,12,0.98));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ultra::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(circle at top,rgba(0,0,0,0.65),rgba(0,0,0,0.95));
+      opacity: 0.85;
+      backdrop-filter: blur(6px);
+      transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .ultra.unlocked::before {
+      opacity: 0;
+      backdrop-filter: blur(0px);
+    }
+
+    .ultra-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ultra-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #f5b4a8;
+    }
+
+    .ultra-pill {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      border-radius: 999px;
+      border: 1px solid rgba(93,242,255,0.5);
+      padding: 3px 10px;
+      color: #aeefff;
+    }
+
+    .ultra-body {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      line-height: 1.5;
+    }
+
+    .ultra-lock {
+      position: relative;
+      z-index: 3;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ultra-input {
+      flex: 1;
+      min-width: 180px;
+      border-radius: 999px;
+      border: 1px solid #463058;
+      background: rgba(3,1,10,0.96);
+      color: var(--text-main);
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+
+    .ultra-input:focus {
+      outline: none;
+      border-color: var(--rose);
+      box-shadow: 0 0 12px rgba(245,180,168,0.3);
+    }
+
+    .ultra-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(245,180,168,0.8);
+      background: radial-gradient(circle at top left,#3e191c,#140307);
+      color: #ffeceb;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      padding: 7px 14px;
+      cursor: pointer;
+    }
+
+    .ultra-status {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .ultra-status.ok { color: var(--acid); }
+    .ultra-status.err { color: var(--danger); }
+
+    .ultra-inner {
+      position: relative;
+      z-index: 1;
+      margin-top: 12px;
+      opacity: 0.05;
+      transform: translateY(6px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .ultra.unlocked .ultra-inner {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ultra-inner h3 {
+      font-size: 1rem;
+      color: var(--rose);
+      margin-bottom: 4px;
+    }
+
+    .ultra-inner p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .form-section {
+      margin-top: 40px;
+    }
+
+    .divider {
+      width: 100%;
+      margin: 6px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #78709b;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.26em;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #44325c, transparent);
+    }
+
+    .form-grid-single {
+      display: grid;
+      gap: 18px;
+    }
+
+    .form-card {
+      border-radius: 26px;
+      border: 1px solid rgba(93,242,255,0.4);
+      padding: 20px;
+      background:
+        radial-gradient(circle at top, rgba(10, 31, 52, 0.9), #02030a);
+      box-shadow: 0 0 28px rgba(0,0,0,0.9);
+      font-size: 0.88rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 210deg,rgba(93,242,255,0.0),rgba(93,242,255,0.45),rgba(245,180,168,0.3),rgba(93,242,255,0.0));
+      opacity: 0.18;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .form-card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-columns {
+      display: grid;
+      gap: 18px;
+    }
+
+    @media (min-width: 880px) {
+      .form-columns {
+        grid-template-columns: minmax(0,1.15fr) minmax(0,0.85fr);
+      }
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      color: #d0e8ff;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .form-label small {
+      font-size: 0.65rem;
+      color: #8a9bb8;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .form-input,
+    .form-textarea {
+      border-radius: 12px;
+      border: 1px solid #395b74;
+      background: rgba(2,6,12,0.9);
+      padding: 8px 10px;
+      font-size: 0.86rem;
+      color: var(--text-main);
+      font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 12px rgba(93,242,255,0.35);
+    }
+
+    .form-textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .form-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .wallet-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(3, 8, 16, 0.9);
+      border: 1px solid #30475e;
+    }
+
+    .wallet-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9fb9d8;
+    }
+
+    .wallet-address-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wallet-address-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #f3f1ff;
+      font-family: "Menlo","SF Mono",monospace;
+      font-size: 0.78rem;
+      padding: 0;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .wallet-address-input::selection {
+      background: rgba(93,242,255,0.25);
+    }
+
+    .wallet-copy {
+      border-radius: 999px;
+      border: 1px solid rgba(93,242,255,0.7);
+      background: rgba(8, 32, 44, 0.9);
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #eaffff;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .wallet-copy:hover {
+      background: rgba(14, 59, 79, 0.95);
+      box-shadow: 0 0 10px rgba(93,242,255,0.35);
+    }
+
+    .tiers-wrapper {
+      margin-top: 40px;
+    }
+
+    .tiers-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .tiers-kicker {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8c7da5;
+      margin-bottom: 6px;
+    }
+
+    .tiers-title {
+      font-size: 1.1rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .tiers-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+	
+	.tier-matcher {
+      margin: 16px auto 10px;
+      max-width: 520px;
+      border-radius: 18px;
+      border: 1px dashed #3a3152;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(4,2,12,0.9);
+    }
+    .tier-matcher-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .tier-matcher-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.7rem;
+      color: #8c7da5;
+    }
+    .tier-matcher-select,
+    .tier-matcher-select-small {
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      background: rgba(6,3,18,0.95);
+      color: #f4f3ff;
+      font-size: 0.8rem;
+      padding: 5px 8px;
+      font-family: inherit;
+    }
+    .tier-matcher-select {
+      min-width: 180px;
+    }
+    .tier-matcher-select-small {
+      min-width: 120px;
+    }
+    .tier-matcher-result {
+      font-size: 0.8rem;
+      color: #c8c2ff;
+      margin-top: 4px;
+    }
+    .tier-card--highlight {
+      outline: 2px solid #5df2ff;
+      box-shadow: 0 0 18px rgba(93,242,255,0.55);
+    }
+
+    .tiers-grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    @media (min-width: 900px) {
+      .tiers-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .tiers-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    .tier-card {
+      border-radius: 18px;
+      border: 1px solid #3a2b4e;
+      background:
+        radial-gradient(circle at top, rgba(22,10,36,0.95), rgba(5,1,12,0.98));
+      padding: 14px;
+      font-size: 0.82rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 16px rgba(0,0,0,0.7);
+    }
+
+    .tier-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 90deg,rgba(93,242,255,0.0),rgba(93,242,255,0.3),rgba(245,180,168,0.25),rgba(93,242,255,0.0));
+      opacity: 0;
+      mix-blend-mode: screen;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .tier-card:hover::before {
+      opacity: 0.35;
+    }
+
+    .tier-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tier-name {
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .tier-badge {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      border-radius: 999px;
+      border: 1px solid #4b345c;
+      padding: 2px 8px;
+      color: #c5b7f3;
+    }
+
+    .tier-body {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .tier-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .tier-list li::before {
+      content: "✦";
+      margin-right: 6px;
+      color: var(--neon);
+      font-size: 0.7rem;
+    }
+
+    .tier-tagline {
+      font-size: 0.72rem;
+      color: #a38fd1;
+      margin-bottom: 4px;
+    }
+
+    .tier-tier-signal {
+      box-shadow: 0 0 12px rgba(93,242,255,0.25);
+      border-color: rgba(93,242,255,0.4);
+    }
+    .tier-tier-operator {
+      box-shadow: 0 0 16px rgba(245,227,168,0.25);
+      border-color: rgba(245,227,168,0.4);
+    }
+    .tier-tier-architect {
+      box-shadow: 0 0 18px rgba(245,180,168,0.3);
+      border-color: rgba(245,180,168,0.5);
+    }
+    .tier-tier-black {
+      box-shadow: 0 0 26px rgba(0,0,0,0.9), 0 0 18px rgba(255,223,183,0.35);
+      border-color: rgba(255,223,183,0.7);
+      background:
+        radial-gradient(circle at top, rgba(35,15,24,0.95), rgba(6,0,10,0.98));
+    }
+    .tier-tier-phantom {
+      box-shadow: 0 0 30px rgba(0,0,0,0.95), 0 0 22px rgba(208,198,255,0.4);
+      border-color: rgba(208,198,255,0.9);
+      background:
+        radial-gradient(circle at top, rgba(28,14,46,0.97), rgba(5,0,15,0.99));
+    }
+
+    .tier-tier-signal .tier-name { color: #a7f5ff; }
+    .tier-tier-operator .tier-name { color: #f5e3a8; }
+    .tier-tier-architect .tier-name { color: #f5b4a8; }
+    .tier-tier-black .tier-name { color: #ffdfb7; }
+    .tier-tier-phantom .tier-name { color: #d0c6ff; }
+
+    .support-wall {
+      margin-top: 40px;
+    }
+	
+	.command-console {
+      margin-top: 28px;
+      border-radius: 18px;
+      border: 1px dashed #3a3152;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      background: rgba(5, 2, 12, 0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .command-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.7rem;
+      color: #8c7da5;
+    }
+    .command-input {
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      background: rgba(8,4,20,0.95);
+      color: #f4f3ff;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      font-family: "Menlo","SF Mono",monospace;
+    }
+    .command-status {
+      font-size: 0.75rem;
+      color: #a8a4c8;
+      min-height: 16px;
+    }
+
+    .support-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    @media (min-width: 900px) {
+      .support-grid {
+        grid-template-columns: minmax(0,1.4fr) minmax(0,1fr);
+      }
+    }
+
+    .support-block {
+      border-radius: 18px;
+      border: 1px solid #312544;
+      background:
+        radial-gradient(circle at top, rgba(17,9,33,0.9), rgba(3,0,12,0.96));
+      padding: 16px;
+      font-size: 0.82rem;
+    }
+
+    .support-title {
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      color: #f5b4a8;
+    }
+
+    .support-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .support-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 0.8rem;
+      color: var(--text-main);
+    }
+
+    .support-list li {
+      margin-bottom: 4px;
+    }
+
+    .support-list li::before {
+      content: "◎";
+      margin-right: 6px;
+      color: var(--neon);
+      font-size: 0.7rem;
+    }
+
+    .support-note {
+      font-size: 0.72rem;
+      color: #8c7da5;
+      margin-top: 6px;
+    }
+	
+    .session-hud {
+      margin-top: 32px;
+      border-radius: 18px;
+      border: 1px solid #312544;
+      background:
+        radial-gradient(circle at top, rgba(12, 9, 28, 0.95), rgba(3,0,12,0.98));
+      padding: 12px 14px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .session-hud-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8c7da5;
+      font-size: 0.72rem;
+    }
+    .session-hud-rows {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+    .session-hud-pill {
+      border-radius: 999px;
+      border: 1px solid #3a3152;
+      padding: 3px 9px;
+      font-size: 0.74rem;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      color: #c5c0f0;
+    }
+    .session-hud-pill span:first-child {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #8f86c0;
+      font-size: 0.7rem;
+    }
+    .session-hud-pill--ok {
+      border-color: #7cffb2;
+      color: #7cffb2;
+    }
+    .session-hud-pill--warn {
+      border-color: #f5b4a8;
+      color: #f5b4a8;
+    }
+    .session-hud-pill--bad {
+      border-color: #ff6f91;
+      color: #ff6f91;
+    }
+
+    /* Burn Lane schovaný defaultně */
+    #burn-lane {
+      display: none;
+    }
+    body.burn-unlocked #burn-lane {
+      display: block;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 18px;
+      font-size: 0.7rem;
+      color: #6a668a;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 640px) {
+      .gate-card {
+        padding: 20px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="planet"></div>
+  <div class="scanlines"></div>
+  <canvas class="matrix-rain" id="matrixCanvas"></canvas>
+
+  <div class="page">
+    <!-- GATE -->
+    <div class="gate-wrapper" id="gateWrapper">
+      <div class="gate-card">
+        <div class="gate-header">
+          <span>RGS &amp; UFO ORIGINALS</span>
+          <span>ΣYN·DI·KAT</span>
+        </div>
+        <div class="gate-title">INNER GATE</div>
+        <div class="gate-sub" id="gateSub">
+          Tohle není homepage. Je to testovací vstup do Syndikátu. Kdo tady
+          zadává náhodné věci, zůstane ve tmě.
+        </div>
+
+        <div class="gate-label">Invite code</div>
+        <div class="gate-input-row">
+          <input
+            id="inviteInput"
+            class="gate-input"
+            type="password"
+            autocomplete="off"
+            placeholder="••••••••••••••"
+          />
+          <button class="gate-btn" id="gateBtn">Enter</button>
+        </div>
+
+        <div class="gate-label">Sekvence znaků</div>
+        <div class="glyph-row" id="glyphRow">
+          <div class="glyph" data-id="α">α</div>
+          <div class="glyph" data-id="◎">◎</div>
+          <div class="glyph" data-id="Σ">Σ</div>
+          <div class="glyph" data-id="✶">✶</div>
+          <div class="glyph" data-id="Ψ">Ψ</div>
+        </div>
+
+        <div class="gate-hint">
+          Znakový kód = 3 kroky. Jeden z nich je Σ. Ostatní poznáš podle pocitu.
+        </div>
+        <div class="gate-status" id="gateStatus"></div>
+
+        <div class="gate-footer">
+          INNER LANE · NO PUBLIC SIGNUP · NO HELP
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content" id="contentRoot">
+      <div class="content-inner">
+        <div class="content-header">
+          <div class="content-kicker">Layer 1 · Infotainment</div>
+          <h1 class="content-title">Syndicate Interface</h1>
+          <p class="content-sub">
+            Aplikace, která se tváří jako sociální síť, ale pod povrchem je to
+            organismus. Social lane, marker, wallet, reputace a vlastní AI entita
+            v jednom kódu.
+          </p>
+        </div>
+
+        <div class="content-grid">
+          <div class="content-card">
+            <div class="content-card-label">Social / DM</div>
+            <div class="content-card-title">Kontakty, které mají váhu</div>
+            <div class="content-card-text">
+              DM, list lidí, mini-vizitky v chatu, groups a spaces. Každý kontakt
+              má reputaci a historii, ne jen avatar.
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="content-card-label">Marker / marketplace</div>
+            <div class="content-card-title">Inner market, ne bazar</div>
+            <div class="content-card-text">
+              Produkty, služby a přístupy v markeru navázaném na reputaci. Žádný
+              feed pro náhodné lidi, ale kurátorovaná ekonomika.
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="content-card-label">AI lane</div>
+            <div class="content-card-title">Uncensored Syndicate AI</div>
+            <div class="content-card-text">
+              Umělá bytost v jádru appky. Pomáhá ti psát, plánovat, analyzovat
+              a držet strukturu. Ne chatbot na hraní, ale člen Syndikátu.
+            </div>
+          </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="dash-wrapper">
+          <div class="dash-header">
+            <div class="dash-title" id="dashTitle">Function Dashboard</div>
+            <div class="dash-summary" id="dashSummary"></div>
+          </div>
+          <div class="dash-admin-hint">
+            (Double-click na „Function Dashboard“ + admin kód = edit mód jen v tomhle prohlížeči.)
+          </div>
+          <div class="dash-grid" id="dashGrid"></div>
+          <p class="form-note" style="margin-top:8px;">
+            Úprava % v edit módu se ukládá jen do tvého prohlížeče (localStorage).
+            Pro globální změnu pro všechny upravuješ feature seznam v kódu.
+          </p>
+        </div>
+
+        <!-- ULTRA LAYER -->
+        <div class="ultra" id="ultraLayer">
+          <div class="ultra-header">
+            <div class="ultra-tag">Layer Black</div>
+            <div class="ultra-pill">hidden · double market · defense</div>
+          </div>
+          <div class="ultra-body">
+            Tohle je jen obrys. Double market lanes, screen defense, panic režimy,
+            alias identity, deep AI napojená na reputační graf. Všechno, co vidíš
+            v mlze, existuje – ale ne pro všechny.
+          </div>
+
+          <div class="ultra-lock">
+            <input
+              id="ultraInput"
+              class="ultra-input"
+              type="password"
+              placeholder="ULTRA CODE / invite chain..."
+              autocomplete="off"
+            />
+            <button class="ultra-btn" id="ultraBtn">Unlock Black</button>
+          </div>
+          <div class="ultra-status" id="ultraStatus">
+            Tenhle layer neotvírej náhodou. Buď víš, nebo nevíš.
+          </div>
+
+          <div class="ultra-inner">
+            <h3>Double marker &amp; hidden lanes</h3>
+            <p>
+              Druhý, skrytější marker nad tím oficiálním. Lanes, které se odmítají
+              zobrazit bez pozvánky, kapitálu nebo role Black.
+            </p>
+            <h3>Screen defense &amp; panic patterns</h3>
+            <p>
+              Mechaniky, které ztěžují screenshoty, mirrorování a parasitování na obsahu.
+              Panic shifty pro situace, kdy potřebuješ obrazovku zchladit během vteřiny.
+            </p>
+            <h3>Reputation graph &amp; AI patterns</h3>
+            <p>
+              Síť toho, kdo komu věří, kdo s kým točí deals a kdo kde selhal. AI,
+              která z toho dokáže skládat další krok – ne jen hezké věty.
+            </p>
+          </div>
+
+          <!-- Burn Lane unlock -->
+          <div class="ultra-lock" style="margin-top: 14px;">
+            <input
+              id="burnUnlockInput"
+              class="ultra-input"
+              type="password"
+              placeholder="BURN LANE CODE"
+              autocomplete="off"
+            />
+            <button class="ultra-btn" id="burnUnlockBtn">Unlock Burn Lane</button>
+          </div>
+          <p class="ultra-status" id="burnUnlockStatus"></p>
+        </div>
+
+        <!-- SINGLE CULT FORM -->
+        <div class="form-section">
+          <div class="divider" style="margin-top:40px;">
+            <div class="divider-line"></div>
+            <span>INNER ACCESS · ON-CHAIN SUPPORT</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="form-grid-single">
+            <form
+              name="inner-access"
+              method="POST"
+              data-netlify="true"
+              netlify-honeypot="bot-field"
+              class="form-card"
+            >
+              <div class="form-card-inner">
+                <input type="hidden" name="form-name" value="inner-access" />
+                <p style="display:none;">
+                  <label>Don’t fill this out: <input name="bot-field" /></label>
+                </p>
+
+                <div class="form-columns">
+                  <!-- Levá strana: vstup do Syndikátu -->
+                  <div>
+                    <div class="form-field">
+                      <label class="form-label">
+                        Vstupní část
+                        <small>alias, role, signál, že chceš dovnitř</small>
+                      </label>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="inviteField">Invite / referral</label>
+                      <input
+                        id="inviteField"
+                        name="invite"
+                        class="form-input"
+                        placeholder="Kdo tě přivedl? Kód, jméno, nic..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="alias">Alias / jméno</label>
+                      <input
+                        id="alias"
+                        name="alias"
+                        required
+                        class="form-input"
+                        placeholder="RGS Gabriel, Operative, cokoliv..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="contact">Kontakt</label>
+                      <input
+                        id="contact"
+                        name="contact"
+                        class="form-input"
+                        placeholder="E-mail / Signal / cokoliv nebo nic"
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="role">Roli, kterou chceš nést</label>
+                      <input
+                        id="role"
+                        name="role"
+                        class="form-input"
+                        placeholder="Builder, dealer, tester, klient, jiná..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="message">
+                        Proč právě ty?
+                      </label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        class="form-textarea"
+                        placeholder="Co očekáváš od Syndikátu, co do něj chceš přinést, co bys chtěl testovat nebo rozbíjet?"
+                      ></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Pravá strana: on-chain část -->
+                  <div>
+                    <div class="form-field">
+                      <label class="form-label">
+                        On-chain část (volitelné)
+                        <small>pokud chceš rovnou poslat podporu</small>
+                      </label>
+                    </div>
+
+                    <div class="wallet-row">
+                      <div class="wallet-label">ETH / USDT (ERC-20)</div>
+                      <div class="wallet-address-wrap">
+                        <input
+                          type="text"
+                          class="wallet-address-input"
+                          value="0xe57a85329A0A280B9BedE6dD9ccfD5db4cD06829"
+                          readonly
+                          onclick="this.select();"
+                        />
+                        <button
+                          type="button"
+                          class="wallet-copy"
+                          onclick="window.prompt('Zkopíruj adresu peněženky (Ctrl+C / dlouhý tap):','0xe57a85329A0A280B9BedE6dD9ccfD5db4cD06829')"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="wallet-row">
+                      <div class="wallet-label">BTC</div>
+                      <div class="wallet-address-wrap">
+                        <input
+                          type="text"
+                          class="wallet-address-input"
+                          value="bc1qxqmxsnvptl2f2whvagfymvk23uudc2jjluw7an"
+                          readonly
+                          onclick="this.select();"
+                        />
+                        <button
+                          type="button"
+                          class="wallet-copy"
+                          onclick="window.prompt('Zkopíruj adresu peněženky (Ctrl+C / dlouhý tap):','bc1qxqmxsnvptl2f2whvagfymvk23uudc2jjluw7an')"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="support-chain">
+                        Chain / měna <small>(pokud posíláš)</small>
+                      </label>
+                      <input
+                        id="support-chain"
+                        name="chain"
+                        class="form-input"
+                        placeholder="ETH, BTC, USDT, jiný..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="support-tx">
+                        Tx hash <small>(ať to najdeme on-chain)</small>
+                      </label>
+                      <input
+                        id="support-tx"
+                        name="tx"
+                        class="form-input"
+                        placeholder="0x... / txid..."
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-label" for="support-note">
+                        Poznámka k podpoře
+                      </label>
+                      <textarea
+                        id="support-note"
+                        name="support_message"
+                        class="form-textarea"
+                        placeholder="Co jsi poslal / proč / k jaké části systému to chceš přivázat..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="gate-btn">
+                    Zapsat do Syndikátu
+                  </button>
+                  <p class="form-note">
+                    Tenhle formulář je dvouvrstvý: vstupní signál + případná on-chain stopa.
+                    Nic z toho není povinné, ale všechno se počítá.
+                  </p>
+                </div>
+                <p id="formStatus" class="form-note" style="margin-top:6px;display:none;"></p>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- SUPPORT LEVELS -->
+        <div class="tiers-wrapper">
+          <div class="divider" style="margin-top:40px;">
+            <div class="divider-line"></div>
+            <span>SUPPORT LEVELS</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="tiers-header">
+            <div class="tiers-kicker">Role &amp; vrstvy</div>
+            <h2 class="tiers-title">Jak se zapisuješ do Syndikátu</h2>
+            <p class="tiers-sub">
+              Úroveň podpory není jen číslo. Je to kombinace on-chain signálu, času,
+              feedbacku a toho, jak moc chceš být součást kostry, ne jen publika.
+            </p>
+          </div>
+		  
+		  <div class="tier-matcher" id="tierMatcher">
+          <div class="tier-matcher-row">
+            <span class="tier-matcher-label">Kam patříš?</span>
+            <select id="tierRoleSelect" class="tier-matcher-select">
+              <option value="">— vyber směr —</option>
+              <option value="signal">Chci jen být uvnitř a rozumně sledovat</option>
+              <option value="operator">Chci aktivně obchodovat / tvořit nabídky</option>
+              <option value="architect">Chci pomáhat stavět systém (kód, logika, struktura)</option>
+              <option value="black">Jsem heavy player, kapitál + zodpovědnost</option>
+            </select>
+          </div>
+          <div class="tier-matcher-row">
+            <span class="tier-matcher-label">Co víc dáváš?</span>
+            <select id="tierFocusSelect" class="tier-matcher-select-small">
+              <option value="">— mix —</option>
+              <option value="time">Čas / testování / feedback</option>
+              <option value="capital">On-chain support / kapitál</option>
+              <option value="knowledge">Know-how / kontakty</option>
+            </select>
+          </div>
+          <div class="tier-matcher-result" id="tierMatcherResult">
+            Vyber směr a fokus – doporučíme ti roli, kterou máš mířit.
+          </div>
+        </div>
+
+          <div class="tiers-grid">
+            <!-- Signal -->
+            <div class="tier-card tier-tier-signal">
+              <div class="tier-head">
+                <div class="tier-name">Signal</div>
+                <div class="tier-badge">#1</div>
+              </div>
+              <div class="tier-tagline">První tichý signál, že nejsi turista.</div>
+              <div class="tier-body">
+                Malý on-chain support nebo dlouhodobý zájem. Zapsaný v systému,
+                ještě ne v nejvyšších vrstvách.
+              </div>
+              <ul class="tier-list">
+                <li>Nick / alias na Support Wall (Signal sekce).</li>
+                <li>Malý badge v profilu (aura / symbol).</li>
+                <li>Dřívější info o nových funkcích a testech.</li>
+                <li>Slevový kód na první merch drop.</li>
+              </ul>
+            </div>
+
+            <!-- Operator -->
+            <div class="tier-card tier-tier-operator">
+              <div class="tier-head">
+                <div class="tier-name">Operator</div>
+                <div class="tier-badge">#2</div>
+              </div>
+              <div class="tier-tagline">Člověk, co nechce jen koukat, ale operovat.</div>
+              <div class="tier-body">
+                Střední support = už nejsi jen v publiku. Máš vliv na formu a priority.
+              </div>
+              <ul class="tier-list">
+                <li>Vlastní karta na Support Wall (Operator sekce).</li>
+                <li>Operator frame kolem avatara v appce.</li>
+                <li>Možnost 1 custom emoji / reakce v chatu.</li>
+                <li>Přístup do uzavřenějšího testingu modulů.</li>
+                <li>Malý fyzický pack (samolepky, mini print, doplňky).</li>
+              </ul>
+            </div>
+
+            <!-- Architect -->
+            <div class="tier-card tier-tier-architect">
+              <div class="tier-head">
+                <div class="tier-name">Architect</div>
+                <div class="tier-badge">#3</div>
+              </div>
+              <div class="tier-tagline">Lidi, co pomáhají stavět kostru.</div>
+              <div class="tier-body">
+                Tady už se neřeší „jestli“, ale „jak“ se věci staví. Jsi součást
+                designových rozhodnutí.
+              </div>
+              <ul class="tier-list">
+                <li>Výrazná karta v sekci „Architects“ na Support Wall.</li>
+                <li>Možnost pojmenovat konkrétní prvek v ekosystému (room, lane, pattern).</li>
+                <li>Priority slot v inner testingu a ve feedback loopu.</li>
+                <li>Přístup k experimentálním AI funkcím dřív, než půjdou ven.</li>
+                <li>Merch pack: heavy tričko / mikina + doplňky.</li>
+              </ul>
+            </div>
+
+            <!-- Black Channel -->
+            <div class="tier-card tier-tier-black">
+              <div class="tier-head">
+                <div class="tier-name">Black</div>
+                <div class="tier-badge">#4</div>
+              </div>
+              <div class="tier-tagline">Těžká váha, nositel Black role.</div>
+              <div class="tier-body">
+                Support + odpovědnost. Dostáváš skutečnou moc – a taky větší závazek
+                vůči projektu.
+              </div>
+              <ul class="tier-list">
+                <li>Black role v appce: přístup k Black market lane a dealům.</li>
+                <li>Jiný pohled na marker (speciální nabídky, ceny, přístupy).</li>
+                <li>Možnost navrhnout 1 konkrétní micro-funkci do roadmapy.</li>
+                <li>Black-only UI skin a viditelný Black badge.</li>
+                <li>Black box: mikina, tričko, drtička, samolepky, limitní print.</li>
+              </ul>
+            </div>
+
+            <!-- Phantom / Founding -->
+            <div class="tier-card tier-tier-phantom">
+              <div class="tier-head">
+                <div class="tier-name">Phantom</div>
+                <div class="tier-badge">Legend</div>
+              </div>
+              <div class="tier-tagline">Ne tabulka, spíš mýtus.</div>
+              <div class="tier-body">
+                Tahle úroveň se neotvírá tlačítkem ani formulářem. Je výsledkem
+                kombinace kapitálu, času a toho, co do Syndikátu přineseš.
+              </div>
+              <ul class="tier-list">
+                <li>Alias v „Founding Syndicate“ sekci (web + app + AI prompt).</li>
+                <li>Možnost pojmenovat celý modul / část systému.</li>
+                <li>Přímý vnitřní kanál na řízení směru (v rámci domluvy).</li>
+                <li>Hand-made fyzický kus: art, token, zakázkový objekt.</li>
+                <li>Podrobnosti se řeší osobně, ne přes formulář.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUPPORT WALL -->
+        <div class="support-wall">
+          <div class="divider" style="margin-top:40px;">
+            <div class="divider-line"></div>
+            <span>SUPPORT WALL</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="support-grid">
+            <div class="support-block">
+              <div class="support-title">Founding / Early names</div>
+              <div class="support-sub">
+                Ručně kurátorovaný seznam lidí, kteří nesou projekt v základech.
+              </div>
+              <ul class="support-list">
+                <li>RGS Gabriel — Architect / Founder</li>
+                <li>Inner Syndicate #01 — Phantom tier</li>
+                <li>Signal Lane — Early operator crew</li>
+              </ul>
+              <p class="support-note">
+                Tohle je „vytesané v kameni“. Není to automatický výpis, ale promyšlený
+                seznam.
+              </p>
+            </div>
+
+            <div class="support-block">
+              <div class="support-title">Live session support</div>
+              <div class="support-sub">
+                Kdokoliv, kdo teď vyplní formulář a nechá on-chain stopu, se pro tuhle
+                session vypíše sem.
+              </div>
+              <ul class="support-list" id="supportDynamicList"></ul>
+              <p class="support-note">
+                Lokální výpis, jen pro tvoje oči. Skutečnou mapu tierů řeší appka.
+              </p>
+            </div>
+          </div>
+        </div>
+		
+		<!-- SESSION HUD -->
+        <div class="session-hud" id="sessionHud">
+          <div class="session-hud-label">Session status</div>
+          <div class="session-hud-rows">
+            <div class="session-hud-pill" id="hudGate">
+              <span>Gate</span><span>…</span>
+            </div>
+            <div class="session-hud-pill" id="hudBurn">
+              <span>Burn Lane</span><span>…</span>
+            </div>
+            <div class="session-hud-pill" id="hudSupport">
+              <span>Support</span><span>…</span>
+            </div>
+            <div class="session-hud-pill" id="hudAttempts">
+              <span>Gate pokusy</span><span>…</span>
+            </div>
+          </div>
+        </div>
+		
+		<!-- ADMIN PANEL -->
+<div id="adminPanel" style="display:none; margin-top:40px;">
+  <h3 style="text-transform:uppercase; letter-spacing:0.2em; color:#f5b4a8;">
+    ADMIN · LAST ACCESS REQUESTS
+  </h3>
+
+  <p id="adminStatus" style="color:#8c7da5; font-size:0.8rem; margin-top:6px;">
+    Waiting…
+  </p>
+
+  <div id="adminStats" style="color:#a8a4c8; font-size:0.78rem; margin-top:4px;">
+    <!-- sem doplníme HUD -->
+  </div>
+
+  <div id="adminList" style="margin-top:12px; font-size:0.82rem; display:flex; flex-direction:column; gap:8px;"></div>
+
+  <button id="adminReloadBtn"
+    style="margin-top:12px; padding:6px 14px; border-radius:999px; border:1px solid #5df2ff; background:#02030a; color:#eaffff; cursor:pointer;">
+    Reload
+  </button>
+</div>
+
+      <!-- BURN LANE / PRIVNOTE -->
+      <section class="form-section" id="burn-lane">
+        <div class="divider" style="margin-top:40px;">
+          <div class="divider-line"></div>
+          <span>BURN LANE · ONE-SHOT NOTE</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="form-grid-single">
+          <!-- CREATE NOTE -->
+          <div class="form-card">
+            <div class="form-card-inner">
+              <div class="form-field">
+                <label class="form-label" for="burnTtl">
+                  TTL zprávy
+                  <small>max 24 hodin – po té zmizí i bez přečtení</small>
+                </label>
+                <input
+                  id="burnTtl"
+                  type="range"
+                  min="1"
+                  max="24"
+                  step="1"
+                  value="24"
+                  class="burn-ttl-slider"
+                />
+                <div id="burnTtlLabel" class="form-note">
+                  Expirace: 24 h
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="burnSlug">
+                  Slug / název zprávy
+                  <small>volitelné – krátký kód, který si pamatuješ ty</small>
+                </label>
+                <input
+                  id="burnSlug"
+                  class="form-input"
+                  placeholder="např. deal-phi, note-001, rgs-alpha..."
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="burnText">
+                  Vytvořit tajnou zprávu
+                  <small>text se zašifruje v prohlížeči a uloží jako burn-after-read</small>
+                </label>
+                <textarea
+                  id="burnText"
+                  class="form-textarea"
+                  placeholder="Napiš zprávu, kterou chceš jednou ukázat a pak spálit."
+                ></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="gate-btn" id="burnCreateBtn">
+                  Vytvořit burn link
+                </button>
+                <p class="form-note" id="burnCreateStatus">
+                  Zpráva nikdy nejde na server v čisté podobě. Server vidí jen šifrovaný balík.
+                </p>
+              </div>
+
+              <div class="form-field" id="burnLinkRow" style="display:none; margin-top:10px;">
+                <label class="form-label" for="burnLinkOutput">
+                  Odkaz na zprávu
+                  <small>po prvním zobrazení přestane fungovat</small>
+                </label>
+                <input
+                  id="burnLinkOutput"
+                  class="form-input"
+                  readonly
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- READ NOTE -->
+          <div class="form-card" id="burnReadCard" style="display:none;">
+            <div class="form-card-inner">
+              <div class="form-field">
+                <label class="form-label">
+                  Burn zpráva
+                  <small>zpráva se načte jen jednou – teď</small>
+                </label>
+                <div
+                  id="burnReadBox"
+                  class="form-textarea"
+                  style="min-height:120px; white-space:pre-wrap; overflow:auto;"
+                ></div>
+              </div>
+              <p class="form-note" id="burnReadStatus"></p>
+            </div>
+          </div>
+
+          <!-- GLOBAL STATS -->
+          <div class="form-card" id="burnStatsCard" style="margin-top:16px;">
+            <div class="form-card-inner">
+              <div class="form-label">Burn Lane – statistiky (globální)</div>
+              <p class="form-note" id="burnStatsText">
+                Načítám statistiky Burn Lane…
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+		
+		<!-- COMMAND CONSOLE -->
+        <div class="command-console">
+          <div class="command-label">Syndicate console</div>
+          <input
+            id="commandInput"
+            class="command-input"
+            placeholder="/help, /burn, /gate-reset, /debug"
+            autocomplete="off"
+          />
+          <p class="command-status" id="commandStatus">
+            Příkazy začínají lomítkem. Není to chat, je to konzole.
+          </p>
+        </div>
+
+        <div class="footer">
+          RGS &amp; UFO ORIGINALS · INNER GATE · NO FEED · NO HYPE
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN FORM pro logování pokusů brány (Netlify Forms) -->
+  <form name="gate-log" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="gate-log" />
+    <input type="text" name="attempt_type" />
+    <input type="text" name="invite_value" />
+    <input type="text" name="glyph_sequence" />
+    <input type="text" name="code_ok" />
+    <input type="text" name="seq_ok" />
+    <input type="text" name="timestamp" />
+    <input type="text" name="user_agent" />
+    <p style="display:none;">
+      <label>Don’t fill this out: <input name="bot-field" /></label>
+    </p>
+  </form>
+
+  <script>
+    const _encInvite = [89,78,90,52,92,77,86,52,90,96,85];
+    const _encUltra  = [73,83,72,74,82,52,83,72,85,76,52,92,83,91,89,72];
+    const _encOwner  = [89,78,90,52,75,72,90,79,52,86,94,85,76,89];
+
+    function decodeSeq(arr) {
+      return arr.map(n => String.fromCharCode(n - 7)).join("");
+    }
+
+    const INVITE_CODE     = decodeSeq(_encInvite);
+    const ULTRA_CODE      = decodeSeq(_encUltra);
+    const OWNER_DASH_CODE = decodeSeq(_encOwner);
+    const GLYPH_SEQUENCE  = ["◎", "Σ", "Ψ"];
+    const BURN_CODE       = "BURN-LANE-777";
+
+  const burnTtlInput  = document.getElementById("burnTtl");
+  const burnTtlLabel  = document.getElementById("burnTtlLabel");
+  const burnSlugInput = document.getElementById("burnSlug");
+  const burnStatsText = document.getElementById("burnStatsText");
+
+    const inviteInput = document.getElementById("inviteInput");
+    const gateBtn = document.getElementById("gateBtn");
+    const glyphRow = document.getElementById("glyphRow");
+    const gateStatus = document.getElementById("gateStatus");
+    const gateWrapper = document.getElementById("gateWrapper");
+    const gateSub = document.getElementById("gateSub");
+
+    const matrixCanvas = document.getElementById("matrixCanvas");
+    const matrixCtx = matrixCanvas.getContext("2d");
+    let matrixAnimId = null;
+    let matrixColumns = 0;
+    let matrixDrops = [];
+
+    let glyphClicks = [];
+
+    const snarkBoth = [
+      "Tohle by neodemklo ani chat v Messengeru.",
+      "Kód i sekvence úplně mimo. Jsi si jistý, že jsi na správném internetu?",
+      "Něco z toho možná vypadalo správně. Bohužel to nebylo tady.",
+      "Tma. Ani AI ti tohle nezachrání.",
+      "Pokus číslo ??. Gate se jen dívá a mlčí."
+    ];
+    const snarkCode = [
+      "Sekvence sedí, ale kód smrdí defaultem.",
+      "Znakům rozumíš. Kódu zatím ne.",
+      "Blízko. Tvoje prsty ví, co dělají – hlava ještě ne.",
+      "Kód je špatně. Všechno ostatní se tváří dobře."
+    ];
+    const snarkSeq = [
+      "Kód máš. Znakový tanec ne.",
+      "Invite kód sedí. Tvoje prsty jen netrefily správný rytmus.",
+      "Víš, co napsat, ale ne na co kliknout.",
+      "Znaková sekvence řve 'nope'."
+    ];
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function normaliseCode(str) {
+      return (str || "").trim();
+    }
+
+    glyphRow.addEventListener("click", (e) => {
+      const target = e.target.closest(".glyph");
+      if (!target) return;
+      const id = target.getAttribute("data-id");
+      glyphClicks.push(id);
+      if (glyphClicks.length > GLYPH_SEQUENCE.length) {
+        glyphClicks.shift();
+      }
+      document.querySelectorAll(".glyph").forEach(g => g.classList.remove("active"));
+      glyphClicks.forEach(idVal => {
+        const el = document.querySelector(`.glyph[data-id="${idVal}"]`);
+        if (el) el.classList.add("active");
+      });
+    });
+
+    function glitchEffect(messageArr) {
+      const msg = pickRandom(messageArr);
+      gateStatus.textContent = msg.replace("??", String(Math.floor(Math.random()*99)+1));
+      gateStatus.className = "gate-status err";
+      gateWrapper.classList.remove("glitch");
+      void gateWrapper.offsetWidth;
+      gateWrapper.classList.add("glitch");
+      setTimeout(() => {
+        gateWrapper.classList.remove("glitch");
+      }, 350);
+    }
+
+    function logGateAttempt(resultType, codeOk, seqOk) {
+      const formName = "gate-log";
+      const glyphSeq = glyphClicks.join("");
+      const inviteVal = normaliseCode(inviteInput.value);
+      const now = new Date().toISOString();
+      const ua = navigator.userAgent || "";
+
+      const data = new URLSearchParams();
+      data.append("form-name", formName);
+      data.append("attempt_type", resultType);
+      data.append("invite_value", inviteVal);
+      data.append("glyph_sequence", glyphSeq);
+      data.append("code_ok", codeOk ? "true" : "false");
+      data.append("seq_ok", seqOk ? "true" : "false");
+      data.append("timestamp", now);
+      data.append("user_agent", ua);
+      data.append("bot-field", "");
+
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: data.toString()
+      }).catch(() => {});
+    }
+
+    function checkGate() {
+	
+	let attempts = parseInt(localStorage.getItem("rgsGateAttempts") || "0", 10);
+    localStorage.setItem("rgsGateAttempts", String(attempts + 1));
+	
+      const inviteVal = normaliseCode(inviteInput.value);
+      const codeOk = inviteVal === INVITE_CODE;
+      const seqOk = GLYPH_SEQUENCE.every((val, idx) => glyphClicks[idx] === val);
+
+      let resultType;
+      if (codeOk && seqOk) resultType = "success";
+      else if (!codeOk && !seqOk) resultType = "bad_both";
+      else if (!codeOk) resultType = "bad_code";
+      else resultType = "bad_seq";
+
+      logGateAttempt(resultType, codeOk, seqOk);
+
+      if (!codeOk && !seqOk) {
+        glitchEffect(snarkBoth);
+        return;
+      }
+      if (!codeOk) {
+        glitchEffect(snarkCode);
+        return;
+      }
+      if (!seqOk) {
+        glitchEffect(snarkSeq);
+        return;
+      }
+
+      gateStatus.textContent = "Vrstva se otevírá…";
+      gateStatus.className = "gate-status ok";
+      triggerMatrixAndReveal();
+    }
+
+    gateBtn.addEventListener("click", checkGate);
+    inviteInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkGate();
+      }
+    });
+
+    function initMatrixCanvas() {
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = window.innerHeight;
+      const fontSize = 16;
+      matrixColumns = Math.floor(matrixCanvas.width / fontSize);
+      matrixDrops = [];
+      for (let i = 0; i < matrixColumns; i++) {
+        matrixDrops[i] = Math.floor(Math.random() * -20);
+      }
+    }
+
+    function drawMatrixFrame() {
+      const w = matrixCanvas.width;
+      const h = matrixCanvas.height;
+      const fontSize = 16;
+      const chars = "01ΣΞ¥/*<>◎αΨ✶";
+
+      matrixCtx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      matrixCtx.fillRect(0, 0, w, h);
+
+      matrixCtx.fillStyle = "#5df2ff";
+      matrixCtx.font = fontSize + "px Menlo, monospace";
+
+      for (let i = 0; i < matrixColumns; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = matrixDrops[i] * fontSize;
+
+        matrixCtx.fillText(text, x, y);
+
+        if (y > h && Math.random() > 0.975) {
+          matrixDrops[i] = 0;
+        } else {
+          matrixDrops[i]++;
+        }
+      }
+
+      matrixAnimId = requestAnimationFrame(drawMatrixFrame);
+    }
+
+    function startMatrix() {
+      initMatrixCanvas();
+      if (matrixAnimId) cancelAnimationFrame(matrixAnimId);
+      drawMatrixFrame();
+      matrixCanvas.style.opacity = 0.85;
+    }
+
+    function stopMatrix() {
+      if (matrixAnimId) {
+        cancelAnimationFrame(matrixAnimId);
+        matrixAnimId = null;
+      }
+      matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+      matrixCanvas.style.opacity = 0;
+    }
+
+    function triggerMatrixAndReveal() {
+      startMatrix();
+
+      setTimeout(() => {
+        // zapamatuj si, že zařízení prošlo bránou
+        localStorage.setItem("rgsInnerUnlocked", "1");
+
+        document.body.classList.add("unlocked");
+        gateWrapper.style.display = "none";
+        matrixCanvas.style.opacity = 0;
+
+        setTimeout(() => {
+          stopMatrix();
+        }, 700);
+      }, 1000);
+    }
+
+    // ULTRA LAYER logic
+    const ultraLayer = document.getElementById("ultraLayer");
+    const ultraInput = document.getElementById("ultraInput");
+    const ultraBtn = document.getElementById("ultraBtn");
+    const ultraStatus = document.getElementById("ultraStatus");
+
+    function checkUltra() {
+      const val = normaliseCode(ultraInput.value);
+      if (val === ULTRA_CODE) {
+        ultraStatus.textContent = "Layer Black odemknutý.";
+        ultraStatus.className = "ultra-status ok";
+        ultraLayer.classList.add("unlocked");
+      } else {
+        ultraStatus.textContent = "Špatný kód. Tenhle layer není pro všechny.";
+        ultraStatus.className = "ultra-status err";
+      }
+    }
+
+    ultraBtn.addEventListener("click", checkUltra);
+    ultraInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkUltra();
+      }
+    });
+
+    // Burn Lane unlock
+    const burnUnlockInput = document.getElementById("burnUnlockInput");
+    const burnUnlockBtn = document.getElementById("burnUnlockBtn");
+    const burnUnlockStatus = document.getElementById("burnUnlockStatus");
+
+    if (burnUnlockBtn && burnUnlockInput && burnUnlockStatus) {
+      burnUnlockBtn.addEventListener("click", () => {
+        const val = normaliseCode(burnUnlockInput.value);
+        if (val === BURN_CODE) {
+          document.body.classList.add("burn-unlocked");
+          localStorage.setItem("rgsBurnLaneUnlocked", "1");
+          burnUnlockStatus.textContent = "Burn Lane je otevřená.";
+          burnUnlockStatus.className = "ultra-status ok";
+        } else {
+          burnUnlockStatus.textContent = "Tohle není kód pro Burn Lane.";
+          burnUnlockStatus.className = "ultra-status err";
+        }
+      });
+    }
+
+    // FEATURE DASHBOARD DATA
+    const features = [
+      { key: "dm", name: "DM & chat", icon: "💬", category: "Social", status: "alpha", planned: false, progress: 70 },
+      { key: "contacts", name: "Kontakty & mini profily", icon: "👥", category: "Social", status: "alpha", planned: false, progress: 65 },
+      { key: "groups", name: "Groups & spaces", icon: "🧩", category: "Social", status: "alpha", planned: false, progress: 60 },
+      { key: "market", name: "Marketplace / marker", icon: "🛒", category: "Market", status: "alpha", planned: false, progress: 55 },
+      { key: "wallet", name: "Wallet & payments", icon: "💳", category: "Money", status: "alpha", planned: false, progress: 50 },
+      { key: "rating", name: "Rating & recenze", icon: "⭐", category: "Reputation", status: "alpha", planned: false, progress: 60 },
+      { key: "search", name: "Globální vyhledávání", icon: "🔎", category: "Core", status: "alpha", planned: false, progress: 50 },
+      { key: "ai", name: "Uncensored AI lane", icon: "🤖", category: "AI", status: "alpha", planned: false, progress: 55 },
+
+      { key: "screenDefense", name: "Screen defense", icon: "📵", category: "Security", status: "planned", planned: true, progress: 20 },
+      { key: "panicMode", name: "Panic mode", icon: "🧊", category: "Security", status: "planned", planned: true, progress: 10 },
+      { key: "innerroad", name: "INNERROAD hidden lanes", icon: "🧬", category: "Market", status: "planned", planned: true, progress: 25 },
+      { key: "blackRole", name: "Black role & privileges", icon: "🎯", category: "Access", status: "planned", planned: true, progress: 20 },
+      { key: "cryptoLayer", name: "Crypto layer / on-chain", icon: "⛓️", category: "Money", status: "planned", planned: true, progress: 30 },
+      { key: "dealerMode", name: "Dealer mode", icon: "⚡", category: "Market", status: "planned", planned: true, progress: 25 },
+      { key: "reputationGraph", name: "Reputation graph", icon: "📊", category: "Reputation", status: "planned", planned: true, progress: 15 },
+      { key: "deepAiWeave", name: "Deep AI weave", icon: "🧠", category: "AI", status: "planned", planned: true, progress: 20 },
+      { key: "safeChatPlus", name: "Safe chat+", icon: "🛡️", category: "Security", status: "planned", planned: true, progress: 15 },
+      { key: "vault", name: "Vault / sejf", icon: "🧳", category: "Security", status: "planned", planned: true, progress: 15 },
+      { key: "aliasId", name: "Alias & trusted devices", icon: "🗝️", category: "Identity", status: "planned", planned: true, progress: 10 }
+    ];
+
+    const dashGrid = document.getElementById("dashGrid");
+    const dashSummary = document.getElementById("dashSummary");
+    const dashTitle = document.getElementById("dashTitle");
+
+    const savedProgressRaw = localStorage.getItem("rgsFeatureProgress");
+    if (savedProgressRaw) {
+      try {
+        const saved = JSON.parse(savedProgressRaw);
+        features.forEach((f) => {
+          if (saved[f.key] !== undefined) {
+            const val = parseInt(saved[f.key], 10);
+            if (!isNaN(val)) f.progress = val;
+          }
+        });
+      } catch (e) {}
+    }
+
+    function saveProgressLocal() {
+      const map = {};
+      features.forEach((f) => {
+        map[f.key] = f.progress;
+      });
+      localStorage.setItem("rgsFeatureProgress", JSON.stringify(map));
+    }
+	
+	function updateSessionHud() {
+      const hudGate = document.getElementById("hudGate");
+      const hudBurn = document.getElementById("hudBurn");
+      const hudSupport = document.getElementById("hudSupport");
+      const hudAttempts = document.getElementById("hudAttempts");
+
+      if (!hudGate || !hudBurn || !hudSupport || !hudAttempts) return;
+
+      const gateUnlocked = localStorage.getItem("rgsInnerUnlocked") === "1";
+      const burnUnlocked = localStorage.getItem("rgsBurnLaneUnlocked") === "1";
+      const supportSent = localStorage.getItem("rgsSupportSubmitted") === "1";
+      const attempts = parseInt(localStorage.getItem("rgsGateAttempts") || "0", 10);
+
+      // Gate
+      hudGate.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudGate.classList.add(gateUnlocked ? "session-hud-pill--ok" : "session-hud-pill--bad");
+      hudGate.querySelector("span:last-child").textContent = gateUnlocked ? "UNLOCKED" : "LOCKED";
+
+      // Burn
+      hudBurn.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudBurn.classList.add(burnUnlocked ? "session-hud-pill--ok" : "session-hud-pill--warn");
+      hudBurn.querySelector("span:last-child").textContent = burnUnlocked ? "UNLOCKED" : "LOCKED";
+
+      // Support
+      hudSupport.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudSupport.classList.add(supportSent ? "session-hud-pill--ok" : "session-hud-pill--warn");
+      hudSupport.querySelector("span:last-child").textContent = supportSent ? "SENT" : "NOT SENT";
+
+      // Attempts
+      hudAttempts.classList.remove("session-hud-pill--ok","session-hud-pill--warn","session-hud-pill--bad");
+      hudAttempts.classList.add(attempts > 0 ? "session-hud-pill--warn" : "session-hud-pill--ok");
+      hudAttempts.querySelector("span:last-child").textContent = String(attempts);
+    }
+
+    function updateDashSummary() {
+      let currentSum = 0;
+      let currentCount = 0;
+      let plannedSum = 0;
+      let plannedCount = 0;
+
+      features.forEach((f) => {
+        const prog = typeof f.progress === "number" ? f.progress : 0;
+        if (f.planned) {
+          plannedSum += prog;
+          plannedCount++;
+        } else {
+          currentSum += prog;
+          currentCount++;
+        }
+      });
+
+      const currentAvg = currentCount > 0 ? Math.round(currentSum / currentCount) : 0;
+      const plannedAvg = plannedCount > 0 ? Math.round(plannedSum / plannedCount) : 0;
+
+      dashSummary.innerHTML = "";
+      const chip1 = document.createElement("div");
+      chip1.className = "dash-chip";
+      chip1.textContent = `CURRENT · ${currentCount} · ~${currentAvg}%`;
+
+      const chip2 = document.createElement("div");
+      chip2.className = "dash-chip";
+      chip2.textContent = `PLANNED · ${plannedCount} · ~${plannedAvg}%`;
+
+      const totalChip = document.createElement("div");
+      totalChip.className = "dash-chip";
+      totalChip.textContent = `TOTAL FEATURES · ${features.length}`;
+
+      dashSummary.appendChild(chip1);
+      dashSummary.appendChild(chip2);
+      dashSummary.appendChild(totalChip);
+    }
+
+    // ===== BURN LANE GLOBAL STATS =====
+    async function refreshBurnStats() {
+      if (!burnStatsText) return;
+      try {
+        const res = await fetch("/.netlify/functions/burn-stats");
+        if (!res.ok) {
+          burnStatsText.textContent = "Statistiky nejdou načíst.";
+          return;
+        }
+        const data = await res.json();
+        if (!data.ok) {
+          burnStatsText.textContent = "Statistiky nejdou načíst.";
+          return;
+        }
+        const s = data.stats || {};
+        const total = s.total || 0;
+        const pending = s.pending || 0;
+        const avgTtl =
+          s.avg_ttl != null ? s.avg_ttl.toFixed(1) : "–";
+        let avgBurnText = "zatím žádná zpráva nebyla přečtená";
+
+        if (s.avg_burn_seconds != null) {
+          const sec = s.avg_burn_seconds;
+          const min = Math.round(sec / 60);
+          if (min < 1) {
+            avgBurnText = "průměrně do 1 minuty";
+          } else if (min < 60) {
+            avgBurnText = `průměrně za ${min} min`;
+          } else {
+            const h = Math.floor(min / 60);
+            const m = min % 60;
+            avgBurnText = `průměrně za ${h} h ${m} min`;
+          }
+        }
+
+        burnStatsText.textContent =
+          `Vytvořeno: ${total} · Čeká (nepřečtené): ${pending} · ` +
+          `Průměrně zvolené TTL: ${avgTtl} h · ` +
+          `Průměr rychlosti burn: ${avgBurnText}.`;
+      } catch (e) {
+        burnStatsText.textContent = "Statistiky nejdou načíst.";
+      }
+    }
+	
+	function highlightTierCard(tierCode) {
+      document.querySelectorAll(".tier-card").forEach(card => {
+        card.classList.remove("tier-card--highlight");
+      });
+      if (!tierCode) return;
+      const card = document.querySelector(".tier-card.tier-tier-" + tierCode);
+      if (card) card.classList.add("tier-card--highlight");
+    }
+
+    function computeTierSuggestion(roleVal, focusVal) {
+      if (!roleVal) return null;
+
+      // jednoduchá logika: role tě vede, focus drobně modifikuje
+      if (roleVal === "signal") {
+        return "signal";
+      }
+      if (roleVal === "operator") {
+        if (focusVal === "capital") return "black";
+        return "operator";
+      }
+      if (roleVal === "architect") {
+        if (focusVal === "capital") return "black";
+        return "architect";
+      }
+      if (roleVal === "black") {
+        return "black";
+      }
+      return null;
+    }
+
+    function setupTierMatcher() {
+      const roleSel = document.getElementById("tierRoleSelect");
+      const focusSel = document.getElementById("tierFocusSelect");
+      const resultEl = document.getElementById("tierMatcherResult");
+      if (!roleSel || !focusSel || !resultEl) return;
+
+      function update() {
+        const roleVal = roleSel.value;
+        const focusVal = focusSel.value;
+        const tier = computeTierSuggestion(roleVal, focusVal);
+
+        if (!tier) {
+          resultEl.textContent = "Vyber směr a fokus – doporučíme ti roli, kterou máš mířit.";
+          highlightTierCard(null);
+          return;
+        }
+
+        let label = "";
+        if (tier === "signal") label = "Signal · tichý pozorovatel, první signál dovnitř.";
+        if (tier === "operator") label = "Operator · člověk, který s appkou operuje, ne ji jen sleduje.";
+        if (tier === "architect") label = "Architect · pomáháš stavět kostru systému.";
+        if (tier === "black") label = "Black · těžká váha, kapitál + zodpovědnost.";
+
+        resultEl.textContent = "Cílová role pro tvůj mindset: " + label;
+        highlightTierCard(tier);
+      }
+
+      roleSel.addEventListener("change", update);
+      focusSel.addEventListener("change", update);
+    }
+	
+	function handleCommand(cmd, statusEl) {
+      if (!cmd.startsWith("/")) {
+        statusEl.textContent = "Tohle není příkaz. Všechno začíná lomítkem.";
+        statusEl.style.color = "#ff6f91";
+        return;
+      }
+
+      const parts = cmd.slice(1).trim().split(/\s+/);
+      const name = parts[0].toLowerCase();
+
+      if (name === "help") {
+        statusEl.textContent = "Dostupné příkazy: /help, /burn, /gate-reset, /debug";
+        statusEl.style.color = "#a8a4c8";
+        return;
+      }
+
+      if (name === "burn" || name === "burn-on") {
+        document.body.classList.add("burn-unlocked");
+        localStorage.setItem("rgsBurnLaneUnlocked", "1");
+        updateSessionHud();
+        statusEl.textContent = "Burn Lane odemknutá přes konzoli.";
+        statusEl.style.color = "#7cffb2";
+        return;
+      }
+
+      if (name === "gate-reset") {
+        localStorage.removeItem("rgsInnerUnlocked");
+        localStorage.removeItem("rgsGateAttempts");
+        document.body.classList.remove("unlocked");
+        if (gateWrapper) gateWrapper.style.display = "";
+        statusEl.textContent = "Gate resetnutá pro tohle zařízení. Reload a rituál odznova.";
+        statusEl.style.color = "#f5b4a8";
+        return;
+      }
+
+      if (name === "debug") {
+        const state = {
+          innerUnlocked: localStorage.getItem("rgsInnerUnlocked"),
+          burnUnlocked: localStorage.getItem("rgsBurnLaneUnlocked"),
+          supportSubmitted: localStorage.getItem("rgsSupportSubmitted"),
+          gateAttempts: localStorage.getItem("rgsGateAttempts"),
+        };
+        statusEl.textContent = "Session state: " + JSON.stringify(state);
+        statusEl.style.color = "#7cffb2";
+        return;
+      }
+
+      statusEl.textContent = "Neznámý příkaz. Zkus /help.";
+      statusEl.style.color = "#ff6f91";
+    }
+
+    function renderDashboard() {
+      dashGrid.innerHTML = "";
+      features.forEach((f, idx) => {
+        const isPlanned = !!f.planned;
+        const prog = typeof f.progress === "number" ? f.progress : 0;
+
+        const row = document.createElement("div");
+        row.className = "dash-row";
+
+        const icon = document.createElement("div");
+        icon.className = "dash-icon";
+        icon.textContent = f.icon || "•";
+
+        const main = document.createElement("div");
+        main.className = "dash-main";
+
+        const name = document.createElement("div");
+        name.className = "dash-name";
+        name.textContent = f.name;
+
+        const meta = document.createElement("div");
+        meta.className = "dash-meta";
+        meta.textContent = `${f.category.toUpperCase()} · ${isPlanned ? "PLANNED" : "CURRENT"}`;
+
+        const pill = document.createElement("span");
+        pill.className = "dash-pill " + (isPlanned ? "planned" : "alpha");
+        pill.textContent = isPlanned ? "PLANNED" : f.status.toUpperCase();
+
+        const barWrap = document.createElement("div");
+        barWrap.className = "dash-bar-wrap";
+
+        const barTrack = document.createElement("div");
+        barTrack.className = "dash-bar-track";
+
+        const barFill = document.createElement("div");
+        barFill.className = "dash-bar-fill";
+        barFill.style.width = prog + "%";
+
+        barTrack.appendChild(barFill);
+
+        const barLabel = document.createElement("div");
+        barLabel.className = "dash-bar-label";
+        barLabel.innerHTML = `<span>${prog}%</span><span>${f.status}</span>`;
+
+        barWrap.appendChild(barTrack);
+        barWrap.appendChild(barLabel);
+
+        const edit = document.createElement("div");
+        edit.className = "dash-edit";
+        const label = document.createElement("span");
+        label.textContent = "upravit %:";
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.max = "100";
+        input.value = prog;
+        input.addEventListener("input", () => {
+          let val = parseInt(input.value, 10);
+          if (isNaN(val)) val = 0;
+          if (val < 0) val = 0;
+          if (val > 100) val = 100;
+          features[idx].progress = val;
+          barFill.style.width = val + "%";
+          barLabel.innerHTML = `<span>${val}%</span><span>${f.status}</span>`;
+          updateDashSummary();
+          saveProgressLocal();
+        });
+
+        edit.appendChild(label);
+        edit.appendChild(input);
+
+        main.appendChild(name);
+        main.appendChild(meta);
+        main.appendChild(pill);
+        main.appendChild(barWrap);
+        main.appendChild(edit);
+
+        row.appendChild(icon);
+        row.appendChild(main);
+
+        dashGrid.appendChild(row);
+      });
+
+      updateDashSummary();
+    }
+
+    dashTitle.addEventListener("dblclick", () => {
+      const code = window.prompt("Admin kód pro edit dashboardu:");
+      if (code && code.trim() === OWNER_DASH_CODE) {
+        document.body.classList.add("edit-mode");
+        alert("Edit mód aktivní v tomhle prohlížeči. Úpravy se ukládají lokálně.");
+      }
+    });
+
+    // Support Wall napojení na formulář (lokálně + Netlify)
+    const accessForm = document.querySelector('form[name="inner-access"]');
+    const supportDynamicList = document.getElementById("supportDynamicList");
+    const formStatus = document.getElementById("formStatus");
+
+    if (accessForm && supportDynamicList && formStatus) {
+      accessForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(accessForm);
+        const alias = (formData.get("alias") || "neznámý operative").toString().trim();
+        const chain = (formData.get("chain") || "").toString().trim();
+        const tx    = (formData.get("tx") || "").toString().trim();
+
+        let icon = "";
+        if (/eth/i.test(chain)) icon = "⛓️ ";
+        else if (/btc/i.test(chain)) icon = "₿ ";
+        else if (/usdt|usd[tc]/i.test(chain)) icon = "💠 ";
+
+        const li = document.createElement("li");
+        let line = icon + alias;
+        if (chain) line += " · " + chain;
+        if (tx)    line += " · " + tx;
+        li.textContent = line;
+        supportDynamicList.appendChild(li);
+
+        const encoded = new URLSearchParams(formData).toString();
+        formStatus.style.display = "block";
+        formStatus.style.color = "#a8a4c8";
+        formStatus.textContent = "Zapisujeme žádost / support do vnitřní vrstvy…";
+
+        // připravíme payload pro Neon
+        const payload = {
+          alias: (formData.get("alias") || "").toString().trim(),
+          invite: (formData.get("invite") || "").toString().trim(),
+          contact: (formData.get("contact") || "").toString().trim(),
+          role: (formData.get("role") || "").toString().trim(),
+          message: (formData.get("message") || "").toString().trim(),
+          chain: chain,
+          tx: tx,
+          support_message: (formData.get("support_message") || "").toString().trim()
+        };
+
+        formStatus.style.display = "block";
+        formStatus.style.color = "#a8a4c8";
+        formStatus.textContent = "Zapisujeme žádost / support do vnitřní vrstvy…";
+
+        fetch("/.netlify/functions/inner-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).then((res) => {
+          if (res.ok) {
+            formStatus.textContent = "Zapsáno. Když to bude dávat smysl, ozveme se.";
+            formStatus.style.color = "#7cffb2";
+            accessForm.reset();
+            localStorage.setItem("rgsSupportSubmitted", "1");
+            updateSessionHud();
+          } else {
+            formStatus.textContent = "Server odpověděl divně. Zkus to za chvíli znovu.";
+            formStatus.style.color = "#ff6f91";
+          }
+        }).catch(() => {
+          formStatus.textContent = "Síť padla nebo je něco mezi. Dej tomu čas a zkus to znovu.";
+          formStatus.style.color = "#ff6f91";
+        });
+      });
+    }
+
+    // Kontext gate textu (noc / opakovaná návštěva + Burn Lane unlock)
+    document.addEventListener("DOMContentLoaded", () => {
+      // skip gate, pokud už byla odemčena
+      const unlocked = localStorage.getItem("rgsInnerUnlocked");
+      if (unlocked === "1") {
+        document.body.classList.add("unlocked");
+        if (gateWrapper) gateWrapper.style.display = "none";
+        if (matrixCanvas) matrixCanvas.style.opacity = 0;
+      }
+
+      // respektuj Burn Lane unlock
+      const burnUnlocked = localStorage.getItem("rgsBurnLaneUnlocked");
+      if (burnUnlocked === "1") {
+        document.body.classList.add("burn-unlocked");
+      }
+
+      const visited = localStorage.getItem("rgsInnerVisited");
+      const hour = new Date().getHours();
+
+      if (!visited) {
+        localStorage.setItem("rgsInnerVisited", "1");
+      } else {
+        gateSub.textContent =
+          "Vstup znáš. Gate sleduje, jestli jsi přišel pracovat, nebo jen zírat na tmu.";
+      }
+
+      if (hour >= 23 || hour <= 4) {
+        gateSub.textContent =
+          "Noční režim. Všichni normální už spí. To je tvoje výhoda.";
+      }
+
+      renderDashboard();
+      updateSessionHud();
+      setupTierMatcher();
+
+      const burnBtn = document.getElementById("burnCreateBtn");
+      if (burnBtn) {
+        burnBtn.addEventListener("click", handleBurnCreate);
+      }
+      handleBurnReadIfPresent();
+
+      // command konzole
+      const cmdInput = document.getElementById("commandInput");
+      const cmdStatus = document.getElementById("commandStatus");
+      if (cmdInput && cmdStatus) {
+        cmdInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const val = cmdInput.value.trim();
+            if (!val) return;
+            handleCommand(val, cmdStatus);
+            cmdInput.value = "";
+          }
+        });
+      }
+    }); // <<< TADY CHYBĚLO
+	
+
+    // ===== BURN LANE / PRIVNOTE MODUL =====
+
+    function b64urlEncode(bytes) {
+      let str = "";
+      bytes = new Uint8Array(bytes);
+      for (let i = 0; i < bytes.length; i++) {
+        str += String.fromCharCode(bytes[i]);
+      }
+      return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function b64urlDecode(str) {
+      str = str.replace(/-/g, "+").replace(/_/g, "/");
+      const pad = str.length % 4;
+      if (pad) {
+        str += "====".slice(pad);
+      }
+      const bin = atob(str);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) {
+        bytes[i] = bin.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    async function encryptBurnNote(plainText) {
+      const enc = new TextEncoder();
+      const keyBytes = crypto.getRandomValues(new Uint8Array(32));
+      const ivBytes = crypto.getRandomValues(new Uint8Array(12));
+
+      const key = await crypto.subtle.importKey(
+        "raw",
+        keyBytes,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt"]
+      );
+
+      const cipherBuf = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: ivBytes },
+        key,
+        enc.encode(plainText)
+      );
+
+      return {
+        keyB64: b64urlEncode(keyBytes),
+        ivB64: b64urlEncode(ivBytes),
+        cipherB64: b64urlEncode(cipherBuf),
+      };
+    }
+
+    async function decryptBurnNote(cipherB64, ivB64, keyB64) {
+      const dec = new TextDecoder();
+      const keyBytes = b64urlDecode(keyB64);
+      const ivBytes = b64urlDecode(ivB64);
+      const cipherBytes = b64urlDecode(cipherB64);
+
+      const key = await crypto.subtle.importKey(
+        "raw",
+        keyBytes,
+        { name: "AES-GCM" },
+        false,
+        ["decrypt"]
+      );
+
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: ivBytes },
+        key,
+        cipherBytes
+      );
+
+      return dec.decode(plainBuf);
+    }
+
+    async function handleBurnCreate() {
+      const textEl = document.getElementById("burnText");
+      const statusEl = document.getElementById("burnCreateStatus");
+      const linkRow = document.getElementById("burnLinkRow");
+      const linkOutput = document.getElementById("burnLinkOutput");
+
+      const text = (textEl.value || "").trim();
+      if (!text) {
+        statusEl.textContent = "Napiš něco, než to pošleme do ohně.";
+        statusEl.style.color = "#ff6f91";
+        return;
+      }
+
+      statusEl.style.color = "#a8a4c8";
+      statusEl.textContent = "Šifruju a posílám šifrovaný balík…";
+
+      try {
+        const { keyB64, ivB64, cipherB64 } = await encryptBurnNote(text);
+
+        // TTL v hodinách z slideru (1–24)
+        const ttlHours = burnTtlInput
+          ? Math.min(
+              Math.max(parseInt(burnTtlInput.value || "24", 10), 1),
+              24
+            )
+          : 24;
+
+        // slug – volitelný
+        const slugRaw = burnSlugInput ? burnSlugInput.value.trim() : "";
+        const slug =
+          slugRaw ||
+          ("note-" +
+            Math.random()
+              .toString(36)
+              .slice(2, 8));
+
+        const res = await fetch("/.netlify/functions/note-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cipher: cipherB64, iv: ivB64, ttlHours, slug })
+        });
+
+        if (!res.ok) {
+          throw new Error("Server neodpověděl korektně");
+        }
+
+        const data = await res.json();
+        const token = data.token;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("note", token);
+        url.hash = "#" + keyB64;
+
+        linkOutput.value = url.toString();
+        linkRow.style.display = "block";
+
+        statusEl.textContent = "Hotovo. Pošli link tomu, komu má zpráva shořet v rukou.";
+        statusEl.style.color = "#7cffb2";
+        textEl.value = "";
+
+        // přepiš slug input na reálně použitý slug
+        if (burnSlugInput) burnSlugInput.value = data.slug || slug;
+
+        // obnov statistiky
+        refreshBurnStats();
+      } catch (err) {
+        console.error("handleBurnCreate error:", err);
+        statusEl.textContent = "Něco se pokazilo. Zkus to znovu, nebo to zatím nespaluj.";
+        statusEl.style.color = "#ff6f91";
+      }
+    }
+
+    async function handleBurnReadIfPresent() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("note");
+      const hash = window.location.hash || "";
+      const keyB64 = hash.startsWith("#") ? hash.slice(1) : "";
+
+      const readCard = document.getElementById("burnReadCard");
+      const readBox = document.getElementById("burnReadBox");
+      const readStatus = document.getElementById("burnReadStatus");
+
+      if (!token || !keyB64 || !readCard) return;
+
+      readCard.style.display = "block";
+      readStatus.style.color = "#a8a4c8";
+      readStatus.textContent = "Tahám šifrovanou zprávu a pálím záznam…";
+
+      try {
+        const res = await fetch("/.netlify/functions/note-read", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+
+        if (res.status === 410) {
+          readBox.textContent = "";
+          readStatus.style.color = "#ff6f91";
+          readStatus.textContent = "Zpráva už shořela. Tady nic neuvidíš.";
+          history.replaceState(null, "", window.location.pathname);
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Server odpověděl chybou");
+        }
+
+        const data = await res.json();
+        const cipherB64 = data.cipher;
+        const ivB64 = data.iv;
+
+        const plain = await decryptBurnNote(cipherB64, ivB64, keyB64);
+
+        readBox.textContent = plain;
+        readStatus.style.color = "#7cffb2";
+        readStatus.textContent =
+          "Tohle je jediné zobrazení téhle zprávy. Po reloadu je pryč.";
+
+        // obnov statistiky po burn
+        refreshBurnStats();
+
+        // spálit URL – odstranit token i key z adresy
+        history.replaceState(null, "", window.location.pathname + "#burned");
+      } catch (err) {
+        readBox.textContent = "";
+        readStatus.style.color = "#ff6f91";
+        readStatus.textContent = "Zprávu nejde načíst. Možná už shořela, možná něco smrdí na cestě.";
+        history.replaceState(null, "", window.location.pathname);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const burnBtn = document.getElementById("burnCreateBtn");
+      if (burnBtn) {
+        burnBtn.addEventListener("click", handleBurnCreate);
+      }
+      handleBurnReadIfPresent();
+
+      // TTL slider label
+      if (burnTtlInput && burnTtlLabel) {
+        const updateTtlLabel = () => {
+          const h = parseInt(burnTtlInput.value || "24", 10);
+          burnTtlLabel.textContent = `Expirace: ${h} h`;
+        };
+        burnTtlInput.addEventListener("input", updateTtlLabel);
+        updateTtlLabel();
+      }
+
+      // globální Burn Lane statistiky
+      refreshBurnStats();
+    });
+	
+	// ========== ADMIN PANEL SCRIPT ==========
+// ========== ADMIN PANEL SCRIPT ==========
+
+async function updateRequestStatus(id, action) {
+  try {
+    const res = await fetch(`/.netlify/functions/admin-update?key=${OWNER_DASH_CODE}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, action })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await loadAdminList();
+    } else {
+      alert("Admin update error: " + (data.error || "unknown"));
+    }
+  } catch (e) {
+    alert("Admin update fetch failed");
+  }
+}
+
+async function loadAdminList() {
+  const adminPanel = document.getElementById("adminPanel");
+  const adminList = document.getElementById("adminList");
+  const adminStatus = document.getElementById("adminStatus");
+  const adminStats = document.getElementById("adminStats");
+
+  if (!adminPanel || !adminList || !adminStatus || !adminStats) return;
+
+  adminStatus.textContent = "Loading…";
+
+  const res = await fetch(`/.netlify/functions/admin-list?key=${OWNER_DASH_CODE}`);
+  const data = await res.json();
+
+  if (!data.ok) {
+    adminStatus.textContent = "Unauthorized or error.";
+    adminStats.textContent = "";
+    return;
+  }
+
+  // HUD – stats
+  const s = data.stats || {};
+  adminStats.textContent =
+    `Pending: ${s.pending || 0} · Accepted: ${s.accepted || 0} · Rejected: ${s.rejected || 0} · Today: ${s.today || 0} · Total: ${s.total || 0}`;
+
+  adminStatus.textContent = `Records: ${data.items.length}`;
+
+  // seznam
+  adminList.innerHTML = "";
+
+  data.items.forEach(item => {
+    const wrap = document.createElement("div");
+    wrap.style.padding = "10px";
+    wrap.style.border = "1px solid #312544";
+    wrap.style.borderRadius = "12px";
+    wrap.style.background = "rgba(10,5,20,0.6)";
+
+    const statusColor =
+      item.status === "accepted" ? "#7cffb2" :
+      item.status === "rejected" ? "#ff6f91" :
+      "#f5b4a8";
+
+    wrap.innerHTML = `
+      <div class="admin-row-main" style="display:flex; justify-content:space-between; gap:8px; cursor:pointer;">
+        <div>
+          <span style="color:#f5b4a8; font-size:0.9rem;">${item.alias || "unknown"}</span>
+          <span style="color:#a8a4c8; font-size:0.8rem;"> — ${item.role_wanted || "-"}</span>
+        </div>
+        <div style="font-size:0.75rem; color:${statusColor}; text-transform:uppercase; letter-spacing:0.12em;">
+          ${item.status || "pending"}
+        </div>
+      </div>
+      <div class="admin-row-details" style="display:none; margin-top:6px; font-size:0.78rem; color:#a8a4c8;">
+        <div>Invite: ${item.invite || "-"}</div>
+        <div>Contact: ${item.contact || "-"}</div>
+        <div>Chain: ${item.chain || "-"}</div>
+        <div>TX: ${item.tx_hash || "-"}</div>
+        <div>Message: ${item.message || "-"}</div>
+        <div>Support note: ${item.support_note || "-"}</div>
+        <div style="color:#8c7da5; font-size:0.7rem; margin-top:4px;">
+          ${new Date(item.created_at).toLocaleString()}
+        </div>
+        <div style="margin-top:6px; display:flex; gap:6px;">
+          <button data-id="${item.id}" data-action="accept"
+            style="padding:3px 10px; border-radius:999px; border:1px solid #7cffb2; background:transparent; color:#7cffb2; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer;">
+            Accept
+          </button>
+          <button data-id="${item.id}" data-action="reject"
+            style="padding:3px 10px; border-radius:999px; border:1px solid #ff6f91; background:transparent; color:#ff6f91; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer;">
+            Reject
+          </button>
+          <button data-id="${item.id}" data-action="pending"
+            style="padding:3px 10px; border-radius:999px; border:1px solid #f5b4a8; background:transparent; color:#f5b4a8; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer;">
+            Reset
+          </button>
+        </div>
+      </div>
+    `;
+
+    adminList.appendChild(wrap);
+  });
+
+  // event delegace pro toggle a tlačítka
+  adminList.querySelectorAll(".admin-row-main").forEach(mainRow => {
+    mainRow.addEventListener("click", () => {
+      const details = mainRow.nextElementSibling;
+      if (!details) return;
+      details.style.display = details.style.display === "none" || !details.style.display
+        ? "block"
+        : "none";
+    });
+  });
+
+  adminList.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute("data-id");
+      const action = btn.getAttribute("data-action");
+      updateRequestStatus(id, action);
+    });
+  });
+}
+
+// aktivace admin panelu po zadání owner code
+document.addEventListener("DOMContentLoaded", () => {
+  // doubleclick na název dashboardu už máš na admin kód – navážeme se na to:
+  const reloadBtn = document.getElementById("adminReloadBtn");
+  if (reloadBtn) {
+    reloadBtn.addEventListener("click", loadAdminList);
+  }
+
+  // když se odemkne edit-mode, zobraz admin panel
+  dashTitle.addEventListener("dblclick", () => {
+    setTimeout(() => {
+      if (document.body.classList.contains("edit-mode")) {
+        const adminPanel = document.getElementById("adminPanel");
+        if (adminPanel) {
+          adminPanel.style.display = "block";
+          loadAdminList();
+        }
+      }
+    }, 150);
+  });
+});
+  </script>
+</body>
+</html>
