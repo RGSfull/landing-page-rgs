@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>RGS & UFO — Burn Lane v3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --bg-main: #020008;
+      --bg-soft: #090417;
+      --text-main: #f4f3ff;
+      --text-muted: #8b86a7;
+      --rose: #f5b4a8;
+      --neon: #5df2ff;
+      --violet: #b18cff;
+      --acid: #7cffb2;
+      --danger: #ff6f91;
+      --border-soft: #312544;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter",
+        "SF Pro Text", sans-serif;
+      background:
+        radial-gradient(circle at top, #19103d, #05030f 55%, #020008);
+      color: var(--text-main);
+      letter-spacing: 0.04em;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8b86a7;
+      padding: 10px 0 6px;
+      border-bottom: 1px solid #291934;
+    }
+
+    .topbar a {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #b3a0d6;
+    }
+
+    .hero {
+      padding: 20px 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .hero-left {
+      max-width: 520px;
+    }
+
+    .hero-kicker {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: #8c7da5;
+      margin-bottom: 6px;
+    }
+
+    .hero-title {
+      font-size: 1.5rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    .hero-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      max-width: 520px;
+    }
+
+    .hero-sub strong {
+      color: var(--rose);
+      font-weight: 500;
+    }
+
+    .hero-meta {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #a59fd4;
+    }
+
+    .hero-meta span {
+      display: inline-block;
+      margin-right: 12px;
+    }
+
+    .layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
+      }
+    }
+
+    .card {
+      border-radius: 18px;
+      border: 1px solid var(--border-soft);
+      background: rgba(10, 7, 27, 0.96);
+      padding: 16px;
+      font-size: 0.86rem;
+      box-shadow: 0 0 22px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card h2 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #c5b7f3;
+      margin: 0 0 8px;
+    }
+
+    .card small {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .chat-window {
+      border-radius: 12px;
+      border: 1px solid #3a3052;
+      background: rgba(3, 0, 12, 0.9);
+      padding: 10px;
+      height: 340px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .bubble.me {
+      margin-left: auto;
+      background: radial-gradient(circle at top, #1b6070, #07141a);
+      border: 1px solid #4ccde0;
+    }
+
+    .bubble.other {
+      margin-right: auto;
+      background: radial-gradient(circle at top, #321531, #090511);
+      border: 1px solid #5b3a70;
+    }
+
+    .bubble-meta {
+      font-size: 0.66rem;
+      opacity: 0.7;
+      margin-top: 3px;
+    }
+
+    .chat-input-row {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      background: rgba(2, 6, 12, 0.9);
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      color: var(--text-main);
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 12px rgba(93, 242, 255, 0.35);
+    }
+
+    .chat-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(93, 242, 255, 0.8);
+      background: radial-gradient(circle at top left, #0e3e4f, #02060e);
+      color: #eaffff;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 7px 14px;
+      cursor: pointer;
+    }
+
+    .chat-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .thread-control {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid #3b3558;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #a59fd4;
+    }
+
+    .pill.acid {
+      border-color: var(--acid);
+      color: var(--acid);
+    }
+
+    .pill.danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .thread-status {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .shadow-card {
+      min-height: 260px;
+    }
+
+    .shadow-log {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid #362941;
+      padding: 8px 10px;
+      background: rgba(5, 2, 16, 0.95);
+      font-size: 0.78rem;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .shadow-line {
+      margin-bottom: 4px;
+      color: #a8a4d8;
+    }
+
+    .shadow-line span {
+      color: #5df2ff;
+      font-size: 0.7rem;
+      margin-right: 4px;
+    }
+
+    .shadow-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #f5b4a8;
+      margin-bottom: 4px;
+    }
+
+    .countdown {
+      font-size: 0.78rem;
+      color: #f5b4a8;
+      margin-top: 4px;
+    }
+
+    footer {
+      padding: 16px 20px 18px;
+      margin-top: 28px;
+      border-top: 1px solid #291934;
+      font-size: 0.7rem;
+      text-align: center;
+      color: #8f7fa7;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="inner">
+      <div class="topbar">
+        <span>RGS &amp; UFO · Burn Lane v3</span>
+        <a href="/">⟵ Zpět na Inner Gate</a>
+      </div>
+
+      <section class="hero">
+        <div class="hero-left">
+          <div class="hero-kicker">Burn lane v3</div>
+          <h1 class="hero-title">1H THREAD · TOTAL ANON</h1>
+          <p class="hero-sub">
+            Jedno vlákno, <strong>jedna hodina života</strong>. Všechno, co napíšeš,
+            je <strong>šifrované v prohlížeči</strong> a server vidí jen šum.
+            Po vypršení TTL je vlákno považované za mrtvé.
+          </p>
+          <p class="hero-meta">
+            <span>TTL: 1h od vytvoření</span>
+            <span>Žádná identita, žádný profil</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="layout">
+        <!-- CHAT / THREAD -->
+        <div class="card">
+          <h2>Vlákno</h2>
+          <small id="threadInfo">Žádné vlákno není aktivní. Vytvoř nové nebo vlož URL.</small>
+
+          <div class="thread-control" style="margin-top:10px;">
+            <button id="createThreadBtn" class="chat-btn" type="button">
+              Start new thread
+            </button>
+            <span id="countdown" class="countdown"></span>
+          </div>
+
+          <div class="chat-window" id="chatWindow">
+            <!-- bubliny -->
+          </div>
+
+          <div class="chat-input-row">
+            <input
+              id="chatInput"
+              class="chat-input"
+              placeholder="Napiš zprávu (Enter = poslat)..."
+            />
+            <button id="chatSendBtn" class="chat-btn" type="button">
+              Send
+            </button>
+          </div>
+
+          <p class="thread-status" id="threadStatus">
+            Link vlákna: v URL parametru <code>?t=...</code>. Šifrovací klíč sedí v hash
+            za <code>#</code> – ten server nikdy neuvidí.
+          </p>
+        </div>
+
+        <!-- SHADOW ASSISTANT -->
+        <div class="card shadow-card">
+          <div class="shadow-title">Shadow assistant</div>
+          <small>
+            Nečte zprávy. Jen sleduje čas, rytmus a to, jak používáš vlákno.
+            Mluví k tobě, ne o tobě.
+          </small>
+          <div class="shadow-log" id="shadowLog">
+            <div class="shadow-line"><span>[boot]</span> link opened · waiting for thread...</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      RGS &amp; UFO ORIGINALS · BURN LANE V3 · 1H THREADS · NO ARCHIVE
+    </footer>
+  </div>
+
+  <script>
+    // ==== Crypto helpers (AES-GCM, base64url) ====
+    function b64urlEncode(bytes) {
+      let str = "";
+      const arr = new Uint8Array(bytes);
+      for (let i = 0; i < arr.length; i++) {
+        str += String.fromCharCode(arr[i]);
+      }
+      return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function b64urlDecode(str) {
+      str = str.replace(/-/g, "+").replace(/_/g, "/");
+      const pad = str.length % 4;
+      if (pad) str += "====".slice(pad);
+      const bin = atob(str);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) {
+        bytes[i] = bin.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    async function encryptText(key, text) {
+      const enc = new TextEncoder();
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const cipherBuf = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        key,
+        enc.encode(text)
+      );
+      return {
+        cipherB64: b64urlEncode(cipherBuf),
+        ivB64: b64urlEncode(iv)
+      };
+    }
+
+    async function decryptText(key, cipherB64, ivB64) {
+      const dec = new TextDecoder();
+      const iv = b64urlDecode(ivB64);
+      const cipherBytes = b64urlDecode(cipherB64);
+
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        key,
+        cipherBytes
+      );
+      return dec.decode(plainBuf);
+    }
+
+    async function generateThreadKey() {
+      const keyBytes = crypto.getRandomValues(new Uint8Array(32));
+      const key = await crypto.subtle.importKey(
+        "raw",
+        keyBytes,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt", "decrypt"]
+      );
+      const keyB64 = b64urlEncode(keyBytes);
+      return { key, keyB64 };
+    }
+
+    async function importThreadKey(keyB64) {
+      const raw = b64urlDecode(keyB64);
+      return crypto.subtle.importKey(
+        "raw",
+        raw,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    // ==== State ====
+    let threadToken = null;
+    let threadKey = null;
+    let threadKeyB64 = null;
+    let lastMessageIds = new Set();
+    let expiresAt = null;
+    let countdownTimer = null;
+
+    const chatWindow = document.getElementById("chatWindow");
+    const chatInput = document.getElementById("chatInput");
+    const chatSendBtn = document.getElementById("chatSendBtn");
+    const createThreadBtn = document.getElementById("createThreadBtn");
+    const threadInfo = document.getElementById("threadInfo");
+    const threadStatus = document.getElementById("threadStatus");
+    const countdownEl = document.getElementById("countdown");
+    const shadowLog = document.getElementById("shadowLog");
+
+    function logShadow(msg) {
+      const line = document.createElement("div");
+      line.className = "shadow-line";
+      const ts = new Date().toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
+      line.innerHTML = `<span>[${ts}]</span> ${msg}`;
+      shadowLog.appendChild(line);
+      shadowLog.scrollTop = shadowLog.scrollHeight;
+    }
+
+    function setThreadInfo(text) {
+      threadInfo.textContent = text;
+    }
+
+    function updateCountdown() {
+      if (!expiresAt) {
+        countdownEl.textContent = "";
+        return;
+      }
+      const now = new Date();
+      const diffMs = new Date(expiresAt) - now;
+      if (diffMs <= 0) {
+        countdownEl.textContent = "Vlákno vypršelo.";
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        return;
+      }
+      const minutes = Math.floor(diffMs / 60000);
+      const seconds = Math.floor((diffMs % 60000) / 1000);
+      countdownEl.textContent = `TTL: ${minutes}m ${seconds}s`;
+    }
+
+    function startCountdown() {
+      if (countdownTimer) clearInterval(countdownTimer);
+      updateCountdown();
+      countdownTimer = setInterval(updateCountdown, 1000);
+    }
+
+    function renderMessageBubble(id, createdAt, text, isMe) {
+      if (lastMessageIds.has(id)) return;
+      lastMessageIds.add(id);
+
+      const wrap = document.createElement("div");
+      wrap.className = "bubble " + (isMe ? "me" : "other");
+      const p = document.createElement("div");
+      p.textContent = text;
+      const meta = document.createElement("div");
+      meta.className = "bubble-meta";
+      const t = new Date(createdAt);
+      meta.textContent = t.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
+
+      wrap.appendChild(p);
+      wrap.appendChild(meta);
+      chatWindow.appendChild(wrap);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function loadThread() {
+      if (!threadToken || !threadKey) return;
+      try {
+        const res = await fetch("/.netlify/functions/thread-load", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: threadToken })
+        });
+
+        if (res.status === 410) {
+          const data = await res.json().catch(() => null);
+          setThreadInfo("Vlákno je expirované nebo zavřené.");
+          logShadow("thread marked as dead. no more messages.");
+          chatInput.disabled = true;
+          chatSendBtn.disabled = true;
+          if (data && data.expires_at) {
+            expiresAt = data.expires_at;
+            updateCountdown();
+          }
+          return;
+        }
+
+        if (!res.ok) {
+          setThreadInfo("Server odpověděl divně. Zkus reload.");
+          return;
+        }
+
+        const data = await res.json();
+        if (!data.ok) return;
+
+        expiresAt = data.thread.expires_at;
+        startCountdown();
+
+        const messages = data.messages || [];
+        for (const msg of messages) {
+          try {
+            const plain = await decryptText(threadKey, msg.cipher, msg.iv);
+            const isMe = false; // vlákno je anonymní
+            renderMessageBubble(msg.id, msg.created_at, plain, isMe);
+          } catch {
+            // ignore decrypt errors
+          }
+        }
+      } catch (e) {
+        console.error("loadThread error", e);
+      }
+    }
+
+    async function sendMessage() {
+      if (!threadToken || !threadKey) {
+        threadStatus.textContent = "Nejdřív vytvoř nebo načti vlákno.";
+        return;
+      }
+      const text = (chatInput.value || "").trim();
+      if (!text) return;
+      chatInput.value = "";
+
+      try {
+        const { cipherB64, ivB64 } = await encryptText(threadKey, text);
+        const res = await fetch("/.netlify/functions/thread-post", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: threadToken,
+            cipher: cipherB64,
+            iv: ivB64
+          })
+        });
+
+        if (res.status === 410) {
+          setThreadInfo("Vlákno vypršelo. Tuhle zprávu už nevložíme.");
+          logShadow("message dropped; thread is dead.");
+          chatInput.disabled = true;
+          chatSendBtn.disabled = true;
+          return;
+        }
+
+        if (!res.ok) {
+          threadStatus.textContent = "Server odmítl zprávu. Zkus to znovu.";
+          return;
+        }
+
+        // Lokálně zobraz hned
+        renderMessageBubble(
+          "local-" + Date.now(),
+          new Date().toISOString(),
+          text,
+          true
+        );
+
+        logShadow("signal sent.");
+      } catch (e) {
+        console.error("sendMessage error", e);
+      }
+    }
+
+    async function createThread() {
+      try {
+        const res = await fetch("/.netlify/functions/thread-create", {
+          method: "POST"
+        });
+        if (!res.ok) {
+          setThreadInfo("Server odmítl vytvořit vlákno.");
+          return;
+        }
+        const data = await res.json();
+        if (!data.ok) {
+          setThreadInfo("Vytvoření vlákna selhalo.");
+          return;
+        }
+
+        threadToken = data.token;
+        expiresAt = data.expires_at;
+
+        // vygeneruj klíč a zapiš do hash
+        const { key, keyB64 } = await generateThreadKey();
+        threadKey = key;
+        threadKeyB64 = keyB64;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("t", threadToken);
+        url.hash = "#" + keyB64;
+        history.replaceState(null, "", url.toString());
+
+        setThreadInfo("Vlákno vytvořené. Link sdílej celý (včetně #...).");
+        logShadow("thread spawned with 1h TTL.");
+        startCountdown();
+        chatInput.disabled = false;
+        chatSendBtn.disabled = false;
+
+      } catch (e) {
+        console.error("createThread error", e);
+        setThreadInfo("Něco se pokazilo při vytváření vlákna.");
+      }
+    }
+
+    async function initFromUrl() {
+      const url = new URL(window.location.href);
+      const token = url.searchParams.get("t");
+      const hash = window.location.hash || "";
+      const keyStr = hash.startsWith("#") ? hash.slice(1) : "";
+
+      if (!token && !keyStr) {
+        setThreadInfo("Žádné vlákno. Klikni na Start new thread.");
+        logShadow("no thread token. waiting for spawn.");
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        return;
+      }
+
+      if (token && !keyStr) {
+        setThreadInfo("Vlákno má token, ale chybí šifrovací klíč (#...). Bez něj nečteme.");
+        logShadow("thread token found, but key hash is missing.");
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        return;
+      }
+
+      if (!token && keyStr) {
+        setThreadInfo("Máš klíč, ale žádné vlákno (parametr ?t=...). Link je neúplný.");
+        logShadow("key present, thread missing.");
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        return;
+      }
+
+      // máme obojí
+      try {
+        threadToken = token;
+        threadKeyB64 = keyStr;
+        threadKey = await importThreadKey(keyStr);
+
+        setThreadInfo("Vlákno z URL. Čtu šifrovaný thread...");
+        chatInput.disabled = false;
+        chatSendBtn.disabled = false;
+        logShadow("thread key imported. listening...");
+
+        await loadThread();
+        // Polling – soft
+        setInterval(loadThread, 5000);
+      } catch (e) {
+        console.error("initFromUrl error", e);
+        setThreadInfo("Klíč nešel importovat. Link je poškozený.");
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        logShadow("key import failed. dead link.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      createThreadBtn.addEventListener("click", () => {
+        createThread();
+      });
+      chatSendBtn.addEventListener("click", () => {
+        sendMessage();
+      });
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      initFromUrl();
+    });
+  </script>
+</body>
+</html>
