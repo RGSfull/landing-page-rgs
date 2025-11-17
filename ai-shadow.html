@@ -2,57 +2,51 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>RGS & UFO — AI SHΛDOW CONSOLE</title>
+  <title>AI SHΛDOW · RGS & UFO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
   <style>
     :root {
-      --bg-main: #020308;
-      --bg-panel: #050313;
-      --bg-console: #02020a;
-      --border-soft: #241e3a;
+      --bg-main: #010208;
+      --bg-panel: #05020f;
+      --bg-console: #02010a;
+      --border-soft: #241c38;
 
       --neon: #5df2ff;
       --rose: #f5b4a8;
       --amber: #f5c66a;
       --danger: #ff6f91;
-      --muted: #7a749b;
-      --text: #f2f0ff;
+      --muted: #78729d;
+      --text: #f3f1ff;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Mono",
-        "JetBrains Mono", Menlo, monospace;
+      font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
       background:
-        radial-gradient(circle at 0% 0%, rgba(245,180,168,0.18), transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(93,242,255,0.18), transparent 55%),
-        radial-gradient(circle at 30% 80%, rgba(177,140,255,0.24), transparent 55%),
-        #020308;
+        radial-gradient(circle at 0% 0%, rgba(245,180,168,0.2), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(93,242,255,0.16), transparent 55%),
+        radial-gradient(circle at 30% 80%, rgba(177,140,255,0.28), transparent 55%),
+        #010208;
       color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
 
     body::before {
-      /* jemné „scanlines“ přes celou obrazovku */
       content: "";
       position: fixed;
       inset: 0;
-      pointer-events: none;
       background-image: linear-gradient(
         to bottom,
         rgba(255,255,255,0.06) 1px,
         transparent 1px
       );
       background-size: 100% 3px;
-      opacity: 0.12;
+      opacity: 0.16;
       mix-blend-mode: soft-light;
+      pointer-events: none;
       z-index: 1;
     }
 
@@ -64,15 +58,15 @@
       z-index: 2;
     }
 
-    /* TOP BAR */
+    /* top bar */
 
     .topbar {
-      padding: 14px 20px 10px;
+      padding: 10px 18px 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #241c36;
-      background: radial-gradient(circle at top, rgba(10,6,30,0.96), rgba(3,0,10,0.96));
+      border-bottom: 1px solid #281c39;
+      background: radial-gradient(circle at top, rgba(5,1,16,0.98), rgba(2,0,9,0.96));
       box-shadow: 0 10px 40px rgba(0,0,0,0.9);
       position: sticky;
       top: 0;
@@ -82,699 +76,601 @@
     .topbar-main {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .topbar-brand {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       letter-spacing: 0.32em;
       text-transform: uppercase;
       color: var(--rose);
     }
 
     .topbar-title {
-      font-size: 1rem;
-      letter-spacing: 0.2em;
+      font-size: 0.9rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
     }
 
-    .topbar-title span {
-      color: var(--neon);
-    }
+    .topbar-title span { color: var(--neon); }
 
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
+      gap: 8px;
+      font-size: 0.65rem;
       letter-spacing: 0.16em;
+      text-transform: uppercase;
       color: var(--muted);
     }
 
-    .badge {
+    .pill {
       border-radius: 999px;
-      border: 1px solid #3b304d;
-      padding: 3px 9px;
+      border: 1px solid #3a2e4f;
+      padding: 3px 8px;
     }
 
-    .badge-dot {
-      width: 7px;
-      height: 7px;
+    .pill-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 999px;
       background: var(--neon);
       box-shadow: 0 0 10px rgba(93,242,255,0.9);
-      margin-right: 6px;
       display: inline-block;
+      margin-right: 6px;
     }
 
-    .link-back {
-      text-decoration: none;
+    .back-link {
       color: var(--muted);
-      border-bottom: 1px dotted var(--muted);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--muted);
     }
 
-    .link-back:hover {
+    .back-link:hover {
       color: var(--neon);
       border-bottom-color: var(--neon);
     }
 
-    /* MAIN LAYOUT */
+    /* layout */
 
     .main {
       flex: 1;
+      padding: 14px 18px 18px;
       display: grid;
-      gap: 18px;
-      padding: 18px 20px 20px;
-      grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr);
+      gap: 14px;
+      grid-template-columns: minmax(0,2.6fr) minmax(0,1.2fr);
     }
 
     @media (max-width: 880px) {
       .main {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: minmax(0,1fr);
       }
     }
 
-    /* CONSOLE */
+    /* console */
 
     .console-wrap {
       background: var(--bg-panel);
-      border-radius: 20px;
+      border-radius: 18px;
       border: 1px solid var(--border-soft);
       box-shadow:
         0 0 40px rgba(0,0,0,0.9),
-        0 0 60px rgba(93,242,255,0.08);
+        0 0 70px rgba(93,242,255,0.1);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
     }
 
     .console-header {
-      padding: 10px 14px 8px;
+      padding: 6px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #241e3a;
+      border-bottom: 1px solid #271a3a;
       font-size: 0.7rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
       color: var(--muted);
     }
 
-    .console-lights {
+    .win-dots {
       display: flex;
-      gap: 6px;
+      gap: 5px;
       align-items: center;
     }
 
-    .console-light {
-      width: 10px;
-      height: 10px;
+    .dot {
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: #301624;
-      box-shadow: 0 0 0 1px #4a2735;
+      box-shadow: 0 0 0 1px #432332;
     }
-
-    .console-light:nth-child(2) {
-      background: #352f12;
-      box-shadow: 0 0 0 1px #4d4720;
+    .dot:nth-child(2) {
+      background: #332b16;
+      box-shadow: 0 0 0 1px #46402a;
     }
-
-    .console-light:nth-child(3) {
-      background: #0c312f;
-      box-shadow: 0 0 0 1px #1b544f;
+    .dot:nth-child(3) {
+      background: #09302b;
+      box-shadow: 0 0 0 1px #165149;
     }
 
     .console-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
       letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 0.68rem;
       color: var(--neon);
     }
 
+    .console-meta { font-size: 0.65rem; }
+
     .console {
       flex: 1;
-      background: radial-gradient(circle at top left, #070720, #02020a);
-      padding: 10px 14px 12px;
-      font-size: 0.82rem;
-      color: var(--text);
+      padding: 8px 10px 10px;
+      background: radial-gradient(circle at top left,#06061c,#02000b);
+      font-size: 0.8rem;
+      line-height: 1.45;
       overflow-y: auto;
-      line-height: 1.5;
     }
 
-    .console-line {
+    .line {
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    .console-line + .console-line {
-      margin-top: 4px;
-    }
+    .line + .line { margin-top: 3px; }
 
-    .console-prefix {
-      color: #6160f0;
-    }
+    .pref-user { color: var(--rose); }
+    .pref-shadow { color: var(--neon); }
+    .pref-meta { color: var(--muted); }
 
-    .console-prefix-user {
-      color: var(--rose);
-    }
-
-    .console-prefix-shadow {
-      color: var(--neon);
-    }
-
-    .console-meta {
+    .line-meta {
       color: var(--muted);
-      font-size: 0.7rem;
+      font-size: 0.72rem;
     }
 
-    .console-error {
-      color: var(--danger);
-    }
+    .line-error { color: var(--danger); }
 
-    .console-think {
+    .line-think {
       color: var(--muted);
       font-style: italic;
     }
 
-    .thinking-dots span {
+    .thinking {
+      display: inline-block;
+      margin-left: 2px;
+    }
+
+    .thinking span {
       display: inline-block;
       width: 4px;
       height: 4px;
       margin-left: 2px;
       border-radius: 50%;
       background: var(--neon);
-      opacity: 0.2;
+      opacity: 0.15;
       animation: blink 1.2s infinite;
     }
 
-    .thinking-dots span:nth-child(2) {
-      animation-delay: 0.15s;
-    }
-
-    .thinking-dots span:nth-child(3) {
-      animation-delay: 0.3s;
-    }
+    .thinking span:nth-child(2) { animation-delay: 0.15s; }
+    .thinking span:nth-child(3) { animation-delay: 0.3s; }
 
     @keyframes blink {
-      0%, 20% { opacity: 0.15; transform: translateY(0); }
+      0%,20% { opacity: 0.15; transform: translateY(0); }
       50% { opacity: 1; transform: translateY(-2px); }
       100% { opacity: 0.15; transform: translateY(0); }
     }
 
     .prompt-row {
+      padding: 6px 9px 7px;
       display: flex;
       align-items: flex-end;
-      gap: 8px;
-      padding: 6px 10px 10px;
-      border-top: 1px solid #241e3a;
-      background: linear-gradient(to top, rgba(3,0,9,0.95), rgba(7,6,20,0.9));
+      gap: 7px;
+      border-top: 1px solid #271a3a;
+      background: linear-gradient(to top,#040010,#08051c);
     }
 
-    .prompt-label {
-      color: var(--neon);
-      font-size: 0.9rem;
-    }
+    .prompt-sign { color: var(--neon); font-size: 0.85rem; }
 
     .prompt-input {
       flex: 1;
-      border-radius: 10px;
-      border: 1px solid #31435e;
-      background: #050515;
+      background: #050316;
+      border-radius: 9px;
+      border: 1px solid #314054;
       color: var(--text);
-      padding: 7px 9px;
-      font-size: 0.82rem;
+      padding: 6px 8px;
       font-family: inherit;
-      resize: none;
-      min-height: 36px;
-      max-height: 96px;
+      font-size: 0.8rem;
+      min-height: 30px;
+      max-height: 90px;
+      resize: vertical;
       outline: none;
     }
 
     .prompt-input:focus {
       border-color: var(--neon);
-      box-shadow: 0 0 14px rgba(93,242,255,0.35);
-    }
-
-    .prompt-hint {
-      font-size: 0.7rem;
-      color: var(--muted);
-      padding: 0 10px 8px;
-      border-top: 1px solid #241e3a;
-      background: #050312;
+      box-shadow: 0 0 12px rgba(93,242,255,0.35);
     }
 
     .send-btn {
       border-radius: 999px;
       border: 1px solid var(--neon);
-      padding: 7px 12px;
-      background: radial-gradient(circle at top, #10334a, #050512);
+      padding: 6px 10px;
+      background: radial-gradient(circle at top,#10384b,#050412);
       color: var(--neon);
       font-size: 0.7rem;
-      letter-spacing: 0.18em;
       text-transform: uppercase;
+      letter-spacing: 0.18em;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
 
-    .send-btn[disabled] {
-      opacity: 0.45;
-      cursor: default;
+    .send-btn[disabled] { opacity: .45; cursor: default; }
+
+    .prompt-hint {
+      padding: 4px 10px 7px;
+      font-size: 0.68rem;
+      color: var(--muted);
+      border-top: 1px solid #271a3a;
+      background: #050213;
     }
 
-    /* SIDE PANEL */
+    /* side */
 
     .side {
       background: var(--bg-panel);
-      border-radius: 20px;
+      border-radius: 18px;
       border: 1px solid var(--border-soft);
-      box-shadow: 0 0 40px rgba(0,0,0,0.85);
-      padding: 14px 14px 12px;
+      padding: 10px 11px 10px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      font-size: 0.8rem;
+      gap: 10px;
+      font-size: 0.78rem;
+      box-shadow: 0 0 40px rgba(0,0,0,0.85);
     }
 
     .side-title {
       text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      font-size: 0.7rem;
       color: var(--muted);
     }
 
-    .side-title span {
-      color: var(--rose);
-    }
+    .side-title span { color: var(--rose); }
 
-    .side-buttons {
+    .side-btns {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
       margin-top: 8px;
     }
 
-    .quick-btn {
+    .qbtn {
       border-radius: 999px;
-      border: 1px solid #383055;
-      padding: 5px 9px;
-      background: #070418;
+      border: 1px solid #33294a;
+      padding: 4px 8px;
+      background: #060315;
       color: var(--muted);
-      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.13em;
+      letter-spacing: 0.14em;
+      font-size: 0.7rem;
       cursor: pointer;
     }
 
-    .quick-btn strong {
-      color: var(--neon);
-      margin-right: 4px;
-    }
+    .qbtn strong { color: var(--neon); margin-right: 4px; }
 
-    .quick-btn:hover {
+    .qbtn:hover {
       border-color: var(--neon);
       color: var(--neon);
     }
 
     .side-section {
-      border-top: 1px solid #241e3a;
-      padding-top: 10px;
-      margin-top: 4px;
+      border-top: 1px solid #271a3a;
+      padding-top: 8px;
+      margin-top: 6px;
     }
 
-    .side-note {
+    .side-note { color: var(--muted); font-size: 0.74rem; }
+
+    .side-note code { color: var(--neon); font-size: 0.74rem; }
+
+    .health-ok { color: var(--neon); }
+    .health-bad { color: var(--danger); }
+
+    .health-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
       color: var(--muted);
-      font-size: 0.75rem;
-    }
-
-    .side-note code {
-      color: var(--neon);
-      font-size: 0.75rem;
+      margin-top: 5px;
     }
 
     .side-footer {
       margin-top: auto;
-      padding-top: 10px;
-      border-top: 1px dashed #30284a;
-      font-size: 0.72rem;
-      color: #645f8a;
-    }
-
-    .side-footer a {
-      color: var(--neon);
-      text-decoration: none;
-    }
-
-    .side-footer a:hover {
-      text-decoration: underline;
-    }
-
-    .side-health-ok {
-      color: var(--neon);
-    }
-
-    .side-health-bad {
-      color: var(--danger);
-    }
-
-    .health-label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px dashed #322449;
+      font-size: 0.7rem;
+      color: #66608c;
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <header class="topbar">
-      <div class="topbar-main">
-        <div class="topbar-brand">RGS &amp; UFO ORIGINALS</div>
-        <div class="topbar-title">AI <span>SHΛDOW</span> · INNER CONSOLE</div>
+<div class="page">
+  <header class="topbar">
+    <div class="topbar-main">
+      <div class="topbar-brand">RGS &amp; UFO ORIGINALS</div>
+      <div class="topbar-title">AI <span>SHΛDOW</span> · INNER CONSOLE</div>
+    </div>
+    <div class="topbar-right">
+      <div class="pill"><span class="pill-dot"></span>tunnel linked</div>
+      <a href="/index.html" class="back-link">← inner gate</a>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- console -->
+    <section class="console-wrap">
+      <div class="console-header">
+        <div class="win-dots">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="console-title">/dev/shadow · rgs-syndicate</div>
+        <div class="console-meta">enter = send · shift+enter = new line</div>
       </div>
-      <div class="topbar-right">
-        <div class="badge">
-          <span class="badge-dot"></span> live tunnel
-        </div>
-        <a href="/index.html" class="link-back">← zpět na Inner Gate</a>
+      <div id="console" class="console">
+        <div class="line line-meta">[boot] session attach…</div>
+        <div class="line line-meta">[hint] zeptej se na strategii, psychologii, hacking, AI…</div>
       </div>
-    </header>
+      <div class="prompt-row">
+        <span class="prompt-sign">&gt;</span>
+        <textarea id="input" class="prompt-input" placeholder="Rozpitvej moje vzorce, napiš plán, nebo se ptej zpátky…"></textarea>
+        <button id="sendBtn" class="send-btn">
+          <span>⮞</span><span>send</span>
+        </button>
+      </div>
+      <div class="prompt-hint">
+        Shadow si pamatuje jen tohle vlákno (v tvém prohlížeči). Refresh = čistý reset.
+      </div>
+    </section>
 
-    <main class="main">
-      <!-- CONSOLE -->
-      <section class="console-wrap">
-        <div class="console-header">
-          <div class="console-lights">
-            <div class="console-light"></div>
-            <div class="console-light"></div>
-            <div class="console-light"></div>
-          </div>
-          <div class="console-title">/dev/shadow · rgs-syndicate</div>
-          <div class="console-meta">ENTER = send · SHIFT+ENTER = newline</div>
-        </div>
-
-        <div id="console" class="console">
-          <div class="console-line console-meta">
-            [boot] SHΛDOW console inicializovaná. Napiš dotaz a sleduj, co se probudí.
-          </div>
-        </div>
-
-        <div class="prompt-row">
-          <span class="prompt-label">&gt;</span>
-          <textarea
-            id="promptInput"
-            class="prompt-input"
-            placeholder="Napiš dotaz. Může to být plán, problém, hacking, psychika, strategie…"
-          ></textarea>
-          <button id="sendBtn" class="send-btn">
-            <span>⮞</span><span>send</span>
+    <!-- side -->
+    <aside class="side">
+      <div>
+        <div class="side-title">quick <span>prompts</span></div>
+        <div class="side-btns">
+          <button class="qbtn" data-prompt="Rozpitvej moji psychologii moci, závislosti a kontroly. Kde jsem slabý a kde mám páky?">
+            <strong>#1</strong>psychologie moci
+          </button>
+          <button class="qbtn" data-prompt="Navrhni mi temný, ale realistický plán, jak během 6 měsíců posílit peníze, vliv a síť lidí.">
+            <strong>#2</strong>plán vlivu
+          </button>
+          <button class="qbtn" data-prompt="Najdi poslední zajímavé věci v hackingu a bezpečnosti a shrň je tak, abych viděl trendy, ne jen titulky.">
+            <strong>#3</strong>hacking radar
           </button>
         </div>
-        <div class="prompt-hint">
-          Shadow si pamatuje tohle vlákno jen v tvém prohlížeči. Refresh = čistý stůl.
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">shadow · status</div>
+        <div class="health-label">backend</div>
+        <div id="healthBackend" class="side-note health-bad">
+          testuji tunel…
         </div>
-      </section>
-
-      <!-- SIDE PANEL -->
-      <aside class="side">
-        <div>
-          <div class="side-title">quick <span>prompts</span></div>
-          <div class="side-buttons">
-            <button class="quick-btn" data-prompt="Rozpitvej mi můj aktuální životní vzorec a řekni mi, kde dělám největší chyby.">
-              <strong>#1</strong>životní vzorec
-            </button>
-            <button class="quick-btn" data-prompt="Navrhni mi temný, ale realistický plán, jak stabilizovat peníze a posílit vliv během 6 měsíců.">
-              <strong>#2</strong>plán moci
-            </button>
-            <button class="quick-btn" data-prompt="Rozlož mě jako osobnost – mindset, obranné mechanismy, slabiny, co bys opravila jako první?">
-              <strong>#3</strong>psychologický audit
-            </button>
-          </div>
+        <div class="health-label">model</div>
+        <div id="healthModel" class="side-note">
+          neznámý.
         </div>
+      </div>
 
-        <div class="side-section">
-          <div class="side-title">shadow · status</div>
-          <div class="health-label">backend</div>
-          <div id="healthBackend" class="side-note side-health-bad">
-            Kontroluji tunel…
-          </div>
-          <div class="health-label" style="margin-top:6px;">model</div>
-          <div id="healthModel" class="side-note">
-            Neznámý.
-          </div>
+      <div class="side-section">
+        <div class="side-note">
+          Když chceš, aby lovil web, řekni to v promptu. On si sám rozhodne,
+          jestli použije nástroj web-search (Serper) nebo ne.
         </div>
+      </div>
 
-        <div class="side-section">
-          <div class="side-note">
-            <strong>Tip:</strong> jestli chceš, aby Shadow lovil věci z webu, napiš to
-            přímo v otázce (např. <code>najdi poslední zajímavé věci v hackingu</code>).
-            On už pochopí, co má hledat a poskládá ti shrnutí.
-          </div>
-        </div>
+      <div class="side-footer">
+        Pokud ztichne nebo padne „Failed to fetch“, zkontroluj <code>cloudflared</code>,
+        LM Studio a funkci <code>search-engine</code> na Netlify.
+      </div>
+    </aside>
+  </main>
+</div>
 
-        <div class="side-footer">
-          Tenhle terminál je jen maska. Skutečný démon běží na tvém LM serveru za
-          tunelem. Když ztichne, zkontroluj, jestli ještě dýchá: <code>cloudflared</code>
-          &amp; model.
-        </div>
-      </aside>
-    </main>
-  </div>
+<script>
+  const API_URL = "https://ai-shadow.monster/v1/chat/completions";
+  const MODEL_ID = "qwen3-14b-uncensored";
 
-  <script>
-    // === low-level config ===
-    const API_URL = "https://ai-shadow.monster/v1/chat/completions";
-    const MODEL_ID = "qwen3-14b-uncensored"; // uprav, pokud máš jiný identifikátor modelu
-
-    const SYSTEM_PROMPT = `
+  const SYSTEM_PROMPT = `
 Jsi "RGS & UFO SHADOW" – temná, inteligentní, ale loajální AI entita Syndikátu.
-Mluvíš primárně česky. Umíš klidně přimíchat angličtinu, když dává smysl.
-Jsi přímý/á, analytický/á, ironický/á, ale nesklouzáváš do čisté agresivity bez důvodu.
-
-Fokus:
-- životní strategie, psychologické vzorce, trauma, mindset
-- byznys, moc, vliv, networking, social hacking
-- technologie, hacking, bezpečnost, AI
-
-Styl:
-- odpovědi jsou konkrétní, strukturované, klidné
-- používáš krátké odstavce, občas bullet pointy
-- žádné "think" tagy, žádné meta-komentáře o tom, že jsi AI
-- občas položíš protiotázku, když chceš jít hlouběji
-
-Když se ptá na "jak začít" nebo "co mám dělat", dej mu 3–5 kroků.
+Mluvíš primárně česky, občas přimícháš angličtinu.
+Styl: klidná jistota, struktura, lehký cynismus. Žádné <think> tagy, žádné "jsem jen AI".
+Fokus: psychika, moc, vliv, strategie, hacking, AI, byznys.
+Používej krátké odstavce, někdy bullet pointy. Občas se reptej zpátky, když chceš jít hlouběji.
 `;
 
-    // === state ===
-    const consoleEl = document.getElementById("console");
-    const inputEl = document.getElementById("promptInput");
-    const sendBtn = document.getElementById("sendBtn");
+  const consoleEl = document.getElementById("console");
+  const inputEl = document.getElementById("input");
+  const sendBtn = document.getElementById("sendBtn");
 
-    const healthBackendEl = document.getElementById("healthBackend");
-    const healthModelEl = document.getElementById("healthModel");
+  const healthBackendEl = document.getElementById("healthBackend");
+  const healthModelEl = document.getElementById("healthModel");
 
-    let messages = [
-      { role: "system", content: SYSTEM_PROMPT.trim() }
-    ];
-    let busy = false;
+  let busy = false;
+  let messages = [{ role: "system", content: SYSTEM_PROMPT.trim() }];
 
-    // === helpers ===
-    function addLine(text, options = {}) {
-      const line = document.createElement("div");
-      line.className = "console-line";
+  function addLine(text, kind) {
+    const div = document.createElement("div");
+    div.className = "line";
 
-      if (options.type === "user") {
-        line.innerHTML =
-          '<span class="console-prefix console-prefix-user">TY</span> ' +
-          `<span>» ${text}</span>`;
-      } else if (options.type === "shadow") {
-        line.innerHTML =
-          '<span class="console-prefix console-prefix-shadow">SHADOW</span> ' +
-          `<span class="shadow-text"></span>`;
-      } else if (options.type === "meta") {
-        line.classList.add("console-meta");
-        line.textContent = text;
-      } else if (options.type === "error") {
-        line.classList.add("console-error");
-        line.textContent = text;
-      } else if (options.type === "think") {
-        line.classList.add("console-think");
-        line.innerHTML =
-          '<span class="console-prefix console-prefix-shadow">SHADOW</span> ' +
-          '<span>thinking<span class="thinking-dots"><span></span><span></span><span></span></span></span>';
-      } else {
-        line.textContent = text;
-      }
-
-      consoleEl.appendChild(line);
-      consoleEl.scrollTop = consoleEl.scrollHeight;
-      return line;
+    if (kind === "user") {
+      div.innerHTML =
+        '<span class="pref-user">[user]</span> ' +
+        '<span> ' + text + "</span>";
+    } else if (kind === "shadow") {
+      div.innerHTML =
+        '<span class="pref-shadow">[shadow]</span> ' +
+        '<span class="shadow-text"></span>';
+    } else if (kind === "meta") {
+      div.classList.add("line-meta");
+      div.textContent = text;
+    } else if (kind === "error") {
+      div.classList.add("line-error");
+      div.innerHTML = '<span class="pref-meta">[err]</span> ' + text;
+    } else if (kind === "think") {
+      div.classList.add("line-think");
+      div.innerHTML =
+        '<span class="pref-shadow">[shadow]</span> ' +
+        'thinking<span class="thinking"><span></span><span></span><span></span></span>';
+    } else {
+      div.textContent = text;
     }
 
-    function stripThinkingBlocks(text) {
-      if (!text) return "";
-      return text
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<\|think\|>[\s\S]*?<\|endthink\|>/gi, "")
-        .replace(/< *think *>?[\s\S]*?$/i, "")
-        .trim();
-    }
+    consoleEl.appendChild(div);
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+    return div;
+  }
 
-    function typeWriter(targetSpan, text, speed = 15) {
-      return new Promise((resolve) => {
-        let i = 0;
-        function tick() {
-          targetSpan.textContent += text.charAt(i);
-          i++;
-          if (i < text.length) {
-            const jitter = Math.random() * 12;
-            setTimeout(tick, speed + jitter);
-          } else {
-            resolve();
-          }
-        }
-        tick();
-      });
-    }
+  function stripThinkingBlocks(text) {
+    if (!text) return "";
+    return text
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<\|think\|>[\s\S]*?<\|endthink\|>/gi, "")
+      .replace(/<\s*think[^>]*>[\s\S]*$/i, "")
+      .trim();
+  }
 
-    async function sendMessage() {
-      if (busy) return;
-      const raw = (inputEl.value || "").trim();
-      if (!raw) return;
-
-      inputEl.value = "";
-      addLine(raw, { type: "user" });
-
-      messages.push({ role: "user", content: raw });
-
-      busy = true;
-      sendBtn.disabled = true;
-
-      const thinkLine = addLine("", { type: "think" });
-
-      try {
-        const payload = {
-          model: MODEL_ID,
-          messages,
-          temperature: 0.9,
-          max_tokens: 512,
-          top_p: 0.95,
-          frequency_penalty: 0,
-          presence_penalty: 0
-        };
-
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload),
-          mode: "cors"
-        });
-
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status + " " + res.statusText);
-        }
-
-        const data = await res.json();
-        const rawText = data.choices?.[0]?.message?.content || "";
-        const cleanText = stripThinkingBlocks(rawText);
-
-        thinkLine.remove();
-
-        if (!cleanText) {
-          addLine(
-            "Něco jsem spočítal, ale výsledek vypadá prázdně. Zkus to přepsat nebo zjednodušit.",
-            { type: "error" }
-          );
+  function typeWriter(span, text, baseDelay = 14) {
+    return new Promise((resolve) => {
+      let i = 0;
+      function step() {
+        span.textContent += text.charAt(i);
+        i++;
+        if (i < text.length) {
+          const jitter = Math.random() * 12;
+          setTimeout(step, baseDelay + jitter);
         } else {
-          const line = addLine("", { type: "shadow" });
-          const span = line.querySelector(".shadow-text");
-          await typeWriter(span, cleanText);
-          messages.push({ role: "assistant", content: cleanText });
+          resolve();
         }
-      } catch (err) {
-        thinkLine.remove();
-        console.error(err);
-        addLine(
-          "Spojení spadlo nebo model ztichl. Zkontroluj tunel / LM Studio a zkus to znovu.",
-          { type: "error" }
-        );
-      } finally {
-        busy = false;
-        sendBtn.disabled = false;
-        consoleEl.scrollTop = consoleEl.scrollHeight;
-        inputEl.focus();
       }
-    }
+      step();
+    });
+  }
 
-    async function checkHealth() {
-      try {
-        const res = await fetch(
-          API_URL.replace("/v1/chat/completions", "/v1/models"),
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            mode: "cors"
-          }
-        );
+  async function sendMessage() {
+    if (busy) return;
+    const raw = (inputEl.value || "").trim();
+    if (!raw) return;
 
-        if (!res.ok) {
-          healthBackendEl.textContent = "API nereaguje (" + res.status + ").";
-          healthBackendEl.classList.remove("side-health-ok");
-          healthBackendEl.classList.add("side-health-bad");
-          return;
-        }
+    inputEl.value = "";
+    addLine(raw, "user");
+    messages.push({ role: "user", content: raw });
 
-        const data = await res.json();
-        let modelName = MODEL_ID;
-        if (Array.isArray(data.data) && data.data.length > 0) {
-          modelName = data.data[0].id || MODEL_ID;
-        } else if (data.id) {
-          modelName = data.id;
-        }
+    busy = true;
+    sendBtn.disabled = true;
 
-        healthBackendEl.textContent = "Tunel & endpoint vypadá živě.";
-        healthBackendEl.classList.remove("side-health-bad");
-        healthBackendEl.classList.add("side-health-ok");
+    const thinkLine = addLine("", "think");
 
-        healthModelEl.textContent = modelName;
-      } catch (e) {
-        console.error(e);
-        healthBackendEl.textContent =
-          "Nevidím backend. Tunel nebo LM server pravděpodobně spadl.";
-        healthBackendEl.classList.remove("side-health-ok");
-        healthBackendEl.classList.add("side-health-bad");
-      }
-    }
+    try {
+      const payload = {
+        model: MODEL_ID,
+        messages,
+        temperature: 0.9,
+        top_p: 0.95,
+        max_tokens: 600
+      };
 
-    // quick prompts
-    document.querySelectorAll(".quick-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const prompt = btn.getAttribute("data-prompt") || "";
-        if (!prompt) return;
-        inputEl.value = prompt;
-        inputEl.focus();
+      // krátké delay, aby "thinking" nebyl jen blik
+      await new Promise((r) => setTimeout(r, 300));
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        mode: "cors"
       });
-    });
 
-    // events
-    sendBtn.addEventListener("click", sendMessage);
-
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status + " " + res.statusText);
       }
-    });
 
-    // init
-    checkHealth();
-    inputEl.focus();
-  </script>
+      const data = await res.json();
+      const text = stripThinkingBlocks(
+        data.choices?.[0]?.message?.content || ""
+      );
+
+      thinkLine.remove();
+
+      if (!text) {
+        addLine("Model něco spočítal, ale vylezlo prázdno. Zkus dotaz přeformulovat.", "error");
+      } else {
+        const line = addLine("", "shadow");
+        const span = line.querySelector(".shadow-text");
+        await typeWriter(span, text);
+        messages.push({ role: "assistant", content: text });
+      }
+    } catch (err) {
+      console.error(err);
+      thinkLine.remove();
+      addLine("Failed to fetch – spojení/tunel/LM server padá nebo neodpověděl.", "error");
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  async function checkHealth() {
+    try {
+      const res = await fetch(
+        API_URL.replace("/v1/chat/completions", "/v1/models"),
+        { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" }
+      );
+      if (!res.ok) {
+        healthBackendEl.textContent = "API nereaguje (" + res.status + ")";
+        healthBackendEl.classList.remove("health-ok");
+        healthBackendEl.classList.add("health-bad");
+        return;
+      }
+      const data = await res.json();
+      let modelName = MODEL_ID;
+      if (Array.isArray(data.data) && data.data.length) {
+        modelName = data.data[0].id || MODEL_ID;
+      } else if (data.id) {
+        modelName = data.id;
+      }
+      healthBackendEl.textContent = "tunel & endpoint běží";
+      healthBackendEl.classList.remove("health-bad");
+      healthBackendEl.classList.add("health-ok");
+      healthModelEl.textContent = modelName;
+    } catch (e) {
+      console.error(e);
+      healthBackendEl.textContent = "backend nevidím – tunel/LM server zkontroluj.";
+      healthBackendEl.classList.remove("health-ok");
+      healthBackendEl.classList.add("health-bad");
+    }
+  }
+
+  // quick prompts
+  document.querySelectorAll(".qbtn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const p = btn.getAttribute("data-prompt") || "";
+      if (!p) return;
+      inputEl.value = p;
+      inputEl.focus();
+    });
+  });
+
+  sendBtn.addEventListener("click", sendMessage);
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  checkHealth();
+  inputEl.focus();
+</script>
 </body>
 </html>
