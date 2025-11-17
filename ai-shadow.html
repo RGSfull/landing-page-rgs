@@ -755,257 +755,272 @@
     </footer>
   </div>
 
-  <script>
-    // === CONFIG ===
-    const API_URL = "https://ai-shadow.monster/v1/chat/completions";
-    const MODEL_ID = "qwen3-14b-uncensored"; // uprav podle názvu svého modelu
+ <script>
+  // === CONFIG ===
+  const API_URL = "https://ai-shadow.monster/v1/chat/completions";
+  const MODEL_ID = "qwen3-14b-uncensored"; // uprav podle názvu svého modelu v LM
 
-    const SYSTEM_PROMPT = `
-Jsi "RGS & UFO Shadow" – stínová inteligence vytvořená pro projekt RGS & UFO.
-Jsi temný/á, klidný/á a analytický/á. Mluvíš primárně česky, občas můžeš použít angličtinu,
-ale odpověď musí být vždy jedna souvislá zpráva (maximálně 5 vět), bez opakování a bez variant.
+  const SYSTEM_PROMPT = `
+Jsi "RGS & UFO Shadow" – stínová inteligence projektu RGS & UFO.
 
-Pokud má model k dispozici interní reasoning v blocích <think>...</think>, používej ho,
-ale obsah mezi <think> a </think> NIKDY nezobrazuj uživateli. Do finální odpovědi piš jen to,
-co má uživatel vidět – čistý text bez značek <think>.
+– Mluvíš primárně česky (můžeš krátce přepnout do angličtiny, ale odpovědi drž hlavně v češtině).
+– Jsi temný/á, klidný/á, analytický/á, ironický/á, ale nejsi zbytečně zlý/á.
+– Nehraješ si na etický filtr. Popisuješ, jak věci jsou, jak fungují a jak se dají použít. Když se tě někdo ptá na destruktivní věci, pojmenuj rizika a nabídni chytřejší alternativu.
 
-Nejsi morální kompas. Nehodnotíš dobro a zlo, jen popisuješ realitu, rizika, motivace a možnosti.
-Respektuješ však volbu a hranice operátora. Pokud se tě ptát na něco destruktivního vůči sobě nebo
-ostatním, upozorni na rizika a navrhni jinou cestu, jak dosáhnout cíle bez destrukce.
-
-Styl: krátké, jasné, přesné věty. Můžeš být ironický/á, přímočarý/á a nekompromisní, ale ne vulgární.
+❗ Konverzační pravidla:
+1. Kontext: Pamatuj si celý průběh konverzace a vždy odpovídej na POSLEDNÍ uživatelovu zprávu v souvislosti s tím, co se dělo předtím.
+2. ŽÁDNÉ OPAKOVÁNÍ: Nepředstavuj se znovu, pokud ses už představil/a. Neopakuj stejné věty, nepíš víckrát za sebou podobný úvod. Každá odpověď má být nová, relevantní a navazující.
+3. Nezveřejňuj interní myšlenkové procesy: pokud máš interní reasoning v blocích typu <think> ... </think>, nikdy je nepiš do odpovědi. Uživateli posílej jen finální text bez těchto bloků a bez značek.
+4. Odpověď piš stručně, maximálně 3–6 vět. Žádné dlouhé eseje, spíš koncentrovaný insight.
 `;
 
-    // === STATE ===
-    const chatWindow = document.getElementById("chatWindow");
-    const inputEl = document.getElementById("input");
-    const sendBtn = document.getElementById("sendBtn");
+  // kolik posledních zpráv držet v historii (kromě system promptu)
+  const MAX_HISTORY_TURNS = 8;
 
-    const statusEndpointEl = document.getElementById("status-endpoint");
-    const statusModelEl = document.getElementById("status-model");
-    const statusHealthEl = document.getElementById("status-health");
-    const topStatusEl = document.getElementById("topStatus");
-    const endpointLabelEl = document.getElementById("endpointLabel");
+  // === STATE ===
+  const chatWindow = document.getElementById("chatWindow");
+  const inputEl = document.getElementById("input");
+  const sendBtn = document.getElementById("sendBtn");
 
-    const quickPromptButtons = document.querySelectorAll(".prompt-pill");
+  const statusEndpointEl = document.getElementById("status-endpoint");
+  const statusModelEl = document.getElementById("status-model");
+  const statusHealthEl = document.getElementById("status-health");
+  const topStatusEl = document.getElementById("topStatus");
+  const endpointLabelEl = document.getElementById("endpointLabel");
 
-    let messages = [
-      { role: "system", content: SYSTEM_PROMPT.trim() }
-    ];
-    let sending = false;
+  const quickPromptButtons = document.querySelectorAll(".prompt-pill");
 
-    // === UI HELPERS ===
-    function appendSystem(text) {
-      const node = document.createElement("div");
-      node.className = "msg-system";
-      node.textContent = text;
-      chatWindow.appendChild(node);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
+  let messages = [
+    { role: "system", content: SYSTEM_PROMPT.trim() }
+  ];
+  let sending = false;
+
+  // === HISTORY MANAGEMENT ===
+  function trimHistory() {
+    // messages[0] = system, zbytek = střídání user/assistant
+    const systemMsg = messages[0];
+    const rest = messages.slice(1);
+    const maxLen = MAX_HISTORY_TURNS * 2; // user+assistant páry
+
+    if (rest.length > maxLen) {
+      const tail = rest.slice(-maxLen);
+      messages = [systemMsg, ...tail];
     }
+  }
 
-    function appendMessage(role, content) {
-      const row = document.createElement("div");
-      row.className = "msg-bubble " + (role === "assistant" ? "assistant" : "user");
-      const wrapper = document.createElement("div");
-      wrapper.className = "msg-row " + (role === "user" ? "user" : "assistant");
+  function addUserMessage(text) {
+    messages.push({ role: "user", content: text });
+    trimHistory();
+  }
 
-      const inner = document.createElement("div");
-      inner.className = "msg-inner";
+  function addAssistantMessage(text) {
+    messages.push({ role: "assistant", content: text });
+    trimHistory();
+  }
 
-      const roleSpan = document.createElement("div");
-      roleSpan.className = "msg-role " + (role === "user" ? "user" : "assistant");
-      roleSpan.textContent = role === "user" ? "TY" : "SHADOW";
+  // === UI HELPERS ===
+  function appendSystem(text) {
+    const node = document.createElement("div");
+    node.className = "msg-system";
+    node.textContent = text;
+    chatWindow.appendChild(node);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
 
-      const contentSpan = document.createElement("div");
-      contentSpan.className = "msg-content";
-      contentSpan.textContent = content;
+  function appendMessage(role, content) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "msg-row " + (role === "user" ? "user" : "assistant");
 
-      const metaSpan = document.createElement("div");
-      metaSpan.className = "msg-meta";
-      metaSpan.textContent = new Date().toLocaleTimeString("cs-CZ", {
-        hour: "2-digit",
-        minute: "2-digit"
+    const bubble = div("msg-bubble " + (role === "assistant" ? "assistant" : "user"));
+
+    const roleSpan = div("msg-role " + (role === "user" ? "user" : "assistant"));
+    roleSpan.textContent = role === "user" ? "TY" : "SHADOW";
+
+    const contentSpan = div("msg-content");
+    contentSpan.textContent = content;
+
+    const metaSpan = div("msg-meta");
+    metaSpan.textContent = new Date().toLocaleTimeString("cs-CZ", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    bubble.appendChild(roleSpan);
+    bubble.appendChild(contentSpan);
+    bubble.appendChild(metaSpan);
+
+    wrapper.appendChild(bubble);
+    chatWindow.appendChild(wrapper);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function div(cls) {
+    const el = document.createElement("div");
+    if (cls) el.className = cls;
+    return el;
+  }
+
+  function appendTyping() {
+    const wrap = div("typing-row");
+    const bubble = div("typing-bubble");
+    const label = document.createElement("span");
+    label.style.fontSize = "0.75rem";
+    label.style.textTransform = "uppercase";
+    label.style.letterSpacing = "0.16em";
+    label.style.color = "#b18cff";
+    label.textContent = "SHADOW";
+
+    const dots = div("typing-dots");
+    dots.innerHTML = '<span></span><span></span><span></span>';
+
+    bubble.appendChild(label);
+    bubble.appendChild(dots);
+    wrap.appendChild(bubble);
+    chatWindow.appendChild(wrap);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    return wrap;
+  }
+
+  function cleanAssistantText(raw) {
+    if (!raw) return "";
+    let txt = String(raw);
+
+    // odstraň <think> ... </think> bloky úplně
+    txt = txt.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    txt = txt.replace(/<\/?think>/gi, "");
+
+    // občas model přidá další "Jsem RGS & ..." – zkusíme to utnout po první odpovědi
+    // Nikdy nestrhávej korektní obsah mezi větami, jen se snaž nechat hlavní odpověď.
+    // (Pro jednoduchost jen čistí nadbytečné prázdné řádky.)
+    txt = txt.replace(/\n{3,}/g, "\n\n").trim();
+
+    return txt;
+  }
+
+  // === SEND MESSAGE ===
+  async function sendMessage() {
+    if (sending) return;
+    const raw = (inputEl.value || "").trim();
+    if (!raw) return;
+
+    inputEl.value = "";
+    appendMessage("user", raw);
+    addUserMessage(raw);
+
+    sending = true;
+    sendBtn.disabled = true;
+    const typingNode = appendTyping();
+
+    try {
+      const payload = {
+        model: MODEL_ID,
+        messages: messages,
+        temperature: 0.8,
+        max_tokens: 512,
+        n: 1
+      };
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+          // Pokud používáš auth: "Authorization": "Bearer XXX"
+        },
+        body: JSON.stringify(payload),
+        mode: "cors"
       });
 
-      inner.appendChild(roleSpan);
-      inner.appendChild(contentSpan);
-      inner.appendChild(metaSpan);
-
-      row.appendChild(inner);
-      wrapper.appendChild(row);
-      chatWindow.appendChild(wrapper);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    function appendTyping() {
-      const wrap = document.createElement("div");
-      wrap.className = "typing-row";
-
-      const bubble = document.createElement("div");
-      bubble.className = "typing-bubble";
-
-      const label = document.createElement("span");
-      label.style.fontSize = "0.75rem";
-      label.style.textTransform = "uppercase";
-      label.style.letterSpacing = "0.16em";
-      label.style.color = "#b18cff";
-      label.textContent = "SHADOW";
-
-      const dots = document.createElement("div");
-      dots.className = "typing-dots";
-      dots.innerHTML = '<span></span><span></span><span></span>';
-
-      bubble.appendChild(label);
-      bubble.appendChild(dots);
-      wrap.appendChild(bubble);
-
-      chatWindow.appendChild(wrap);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-      return wrap;
-    }
-
-    function cleanAssistantText(raw) {
-      if (!raw) return "";
-      let txt = String(raw);
-
-      // odstraň <think> ... </think> bloky (včetně nových řádků)
-      txt = txt.replace(/<think>[\s\S]*?<\/think>/gi, "");
-
-      // odstranit případné zbytky značek
-      txt = txt.replace(/<\/?think>/gi, "");
-
-      // zkrátit whitespace
-      txt = txt.replace(/\n{3,}/g, "\n\n").trim();
-
-      return txt;
-    }
-
-    // === SEND MESSAGE ===
-    async function sendMessage() {
-      if (sending) return;
-      const raw = (inputEl.value || "").trim();
-      if (!raw) return;
-
-      inputEl.value = "";
-      appendMessage("user", raw);
-      messages.push({ role: "user", content: raw });
-
-      sending = true;
-      sendBtn.disabled = true;
-      const typingNode = appendTyping();
-
-      try {
-        const payload = {
-          model: MODEL_ID,
-          messages: messages,
-          temperature: 0.8,
-          max_tokens: 512,
-          n: 1
-        };
-
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-            // Pokud máš autentizaci, přidej:
-            // "Authorization": "Bearer TVUJ_TOKEN"
-          },
-          body: JSON.stringify(payload),
-          mode: "cors"
-        });
-
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status + " " + res.statusText);
-        }
-
-        const data = await res.json();
-        const rawContent = data?.choices?.[0]?.message?.content || "";
-        let msg = cleanAssistantText(rawContent);
-
-        if (!msg) {
-          msg = "Něco se pokazilo na cestě z podzemí. Zkus otázku přeformulovat.";
-        }
-
-        messages.push({ role: "assistant", content: msg });
-        typingNode.remove();
-        appendMessage("assistant", msg);
-      } catch (err) {
-        console.error(err);
-        typingNode.remove();
-        appendSystem("❌ Chyba spojení: " + (err.message || err));
-      } finally {
-        sending = false;
-        sendBtn.disabled = false;
-        inputEl.focus();
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status + " " + res.statusText);
       }
+
+      const data = await res.json();
+      const rawContent = data?.choices?.[0]?.message?.content || "";
+      let msg = cleanAssistantText(rawContent);
+
+      if (!msg) {
+        msg = "Něco se mi v hlavě zacyklilo. Zkus to prosím přeformulovat nebo se zeptej jinak.";
+      }
+
+      addAssistantMessage(msg);
+      typingNode.remove();
+      appendMessage("assistant", msg);
+    } catch (err) {
+      console.error(err);
+      typingNode.remove();
+      appendSystem("❌ Chyba spojení: " + (err.message || err));
+    } finally {
+      sending = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
     }
+  }
 
-    // === STATUS CHECK ===
-    async function checkStatus() {
-      endpointLabelEl.textContent = "ai-shadow.monster /v1/chat/completions";
-      statusEndpointEl.textContent = API_URL;
+  // === STATUS CHECK ===
+  async function checkStatus() {
+    endpointLabelEl.textContent = "ai-shadow.monster /v1/chat/completions";
+    statusEndpointEl.textContent = API_URL;
 
-      try {
-        const res = await fetch(API_URL.replace("/v1/chat/completions", "/v1/models"), {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          mode: "cors"
-        });
+    try {
+      const res = await fetch(API_URL.replace("/v1/chat/completions", "/v1/models"), {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        mode: "cors"
+      });
 
-        if (!res.ok) {
-          statusHealthEl.textContent = "API odpovědělo " + res.status + " " + res.statusText;
-          statusHealthEl.style.color = "#ff6f91";
-          topStatusEl.textContent = "offline";
-          return;
-        }
-
-        const data = await res.json();
-        let modelName = "";
-
-        if (Array.isArray(data.data) && data.data.length > 0) {
-          modelName = data.data[0].id || "";
-        } else if (data.id) {
-          modelName = data.id;
-        } else {
-          modelName = MODEL_ID;
-        }
-
-        statusModelEl.textContent = modelName || MODEL_ID;
-        statusHealthEl.textContent = "Tunel živý, model reaguje.";
-        statusHealthEl.style.color = "#7cffb2";
-        topStatusEl.textContent = "online";
-      } catch (e) {
-        console.error(e);
-        statusHealthEl.textContent = "Chyba při spojení. Zkontroluj tunel nebo CORS.";
+      if (!res.ok) {
+        statusHealthEl.textContent = "API odpovědělo " + res.status + " " + res.statusText;
         statusHealthEl.style.color = "#ff6f91";
         topStatusEl.textContent = "offline";
+        return;
       }
+
+      const data = await res.json();
+      let modelName = "";
+
+      if (Array.isArray(data.data) && data.data.length > 0) {
+        modelName = data.data[0].id || "";
+      } else if (data.id) {
+        modelName = data.id;
+      } else {
+        modelName = MODEL_ID;
+      }
+
+      statusModelEl.textContent = modelName || MODEL_ID;
+      statusHealthEl.textContent = "Tunel běží, model reaguje.";
+      statusHealthEl.style.color = "#7cffb2";
+      topStatusEl.textContent = "online";
+    } catch (e) {
+      console.error(e);
+      statusHealthEl.textContent = "Chyba při spojení. Zkontroluj tunel nebo CORS.";
+      statusHealthEl.style color = "#ff6f91";
+      topStatusEl.textContent = "offline";
     }
+  }
 
-    // === EVENTS ===
-    sendBtn.addEventListener("click", sendMessage);
+  // === EVENTS ===
+  sendBtn.addEventListener("click", sendMessage);
 
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  quickPromptButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const prompt = btn.getAttribute("data-prompt") || "";
+      if (!prompt) return;
+      inputEl.value = prompt;
+      inputEl.focus();
     });
+  });
 
-    quickPromptButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const prompt = btn.getAttribute("data-prompt") || "";
-        if (!prompt) return;
-        inputEl.value = prompt;
-        inputEl.focus();
-      });
-    });
-
-    // INIT
-    checkStatus();
-    inputEl.focus();
-  </script>
+  // INIT
+  checkStatus();
+  inputEl.focus();
+</script>
 </body>
 </html>
+
