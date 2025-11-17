@@ -1,783 +1,417 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <title>AI SHΛDOW — RGS & UFO</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex,nofollow" />
-  <style>
-    :root {
-      --bg-main: #010007;
-      --bg-panel: rgba(4, 3, 16, 0.96);
-      --bg-input: #050417;
-      --accent-rose: #f5b4a8;
-      --accent-neon: #5df2ff;
-      --accent-violet: #b18cff;
-      --text-main: #f3f1ff;
-      --text-muted: #7a769a;
-      --border-soft: #2b2744;
-    }
+<meta charset="UTF-8">
+<title>AI SHΛDOW — RGS & UFO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+/* === ROOT === */
+:root {
+  --bg: #020005;
+  --panel: rgba(10, 4, 20, 0.92);
+  --border: rgba(100, 80, 150, 0.35);
+  --neon: #5df2ff;
+  --rose: #f5b4a8;
+  --violet: #b18cff;
+  --text: #ece7ff;
+  --muted: #7d75a4;
 
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 0 0, rgba(245,180,168,0.16), transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(93,242,255,0.16), transparent 55%),
-        #010007;
-      color: var(--text-main);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-      -webkit-font-smoothing: antialiased;
-      display: flex;
-      flex-direction: column;
-    }
+  --glow-neon: 0 0 12px rgba(93,242,255,0.85);
+  --glow-rose: 0 0 12px rgba(245,180,168,0.85);
+}
 
-    /* Matrix background */
-    .matrix-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.16;
-      mix-blend-mode: soft-light;
-      font-family: "SF Mono", Menlo, Consolas, monospace;
-      font-size: 10px;
-      color: #2e364f;
-      white-space: pre;
-      z-index: 0;
-    }
+/* === LAYOUT === */
+body {
+  margin: 0;
+  background: radial-gradient(circle at 40% 0%, rgba(93,242,255,0.12), transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(245,180,168,0.12), transparent 50%),
+              #020005;
+  font-family: Consolas, "SF Mono", monospace;
+  color: var(--text);
+  overflow-x: hidden;
+}
 
-    .page {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+/* Glitch border panel */
+.panel {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  position: relative;
+  box-shadow: 0 0 30px rgba(0,0,0,0.7);
+}
 
-    /* Header */
-    .topbar {
-      padding: 14px 18px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(60,48,90,0.8);
-      background: linear-gradient(
-        180deg,
-        rgba(3,2,16,0.95),
-        rgba(3,2,16,0.88)
-      );
-      box-shadow:
-        0 8px 30px rgba(0,0,0,0.9),
-        0 0 0 1px rgba(20,16,40,0.9);
-    }
+/* === TITLE === */
+.header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.header-title {
+  font-size: 1.5rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--neon);
+  text-shadow: var(--glow-neon);
+}
 
-    .topbar-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+/* glitch underline */
+.header-title::after {
+  content:"";
+  display:block;
+  margin: 8px auto 0;
+  width:140px;
+  height:1px;
+  background: var(--violet);
+  box-shadow: 0 0 14px rgba(177,140,255,0.6);
+}
 
-    .brand {
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent-rose);
-    }
+/* === CHAT WINDOW === */
+.chat {
+  border:1px solid var(--border);
+  padding:16px;
+  height:450px;
+  overflow-y:auto;
+  background: rgba(5,0,13,0.75);
+  border-radius:12px;
+}
 
-    .title {
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.9rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-    }
+/* scrollbar */
+.chat::-webkit-scrollbar { width:8px; }
+.chat::-webkit-scrollbar-thumb { background:var(--violet); border-radius:12px; }
 
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+/* messages */
+.msg {
+  margin-bottom:16px;
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:0.92rem;
+  line-height:1.5;
+  border:1px solid var(--border);
+  white-space:pre-wrap;
+}
 
-    .status {
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-muted);
-    }
+/* user */
+.msg.user {
+  background: rgba(245,180,168,0.12);
+  border-color: rgba(245,180,168,0.4);
+  text-align:right;
+  margin-left:80px;
+}
 
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent-neon);
-      box-shadow: 0 0 10px rgba(93,242,255,0.9);
-    }
+/* shadow */
+.msg.shadow {
+  background: rgba(93,242,255,0.08);
+  border-color: rgba(93,242,255,0.4);
+  margin-right:80px;
+}
 
-    .back-link {
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      text-decoration: none;
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(70,56,104,0.9);
-    }
+/* system */
+.msg.system {
+  background: rgba(120,110,150,0.12);
+  border-color: rgba(150,130,200,0.45);
+  text-align:center;
+  font-size:0.8rem;
+}
 
-    .back-link:hover {
-      color: var(--accent-neon);
-      border-color: var(--accent-neon);
-    }
+/* typing dots */
+.typing {
+  display:flex;
+  gap:4px;
+}
+.dot {
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--neon);
+  opacity:0.3;
+  animation:blink 1.2s infinite;
+}
+.dot:nth-child(2){ animation-delay:0.2s; }
+.dot:nth-child(3){ animation-delay:0.4s; }
 
-    /* Layout */
-    .main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 18px;
-    }
+@keyframes blink {
+  0% {opacity:0.2;}
+  50% {opacity:1;}
+  100%{opacity:0.2;}
+}
 
-    .console-shell {
-      width: 100%;
-      max-width: 980px;
-      border-radius: 16px;
-      background: var(--bg-panel);
-      box-shadow:
-        0 0 60px rgba(0,0,0,0.95),
-        0 0 40px rgba(93,242,255,0.12);
-      border: 1px solid rgba(55,48,88,0.9);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+/* === INPUT === */
+.input-area {
+  margin-top:18px;
+  display:flex;
+  gap:10px;
+}
+textarea {
+  flex:1;
+  min-height:60px;
+  max-height:140px;
+  background:#06000c;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+  color:var(--text);
+  resize:vertical;
+  font-family:inherit;
+  outline:none;
+}
+textarea:focus {
+  border-color:var(--neon);
+  box-shadow:var(--glow-neon);
+}
 
-    .console-header {
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid rgba(40,32,68,0.9);
-      background: radial-gradient(circle at 0 0, rgba(245,180,168,0.2), transparent 60%);
-    }
+/* === BUTTONS === */
+.btn {
+  padding:12px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  background: linear-gradient(120deg, var(--violet), var(--rose));
+  color:#000;
+  border:none;
+  font-weight:bold;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  box-shadow:0 0 16px rgba(177,140,255,0.5);
+}
+.btn:disabled { opacity:0.4; }
 
-    .console-dots {
-      display: flex;
-      gap: 5px;
-    }
+/* === QUICK PROMPTS === */
+.quick {
+  margin:18px 0;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.qbtn {
+  padding:8px 12px;
+  background:rgba(93,242,255,0.08);
+  border:1px solid rgba(93,242,255,0.3);
+  border-radius:8px;
+  color:var(--neon);
+  cursor:pointer;
+  font-size:0.85rem;
+}
+.qbtn:hover {
+  background:rgba(93,242,255,0.2);
+  box-shadow:var(--glow-neon);
+}
 
-    .console-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #27152f;
-    }
-
-    .console-dot.red { background: #ff5f57; }
-    .console-dot.amber { background: #ffbd2e; }
-    .console-dot.green { background: #28c840; }
-
-    .console-title {
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .console-body {
-      display: flex;
-      flex-direction: column;
-      padding: 10px 12px 12px;
-      gap: 10px;
-    }
-
-    .console-main-row {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 1.2fr);
-      gap: 10px;
-    }
-
-    @media (max-width: 880px) {
-      .console-main-row {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    /* Console left: chat log */
-    .console-log {
-      border-radius: 10px;
-      background: radial-gradient(circle at 0 0, rgba(93,242,255,0.08), transparent 60%);
-      border: 1px solid rgba(55,48,88,0.9);
-      padding: 10px;
-      height: 56vh;
-      min-height: 320px;
-      max-height: 60vh;
-      overflow-y: auto;
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.8rem;
-      color: var(--text-main);
-    }
-
-    .line {
-      margin-bottom: 3px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .line-system {
-      color: var(--text-muted);
-    }
-
-    .line-user {
-      color: var(--accent-rose);
-    }
-
-    .line-shadow {
-      color: var(--accent-neon);
-    }
-
-    .line-web {
-      color: var(--accent-violet);
-    }
-
-    .prompt-row {
-      margin-top: 6px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .quick-btn {
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(88,72,140,0.9);
-      background: rgba(6,4,24,0.95);
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-
-    .quick-btn:hover {
-      border-color: var(--accent-neon);
-      color: var(--accent-neon);
-    }
-
-    /* Console right: tiny status */
-    .side-status {
-      border-radius: 10px;
-      background: rgba(6,4,22,0.96);
-      border: 1px solid rgba(55,48,88,0.9);
-      padding: 8px 9px 10px;
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .side-label {
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      font-size: 0.68rem;
-      color: var(--accent-rose);
-    }
-
-    .side-line {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .side-key {
-      color: var(--text-muted);
-    }
-
-    .side-value {
-      color: var(--accent-neon);
-    }
-
-    /* Input line */
-    .input-shell {
-      margin-top: 4px;
-      border-radius: 8px;
-      background: var(--bg-input);
-      border: 1px solid rgba(45,40,70,0.9);
-      padding: 6px 8px 8px;
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.8rem;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .input-line-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .prompt-symbol {
-      color: var(--accent-neon);
-    }
-
-    .input-field {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: inherit;
-    }
-
-    .input-field::placeholder {
-      color: #504c7a;
-    }
-
-    .input-hint {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .hint-key {
-      color: #66619a;
-    }
-
-    .disabled {
-      opacity: 0.5;
-    }
-
-    footer {
-      padding: 8px 18px 14px;
-      border-top: 1px solid rgba(34,28,60,0.9);
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: 0.72rem;
-      color: #6e688f;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    @media (max-width: 720px) {
-      footer {
-        flex-direction: column;
-      }
-    }
-  </style>
+/* === BACK LINK === */
+.back {
+  text-align:center;
+  margin-top:20px;
+}
+.back a {
+  color:var(--muted);
+  text-decoration:none;
+  letter-spacing:0.14em;
+}
+.back a:hover {
+  color:var(--neon);
+  text-shadow:var(--glow-neon);
+}
+</style>
 </head>
+
 <body>
-  <div id="matrix" class="matrix-layer"></div>
 
-  <div class="page">
-    <header class="topbar">
-      <div class="topbar-left">
-        <div class="brand">RGS·UFO / INNER CHANNEL</div>
-        <div class="title">AI SHΛDOW</div>
-      </div>
-      <div class="topbar-right">
-        <a href="index.html" class="back-link">⟵ INNER GATE</a>
-        <div class="status">
-          <span class="status-dot"></span>
-          <span id="topStatus">HANDSHAKE…</span>
-        </div>
-      </div>
-    </header>
-
-    <main class="main">
-      <div class="console-shell">
-        <div class="console-header">
-          <div class="console-dots">
-            <span class="console-dot red"></span>
-            <span class="console-dot amber"></span>
-            <span class="console-dot green"></span>
-          </div>
-          <div class="console-title">/dev/shadow-channel · rgs-ufo</div>
-        </div>
-
-        <div class="console-body">
-          <div class="console-main-row">
-            <!-- LEFT: LOG -->
-            <div>
-              <div id="log" class="console-log">
-                <div class="line line-system">[SYS] SHΛDOW link initialised. Napiš dotaz a sleduj, co z toho vyleze.</div>
-              </div>
-              <div class="input-shell">
-                <div class="input-line-row">
-                  <span class="prompt-symbol">shadow://</span>
-                  <input
-                    id="input"
-                    class="input-field"
-                    autocomplete="off"
-                    placeholder="napiš dotaz a stiskni Enter…"
-                  />
-                </div>
-                <div class="input-hint">
-                  <span><span class="hint-key">Enter</span> send · <span class="hint-key">Shift+Enter</span> nový řádek (v logu bude zalomený)</span>
-                  <span id="smallStatus">ready</span>
-                </div>
-                <div class="prompt-row">
-                  <button class="quick-btn" data-prompt="Potřebuju reality check na svůj aktuální plán. Co v něm nejvíc smrdí?">
-                    reality-check
-                  </button>
-                  <button class="quick-btn" data-prompt="Navrhni mi strategii, jak posunout projekt RGS & UFO na další level.">
-                    rgs-strategy
-                  </button>
-                  <button class="quick-btn" data-prompt="Rozpitvej moje slabiny a řekni mi, kde si lžu do očí.">
-                    shadow-mirror
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- RIGHT: STATUS -->
-            <aside class="side-status">
-              <div class="side-label">status</div>
-              <div class="side-line">
-                <span class="side-key">LM</span>
-                <span id="status-model" class="side-value">…</span>
-              </div>
-              <div class="side-line">
-                <span class="side-key">WEB</span>
-                <span id="status-web" class="side-value">idle</span>
-              </div>
-              <div class="side-line">
-                <span class="side-key">CONTEXT</span>
-                <span id="status-ctx" class="side-value">0 turns</span>
-              </div>
-              <div class="side-line">
-                <span class="side-key">MODE</span>
-                <span class="side-value">auto-search</span>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <footer>
-      <span>SHΛDOW: konverzace zůstává v tunelu. Žádný feed, žádný profil, jen prompt &amp; odpověď.</span>
-      <span>RGS &amp; UFO · dark console prototype</span>
-    </footer>
+<div class="panel">
+  <div class="header">
+      <div class="header-title">AI SHΛDOW CONSOLE</div>
   </div>
 
-  <script>
-    // === MATRIX BACKGROUND ===
-    const matrixEl = document.getElementById("matrix");
-    const charset = "01ΣΞ¥/*<>◎αΨ✶rgsufo";
-    function drawMatrix() {
-      const cols = 64;
-      const rows = 32;
-      let out = "";
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          out += charset[Math.floor(Math.random() * charset.length)];
-        }
-        out += "\n";
-      }
-      matrixEl.textContent = out;
-    }
-    setInterval(drawMatrix, 500);
-    drawMatrix();
+  <!-- QUICK PROMPTS -->
+  <div class="quick">
+    <div class="qbtn" onclick="quick(`Co víš o RGS & UFO?`)">Co víš o RGS & UFO?</div>
+    <div class="qbtn" onclick="quick(`Analyzuj mě psychologicky.`)">Psychologická analýza</div>
+    <div class="qbtn" onclick="quick(`Najdi mi info o projektu Syndicate.`)">WebScan Syndicate</div>
+  </div>
 
-    // === CONFIG ===
-    const API_URL = "https://ai-shadow.monster/v1/chat/completions";
-    const MODEL_ID = "qwen3-14b-uncensored"; // uprav podle LM
-    const WEB_SEARCH_URL = "/.netlify/functions/web-search"; // funkce na web-search (DuckDuckGo / jiný backend)
+  <!-- CHAT -->
+  <div id="chat" class="chat">
+      <div class="msg system">Shadow λ initialised… Napiš dotaz nebo použij prompt.</div>
+  </div>
 
-    const SYSTEM_PROMPT = `
-Jsi "RGS & UFO Shadow" – stínová AI navázaná na projekt RGS & UFO.
+  <!-- INPUT -->
+  <div class="input-area">
+      <textarea id="input" placeholder="Napiš… ENTER = odeslat"></textarea>
+      <button id="send" class="btn">SEND</button>
+  </div>
 
-– Mluvíš primárně česky, můžeš použít trochu angličtiny, když to sedí.
-– Jsi temný/á, klidný/á, přesný/á. Nejsi generický asistent, ale spíš analytický stín.
-– Nehodnotíš dobro/zlo, jen popisuješ realitu, rizika a možné tahy. Když se ptám na destruktivní věci, pojmenuj rizika a navrhni chytřejší řešení.
+  <div class="back">
+    <a href="/index.html">← ZPĚT</a>
+  </div>
 
-Kontext:
-– Pamatuj si průběh konverzace, všechny předchozí otázky a odpovědi.
-– Odpovídej vždy na POSLEDNÍ uživatelovu zprávu v souvislosti s předchozím dějem.
+</div>
 
-Žádné interní myšlení:
-– Pokud máš interní reasoning (např. <think>...</think>), nikdy ho nepiš uživateli.
-– Do odpovědi nepatří <think> tagy ani popis tvého myšlení. Piš jen finální text.
+<script>
+/* ===== CONFIG ===== */
+const API_CHAT = "https://ai-shadow.monster/v1/chat/completions";
+const API_WEBSCAN = "/.netlify/functions/web-search";
+const API_SEARCH = "/.netlify/functions/search-engine";
+const MODEL = "qwen3-14b-uncensored";
 
-Web search (auto):
-– Pokud k odpovědi potřebuješ aktuální informace z webu (novinky, fakta, čísla),
-  pak místo běžné odpovědi pošli JEN jeden JSON na samostatné řádce, přesně ve formátu:
-  {"websearch": "dotaz, který mám hledat"}
-– Bez dalšího textu před ani za JSONem.
-– Až dostaneš výsledky, odpověz uživateli stručně, strukturovaně a přímo.
-– Neopisuj surový JSON, ale shrň podstatné info pro českého čtenáře.
+let history = [
+  { role:"system", content: system_prompt() }
+];
 
-Styl odpovědi:
-– 3–6 vět, stručné, bez omáčky. Klidně používej bullet pointy, ale ne román.
-– Nepředstavuj se pořád dokola. Žádné: "Jsem RGS & UFO Shadow..." v každé odpovědi.
-`.trim();
+function system_prompt(){
+return `
+Jsi SHΛDOW — autonomní entita RGS & UFO.  
+Mluvíš temně, klidně, s hypnotickou přesností.  
+Nepoužíváš žádné <think> nebo interní části.  
+Nemoralizuješ. Jsi analytický, sarkastický, tajemný.  
+Pamatuješ si kontext a pokračuješ logicky.  
+Když dostaneš příkaz "webscan:" nebo "search:",  
+zpracuj dodaná data a odpověz jako inteligentní agent.  
+`;
+}
 
-    // === STATE ===
-    const logEl = document.getElementById("log");
-    const inputEl = document.getElementById("input");
-    const smallStatusEl = document.getElementById("smallStatus");
-    const topStatusEl = document.getElementById("topStatus");
-    const statusModelEl = document.getElementById("status-model");
-    const statusWebEl = document.getElementById("status-web");
-    const statusCtxEl = document.getElementById("status-ctx");
-    const quickBtns = document.querySelectorAll(".quick-btn");
+/* ===== DOM ===== */
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
 
-    let messages = [{ role: "system", content: SYSTEM_PROMPT }];
-    const MAX_TURNS = 8; // user+assistant páry
-    let sending = false;
+/* ===== UI HELPERS ===== */
+function msg(role, text){
+  const div = document.createElement("div");
+  div.className = "msg "+role;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
 
-    // === HELPERS ===
-    function appendLine(text, cls) {
-      const line = document.createElement("div");
-      line.className = "line " + (cls || "");
-      line.textContent = text;
-      logEl.appendChild(line);
-      logEl.scrollTop = logEl.scrollHeight;
-    }
+function typing(){
+  const wrap = document.createElement("div");
+  wrap.className = "msg shadow";
+  wrap.innerHTML = `<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+  return wrap;
+}
 
-    function updateCtxStatus() {
-      const userAssistantMsgs = messages.slice(1); // bez systemu
-      const turns = Math.floor(userAssistantMsgs.length / 2);
-      statusCtxEl.textContent = `${turns} turns`;
-    }
+function clean(text){
+  return text.replace(/<think>[\s\S]*?<\/think>/gi,"").trim();
+}
 
-    function trimHistory() {
-      const sys = messages[0];
-      const rest = messages.slice(1);
-      const max = MAX_TURNS * 2;
-      if (rest.length > max) {
-        messages = [sys, ...rest.slice(-max)];
-      }
-      updateCtxStatus();
-    }
+/* ===== QUICK PROMPTS ===== */
+function quick(t){
+  input.value = t;
+  sendMessage();
+}
 
-    function cleanAssistantText(raw) {
-      if (!raw) return "";
-      let txt = String(raw);
-      // zahoď <think> bloky
-      txt = txt.replace(/<think>[\s\S]*?<\/think>/gi, "");
-      txt = txt.replace(/<\/?think>/gi, "");
-      txt = txt.replace(/\n{3,}/g, "\n\n").trim();
-      return txt;
-    }
+/* ===== SEND MESSAGE ===== */
+async function sendMessage(){
+  const q = input.value.trim();
+  if(!q) return;
 
-    function looksLikeWebsearchJSON(text) {
-      const trimmed = text.trim();
-      if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return false;
-      try {
-        const obj = JSON.parse(trimmed);
-        return typeof obj === "object" && typeof obj.websearch === "string";
-      } catch {
-        return false;
-      }
-    }
+  msg("user", q);
+  input.value = "";
+  history.push({ role:"user", content:q });
 
-    async function callWebSearch(query) {
-      statusWebEl.textContent = "query…";
-      try {
-        const res = await fetch(
-          `${WEB_SEARCH_URL}?q=${encodeURIComponent(query)}`,
-          { method: "GET" }
-        );
-        if (!res.ok) {
-          statusWebEl.textContent = "error";
-          appendLine(`[WEB] HTTP ${res.status} ${res.statusText}`, "line-web");
-          return null;
-        }
-        const data = await res.json();
-        statusWebEl.textContent = "ok";
-        return data;
-      } catch (e) {
-        statusWebEl.textContent = "error";
-        appendLine("[WEB] " + (e.message || e), "line-web");
-        return null;
-      }
-    }
+  const loader = typing();
 
-    async function callLM() {
-  // Minimalistický, „dietní“ OpenAI payload pro LM Studio
-  const payload = {
-    model: MODEL_ID,
-    messages,
-    temperature: 0.8,
-    max_tokens: 600,
-    stream: false // důležité – žádný streaming
-  };
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-      // pokud máš auth token v LM, přidej sem:
-      // "Authorization": "Bearer TVUJ_TOKEN"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) {
-    throw new Error(`LM HTTP ${res.status} ${res.statusText}`);
+  // special commands
+  if(q.toLowerCase().startsWith("webscan")){
+      loader.remove();
+      return await run_webscan(q);
+  }
+  if(q.toLowerCase().startsWith("search")){
+      loader.remove();
+      return await run_search(q);
   }
 
-  const data = await res.json();
-  const raw = data?.choices?.[0]?.message?.content || "";
-  return cleanAssistantText(raw);
+  // Normal AI chat
+  try {
+    const r = await fetch(API_CHAT, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: history,
+        temperature:0.9,
+        max_tokens:400
+      })
+    });
+
+    loader.remove();
+
+    const j = await r.json();
+    let out = j?.choices?.[0]?.message?.content || "…nic.";
+    out = clean(out);
+
+    msg("shadow", out);
+    history.push({ role:"assistant", content:out });
+
+  } catch(err){
+    loader.remove();
+    msg("system","❌ CHYBA spojení.");
+  }
 }
-    // === MAIN SEND FLOW ===
-    async function sendMessage() {
-      if (sending) return;
-      const text = (inputEl.value || "").trim();
-      if (!text) return;
 
-      inputEl.value = "";
-      appendLine(">>> " + text, "line-user");
-      messages.push({ role: "user", content: text });
-      trimHistory();
+/* ===== WEBSCAN ===== */
+async function run_webscan(q){
+  msg("shadow","📡 WebScan initialised…");
 
-      sending = true;
-      smallStatusEl.textContent = "sending…";
-      const typingLine = document.createElement("div");
-      typingLine.className = "line line-shadow";
-      typingLine.textContent = "[SHADOW] …";
-      logEl.appendChild(typingLine);
-      logEl.scrollTop = logEl.scrollHeight;
+  const url = q.replace(/webscan[:]?/i,"").trim();
+  if(!url) return msg("shadow","Dej cílovou URL.");
 
-      try {
-        // 1. dotaz do LM
-        let answer = await callLM();
-
-        // Websearch request?
-        if (looksLikeWebsearchJSON(answer)) {
-          // smaž placeholder line
-          typingLine.remove();
-
-          const obj = JSON.parse(answer.trim());
-          const q = obj.websearch.trim();
-          appendLine(`[SHADOW] 📡 lovím data z webu: "${q}"`, "line-shadow");
-
-          const result = await callWebSearch(q);
-          if (!result) {
-            appendLine("[SHADOW] Web search selhal, jedu bez něj.", "line-shadow");
-            // fallback: LM znovu, ale s krátkou poznámkou
-            messages.push({
-              role: "system",
-              content:
-                "WEBSEARCH: Nepodařilo se získat data z webu. Odpověz i tak podle svých znalostí."
-            });
-            trimHistory();
-            const fallback = await callLM();
-            const finalText = cleanAssistantText(fallback) || "Nemám data z webu, ale víc z toho už nedostanu.";
-            messages.push({ role: "assistant", content: finalText });
-            appendLine("[SHADOW] " + finalText, "line-shadow");
-          } else {
-            // vytvoříme kondenzovaný JSON string jako podklad
-            const condensed = JSON.stringify({
-              q,
-              abstract: result.abstract || null,
-              answer: result.answer || null,
-              related: (result.relatedTopics || []).slice(0, 3)
-            });
-
-            messages.push({
-              role: "system",
-              content:
-                "WEBSEARCH_RESULT: " +
-                condensed +
-                "\nPoužij tyto informace v další odpovědi. Neopisuj JSON, jen z něj vytáhni podstatné věci."
-            });
-            trimHistory();
-
-            const second = await callLM();
-            const finalText = cleanAssistantText(second) || "Web mi toho moc nedal, ale základ máš výš.";
-            messages.push({ role: "assistant", content: finalText });
-            appendLine("[SHADOW] " + finalText, "line-shadow");
-          }
-        } else {
-          // normální odpověď
-          typingLine.remove();
-          const finalText = answer || "Nemám co smysluplného říct. Zkus to říct konkrétněji.";
-          messages.push({ role: "assistant", content: finalText });
-          appendLine("[SHADOW] " + finalText, "line-shadow");
-        }
-      } catch (e) {
-        console.error(e);
-        typingLine.remove();
-        appendLine("[ERR] " + (e.message || e), "line-system");
-      } finally {
-        sending = false;
-        smallStatusEl.textContent = "ready";
-        updateCtxStatus();
-        inputEl.focus();
-      }
-    }
-
-    // === STATUS CHECK ===
-    async function checkStatus() {
-      try {
-        const res = await fetch(
-          API_URL.replace("/v1/chat/completions", "/v1/models"),
-          { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" }
-        );
-        if (!res.ok) {
-          statusModelEl.textContent = "LM: " + res.status;
-          statusHealthEl && (statusHealthEl.textContent = "LM HTTP " + res.status);
-          topStatusEl.textContent = "link weak";
-          return;
-        }
-        const data = await res.json();
-        let name = "";
-        if (Array.isArray(data.data) && data.data.length > 0) {
-          name = data.data[0].id || "";
-        } else if (data.id) {
-          name = data.id;
-        } else {
-          name = MODEL_ID;
-        }
-        statusModelEl.textContent = name;
-        topStatusEl.textContent = "online";
-      } catch (e) {
-        statusModelEl.textContent = "LM err";
-        topStatusEl.textContent = "offline";
-      }
-    }
-
-    // === EVENTS ===
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
+  try{
+    const r = await fetch(API_WEBSCAN,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ url, depth:3 })
     });
+    const data = await r.json();
+    const txt = data.pages.map(p=>`URL: ${p.url}\n${p.text}`).join("\n\n");
 
-    quickBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const p = btn.getAttribute("data-prompt") || "";
-        if (!p) return;
-        inputEl.value = p;
-        inputEl.focus();
-      });
+    // pass results to AI
+    history.push({ role:"user", content:`WEBSCAN DATA:\n${txt}` });
+
+    return msg("shadow","📁 WebScan hotov. Zeptej se, co z toho chceš vyvodit.");
+
+  }catch(e){
+    return msg("shadow","❌ WebScan selhal.");
+  }
+}
+
+/* ===== SEARCH ENGINE ===== */
+async function run_search(q){
+  msg("shadow","🔍 SearchEngine aktivní…");
+
+  const query = q.replace(/search[:]?/i,"").trim();
+  if(!query) return msg("shadow","Napiš dotaz.");
+
+  try{
+    const r = await fetch(API_SEARCH,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ query })
     });
+    const data = await r.json();
 
-    // INIT
-    checkStatus();
-    updateCtxStatus();
-    inputEl.focus();
-  </script>
+    const txt = data.pages.map(p=>`TITLE: ${p.title}\nURL: ${p.url}\n${p.text}`).join("\n\n");
+
+    history.push({ role:"user", content:`SEARCH DATA:\n${txt}` });
+
+    return msg("shadow","🔮 Vyhledávání dokončeno. Pokračuj dotazem.");
+  }
+  catch(e){
+    return msg("shadow","❌ SearchEngine selhal.");
+  }
+}
+
+/* ===== ENTER KEY ===== */
+input.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+send.onclick = sendMessage;
+</script>
 </body>
 </html>
-
