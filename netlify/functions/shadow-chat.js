@@ -1,5 +1,5 @@
 // netlify/functions/shadow-chat.js
-// Minimalistický backend pro AI Shadow (offline / bez OpenAI)
+// Pure Netlify Function — žádný Express, žádný req/res
 
 export async function handler(event) {
   try {
@@ -10,13 +10,18 @@ export async function handler(event) {
       };
     }
 
-    const body = JSON.parse(event.body || "{}");
+    let body = {};
+    try {
+      body = JSON.parse(event.body || "{}");
+    } catch {
+      body = {};
+    }
+
     const text = (body.message || "").trim().toLowerCase();
 
-    // fallback odpovědi – simulace "AI-shadow"
     const reactions = [
       "hmm… interesting. but not THAT interesting.",
-      "try harder. I’m barely awake.",
+      "try harder. i’m barely awake.",
       "i've seen toddlers type faster.",
       "your keyboard must suffer.",
       "čteš vůbec co píšeš? já jo. a bolí to.",
@@ -27,13 +32,15 @@ export async function handler(event) {
 
     let reply = reactions[Math.floor(Math.random() * reactions.length)];
 
-    // easter egg reagující na zprávu
-    if (text.includes("help")) reply = "help? in *this* lane? cute.";
-    if (text.includes("hello")) reply = "hello human organism ― identify yourself.";
-    if (text.includes(":)") || text.includes("😂") || text.includes("🙂")) {
-      reply = "i see your smile. it won't last.";
-    }
-    if (text.includes("fuck")) reply = "such vocabulary. your mother must be proud.";
+    // Easter eggs
+    if (text.includes("help"))
+      reply = "help? in *this* lane? adorable.";
+    if (text.includes("hello"))
+      reply = "hello organism. identify your purpose.";
+    if (text.includes(":)") || text.includes("😂") || text.includes("🙂"))
+      reply = "smiling? bold of you. it won’t last.";
+    if (text.includes("fuck"))
+      reply = "such language. your ancestors weep.";
 
     return {
       statusCode: 200,
@@ -48,6 +55,7 @@ export async function handler(event) {
     console.error("shadow-chat error:", err);
     return {
       statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ok: false, error: err.message })
     };
   }
