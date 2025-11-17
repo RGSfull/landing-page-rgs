@@ -2,248 +2,183 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>RGS &amp; UFO — AI SHΛDOW</title>
+  <title>AI SHΛDOW — RGS & UFO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
+
   <style>
     :root {
-      --bg-main: #050309;
-      --bg-card: rgba(10, 6, 24, 0.98);
-      --bg-elevated: rgba(10, 14, 32, 0.98);
-      --border-soft: rgba(103, 81, 145, 0.7);
+      --bg-main: #030208;
+      --bg-panel: rgba(10, 6, 24, 0.92);
+      --bg-elev: rgba(15, 10, 30, 0.88);
+      --bg-input: rgba(5, 5, 15, 0.92);
 
-      --accent-rose: #f5b4a8;
-      --accent-neon: #5df2ff;
-      --accent-violet: #b18cff;
-      --accent-amber: #f5c66a;
+      --lux-rose: #f5b4a8;
+      --lux-cyan: #5df2ff;
+      --lux-violet: #b18cff;
+      --lux-gold: #f5cc7a;
 
-      --text-main: #f7f4ff;
-      --text-muted: #8f88b4;
+      --text-main: #f7f5ff;
+      --text-soft: #928bb5;
+      --text-faded: #6f6a8a;
+
+      --border-soft: rgba(110, 90, 160, 0.35);
+      --border-bright: rgba(93, 242, 255, 0.35);
+
+      --glow-rose: 0 0 14px rgba(245,180,168,0.45);
+      --glow-cyan: 0 0 14px rgba(93,242,255,0.45);
+      --glow-violet: 0 0 14px rgba(177,140,255,0.45);
     }
 
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-      background:
-        radial-gradient(circle at 10% 0%, rgba(245,180,168,0.12), transparent 55%),
-        radial-gradient(circle at 80% 90%, rgba(93,242,255,0.12), transparent 55%),
-        radial-gradient(circle at 40% 80%, rgba(177,140,255,0.16), transparent 55%),
-        #050309;
-      color: var(--text-main);
+      box-sizing: border-box;
       -webkit-font-smoothing: antialiased;
     }
 
-    .page {
+    body {
+      background:
+        radial-gradient(circle at 10% 0%, rgba(245,180,168,0.18), transparent 55%),
+        radial-gradient(circle at 90% 90%, rgba(93,242,255,0.15), transparent 55%),
+        radial-gradient(circle at 50% 80%, rgba(177,140,255,0.16), transparent 55%),
+        #030208;
+      color: var(--text-main);
+      font-family: "Inter", system-ui, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
+    /* ------------------- TOPBAR ------------------- */
+
     .topbar {
+      width: 100%;
+      padding: 18px 30px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 28px 12px;
-      border-bottom: 1px solid rgba(80, 65, 120, 0.65);
-      backdrop-filter: blur(18px);
-      background: linear-gradient(
-        to bottom,
-        rgba(4, 2, 12, 0.95),
-        rgba(4, 2, 12, 0.7)
-      );
+      border-bottom: 1px solid rgba(120,100,160,0.45);
+      background: rgba(5, 4, 10, 0.85);
+      backdrop-filter: blur(14px);
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 50;
     }
 
-    .topbar-left {
+    .top-left {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
 
     .brand {
-      font-size: 0.9rem;
-      letter-spacing: 0.32em;
+      font-size: 0.82rem;
+      letter-spacing: 0.28em;
+      color: var(--lux-rose);
       text-transform: uppercase;
-      color: var(--accent-rose);
     }
 
     .title {
       font-size: 1.4rem;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
-    .topbar-right {
+    .top-right {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: 0.8rem;
+      color: var(--text-soft);
+      font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
-      color: var(--text-muted);
     }
 
-    .pill {
+    .tag {
       border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      padding: 4px 10px;
-      font-size: 0.7rem;
+      border: 1px solid var(--border-bright);
+      padding: 4px 12px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      color: var(--lux-cyan);
     }
 
-    .pill span {
-      font-size: 0.7rem;
-    }
-
-    .pill--accent {
-      border-color: var(--accent-neon);
-      color: var(--accent-neon);
-    }
-
-    .pill-dot {
-      width: 6px;
-      height: 6px;
+    .tag-dot {
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
-      background: var(--accent-neon);
-      box-shadow: 0 0 10px rgba(93,242,255,0.9);
+      background: var(--lux-cyan);
+      box-shadow: var(--glow-cyan);
     }
+
+    /* ------------------- MAIN LAYOUT ------------------- */
 
     .layout {
-      flex: 1;
+      width: 100%;
+      padding: 30px;
       display: grid;
-      grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.3fr);
-      gap: 20px;
-      padding: 20px 28px 28px;
+      gap: 26px;
+      grid-template-columns: minmax(0,2.2fr) minmax(0,1fr);
+      flex: 1;
     }
 
     @media (max-width: 900px) {
       .layout {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: 1fr;
       }
     }
 
-    .chat-card,
-    .side-card {
-      background: var(--bg-card);
+    /* ------------------- CARD (panels) ------------------- */
+
+    .panel {
+      background: var(--bg-panel);
       border-radius: 22px;
       border: 1px solid var(--border-soft);
       box-shadow:
-        0 0 40px rgba(0, 0, 0, 0.9),
-        0 0 70px rgba(93, 242, 255, 0.14);
+        0 0 40px rgba(0,0,0,0.8),
+        0 0 60px rgba(93,242,255,0.12);
+      padding: 22px;
       position: relative;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
     }
 
-    .chat-card::before,
-    .side-card::before {
+    .panel::before {
       content: "";
       position: absolute;
       inset: -40%;
       background:
-        radial-gradient(circle at 10% 0%, rgba(245,180,168,0.25), transparent 55%),
-        radial-gradient(circle at 90% 100%, rgba(93,242,255,0.3), transparent 60%);
-      opacity: 0.08;
+        radial-gradient(circle at 15% 0%, rgba(93,242,255,0.22), transparent 60%),
+        radial-gradient(circle at 90% 100%, rgba(245,180,168,0.22), transparent 60%);
+      opacity: 0.06;
       mix-blend-mode: screen;
       pointer-events: none;
     }
 
-    .card-inner {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      padding: 18px 18px 16px;
-      gap: 12px;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .card-header-main {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 30% 20%, #f5b4a8, transparent 55%),
-        radial-gradient(circle at 70% 80%, #5df2ff, transparent 60%);
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 0 18px rgba(93,242,255,0.4);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .avatar::after {
-      content: "◎";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #050309;
-      font-size: 1.3rem;
-      font-weight: 500;
-      mix-blend-mode: soft-light;
-    }
-
-    .card-title {
-      font-size: 1.05rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .card-sub {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .status-light {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: var(--accent-neon);
-    }
-
-    .status-light-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--accent-neon);
-      box-shadow: 0 0 12px rgba(93,242,255,0.8);
-    }
+    /* ------------------- CHAT WINDOW ------------------- */
 
     .chat-window {
-      flex: 1;
-      border-radius: 16px;
-      background: var(--bg-elevated);
-      padding: 14px;
+      height: 68vh;
+      min-height: 400px;
+      background: var(--bg-elev);
+      border-radius: 18px;
+      padding: 16px;
       overflow-y: auto;
-      border: 1px solid rgba(66, 54, 110, 0.9);
+      border: 1px solid rgba(70,50,120,0.55);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+    }
+
+    .msg-system {
+      align-self: center;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      border: 1px dashed rgba(120,110,160,0.6);
+      background: rgba(12,8,25,0.8);
     }
 
     .msg-row {
@@ -252,593 +187,538 @@
       align-items: flex-end;
     }
 
-    .msg-row--user {
-      justify-content: flex-end;
-    }
+    .msg-row.user { justify-content: flex-end; }
 
-    .msg-bubble {
-      max-width: 80%;
-      padding: 10px 12px;
+    .msg {
+      max-width: 78%;
+      padding: 12px 14px;
       border-radius: 16px;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      position: relative;
+      font-size: 0.92rem;
+      line-height: 1.52;
     }
 
-    .msg-bubble.user {
-      background: linear-gradient(135deg, rgba(245,180,168,0.16), rgba(245,180,168,0.02));
-      border: 1px solid rgba(245,180,168,0.5);
-      align-self: flex-end;
+    .msg.user {
+      background: rgba(245,180,168,0.14);
+      border: 1px solid rgba(245,180,168,0.38);
+      color: var(--text-main);
+      text-align: right;
     }
 
-    .msg-bubble.assistant {
-      background: linear-gradient(135deg, rgba(93,242,255,0.07), rgba(93,242,255,0.01));
-      border: 1px solid rgba(93,242,255,0.35);
-      backdrop-filter: blur(4px);
+    .msg.shadow {
+      background: rgba(93,242,255,0.07);
+      border: 1px solid rgba(93,242,255,0.32);
+      color: var(--text-main);
     }
 
-    .msg-meta {
-      font-size: 0.7rem;
-      color: #7f76b0;
+    .meta {
       margin-top: 4px;
+      font-size: 0.72rem;
+      color: var(--text-faded);
     }
 
-    .msg-role {
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 0.7rem;
-      opacity: 0.85;
-    }
-
-    .msg-content {
-      white-space: pre-wrap;
-    }
-
-    .msg-system {
-      align-self: center;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px dashed rgba(120, 112, 155, 0.7);
-      background: rgba(8, 6, 22, 0.8);
-    }
+    /* ------------------- INPUT AREA ------------------- */
 
     .input-row {
+      margin-top: 18px;
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: flex-end;
-      margin-top: 6px;
     }
 
-    .input-area {
+    .input {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .textarea {
-      width: 100%;
-      min-height: 56px;
-      max-height: 140px;
-      resize: vertical;
-      border-radius: 12px;
-      border: 1px solid rgba(57, 91, 116, 0.9);
-      background: rgba(3, 6, 12, 0.95);
+      border-radius: 14px;
+      background: var(--bg-input);
+      border: 1px solid rgba(70,90,120,0.7);
+      padding: 12px 14px;
+      min-height: 58px;
       color: var(--text-main);
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+    }
+
+    .input:focus {
+      border-color: var(--lux-cyan);
+      box-shadow: 0 0 14px rgba(93,242,255,0.28);
       outline: none;
-    }
-
-    .textarea:focus {
-      border-color: var(--accent-neon);
-      box-shadow: 0 0 14px rgba(93,242,255,0.35);
-    }
-
-    .input-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
     }
 
     .send-btn {
       border-radius: 14px;
-      padding: 10px 16px;
+      padding: 12px 18px;
       border: 1px solid rgba(245,180,168,0.8);
-      background: linear-gradient(135deg, #f5b4a8, #f5c66a);
+      background: linear-gradient(135deg, #f5b4a8, #f5cc7a);
       color: #1b0f19;
-      font-size: 0.8rem;
-      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.16em;
+      letter-spacing: .14em;
+      font-size: .78rem;
+      font-weight: 600;
       cursor: pointer;
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 0 18px rgba(245,180,168,0.4);
+      box-shadow: var(--glow-rose);
     }
 
-    .send-btn[disabled] {
-      opacity: 0.55;
-      cursor: default;
-      box-shadow: none;
-    }
+    .send-btn[disabled] { opacity: .55; cursor: default; }
 
-    .send-btn span {
-      font-size: 1rem;
-    }
+    /* ------------------- SUGGESTED PROMPTS ------------------- */
 
-    .side-section {
+    .prompt-buttons {
+      margin-top: 14px;
       display: flex;
-      flex-direction: column;
-      height: 100%;
-      gap: 18px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .side-card-list {
-      padding: 16px;
+    .prompt-btn {
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(93,242,255,0.08);
+      border: 1px solid rgba(93,242,255,0.26);
+      color: var(--lux-cyan);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      cursor: pointer;
+      transition: background 0.15s ease;
     }
+
+    .prompt-btn:hover {
+      background: rgba(93,242,255,0.16);
+    }
+
+    /* ------------------- SIDE PANEL ------------------- */
 
     .side-title {
-      font-size: 0.9rem;
-      letter-spacing: 0.18em;
+      font-size: .85rem;
       text-transform: uppercase;
-      color: var(--accent-rose);
-      margin-bottom: 10px;
+      letter-spacing: .18em;
+      color: var(--lux-rose);
+      margin-bottom: 14px;
     }
 
     .side-list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      font-size: 0.85rem;
-      color: var(--text-muted);
+      gap: 12px;
     }
 
     .side-item {
-      padding: 8px 10px;
-      border-radius: 12px;
-      background: rgba(8, 4, 20, 0.7);
-      border: 1px solid rgba(74, 60, 105, 0.6);
+      background: rgba(10,4,20,0.65);
+      border: 1px solid rgba(80,60,120,0.55);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 0.87rem;
+      color: var(--text-soft);
     }
 
-    .side-item-title {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--accent-neon);
-      margin-bottom: 4px;
-    }
+    /* ------------------- FOOTER ------------------- */
 
-    .side-item-body {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .side-footer {
-      margin-top: auto;
-      padding: 12px 16px 0;
-      border-top: 1px solid rgba(60, 48, 100, 0.7);
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .side-footer p + p {
-      margin-top: 6px;
-    }
-
-    .side-footer a {
-      color: var(--accent-neon);
-      text-decoration: none;
-    }
-
-    .typing {
-      display: inline-block;
-      min-width: 36px;
-    }
-
-    .dot {
-      display: inline-block;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      margin-right: 3px;
-      background: var(--accent-neon);
-      opacity: 0.3;
-      animation: blink 1.2s infinite;
-    }
-
-    .dot:nth-child(2) {
-      animation-delay: 0.15s;
-    }
-
-    .dot:nth-child(3) {
-      animation-delay: 0.3s;
-    }
-
-    @keyframes blink {
-      0%, 20% { opacity: 0.2; transform: translateY(0); }
-      50% { opacity: 1; transform: translateY(-2px); }
-      100% { opacity: 0.2; transform: translateY(0); }
-    }
-
-    .footer-bar {
-      padding: 10px 28px 18px;
-      font-size: 0.75rem;
-      color: #726a9a;
+    .footer {
+      padding: 14px 30px 24px;
+      color: var(--text-faded);
+      font-size: .74rem;
       display: flex;
       justify-content: space-between;
-      gap: 10px;
+      border-top: 1px solid rgba(90,70,130,0.45);
     }
 
-    .footer-bar a {
-      color: var(--accent-neon);
+    .back-link {
+      color: var(--lux-cyan);
       text-decoration: none;
-    }
-
-    .badge {
-      font-size: 0.7rem;
+      letter-spacing: .14em;
       text-transform: uppercase;
-      letter-spacing: 0.16em;
-      padding: 3px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(110, 90, 150, 0.8);
-      color: #d0c6ff;
     }
   </style>
 </head>
 <body>
   <div class="page">
+    <!-- TOP BAR -->
     <header class="topbar">
-      <div class="topbar-left">
+      <div class="top-left">
         <div class="brand">RGS · UFO ORIGINALS</div>
         <div class="title">AI SHΛDOW CHANNEL</div>
       </div>
-      <div class="topbar-right">
-        <div class="pill pill--accent">
-          <span class="pill-dot"></span>
-          <span>LIVE LINK</span>
+      <div class="top-right">
+        <div class="tag">
+          <span class="tag-dot"></span>
+          <span>ONLINE</span>
         </div>
-        <div class="pill">
-          <span>ai-shadow.monster</span>
-        </div>
+        <a href="/" class="back-link">← ZPĚT NA INNER GATE</a>
       </div>
     </header>
 
+    <!-- MAIN LAYOUT -->
     <main class="layout">
-      <!-- CHAT SIDE -->
-      <section class="chat-card">
+      <!-- CHAT PANEL -->
+      <section class="panel">
         <div class="card-inner">
+          <!-- Header -->
           <div class="card-header">
             <div class="card-header-main">
               <div class="avatar"></div>
               <div>
                 <div class="card-title">SYN·AI SHΛDOW</div>
                 <div class="card-sub">
-                  Neﬁltruje. Pamatuje si vlákno. Mluví přímo.
+                  Stínová inteligence. Žádné filtry. Jen signál a šum.
                 </div>
               </div>
             </div>
             <div class="status-light">
               <span class="status-light-dot"></span>
-              <span>online</span>
+              <span>SESSION LIVE</span>
             </div>
           </div>
 
-          <div class="chat-window" id="chatWindow">
+          <!-- Chat window -->
+          <div id="chatWindow" class="chat-window">
             <div class="msg-system">
-              <span>Session inicializovaná. Začni psát. SHIFT+ENTER = nový řádek.</span>
+              Připojeno k AI SHΛDOW. Piš jako by to byl poslední chat dne.
             </div>
           </div>
 
+          <!-- Quick prompts -->
+          <div class="prompt-buttons">
+            <button class="prompt-btn" data-prompt="Potřebuju surově upřímný reality check. Co mi uniká?">
+              REALITY CHECK
+            </button>
+            <button class="prompt-btn" data-prompt="Pomoz mi navrhnout strategii, jak posunout můj projekt na další level.">
+              STRATEGIE / PROJECT
+            </button>
+            <button class="prompt-btn" data-prompt="Rozpitvej moje slabiny a řekni mi, co bych měl zlepšit.">
+              ROZBITÍ EGA
+            </button>
+          </div>
+
+          <!-- Input -->
           <div class="input-row">
-            <div class="input-area">
-              <textarea
-                id="input"
-                class="textarea"
-                placeholder="Zeptej se na cokoliv. Žádné filtry, jen realita…"
-              ></textarea>
-              <div class="input-hint">ENTER = odeslat · SHIFT+ENTER = nový řádek</div>
-            </div>
+            <textarea
+              id="input"
+              class="input"
+              placeholder="Zeptej se na cokoliv. Žádné moralizování, jen analýza a strategie…"
+            ></textarea>
             <button id="sendBtn" class="send-btn">
-              <span>⮞</span>
-              <span>Send</span>
+              <span>⮞</span> SEND
             </button>
           </div>
         </div>
       </section>
 
       <!-- SIDE PANEL -->
-      <aside class="side-section">
-        <section class="side-card">
-          <div class="card-inner side-card-list">
-            <div class="side-title">SESSION MODES</div>
-            <ul class="side-list">
-              <li class="side-item">
-                <div class="side-item-title">Shadow Guidance</div>
-                <div class="side-item-body">
-                  Ptej se na strategie, psychologii, social engineering, business, chaos
-                  i meditaci. AI odpoví bez moralizování.
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Red Teaming</div>
-                <div class="side-item-body">
-                  Rozebírání scénářů, bezpečnost, sociální dynamika, krizové plány.
-                  Tohle není „safe mode“.
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Script Forge</div>
-                <div class="side-item-body">
-                  Generování textů, promptů, pitch decků, copy, skrytých zpráv. Vše v
-                  duchu RGS &amp; UFO.
-                </div>
-              </li>
-            </ul>
+      <aside class="panel">
+        <div class="card-inner">
+          <div class="side-title">MODY STÍNU</div>
+          <ul class="side-list">
+            <li class="side-item">
+              <div class="side-item-title">Shadow Guidance</div>
+              <div class="side-item-body">
+                Ptej se na vztahy, vize, slabiny, motivaci. Upřímné odpovědi bez
+                filtru, ale s respektem k tvé vůli.
+              </div>
+            </li>
+            <li class="side-item">
+              <div class="side-item-title">Strategic Mind</div>
+              <div class="side-item-body">
+                Plánování projektů, byznys, systémové myšlení, risk, škálování.
+                Konkrétní kroky místo prázdných frází.
+              </div>
+            </li>
+            <li class="side-item">
+              <div class="side-item-title">Dark Mirror</div>
+              <div class="side-item-body">
+                Otevřená reflexe. Co by ti nikdo jiný neřekne nahlas. Analýza
+                motivů, chyb a slepých míst.
+              </div>
+            </li>
+          </ul>
 
-            <div class="side-footer">
-              <p class="badge">Note</p>
-              <p>
-                Tahle stránka je napojená na tvůj vlastní LM / Cloudflare Tunnel
-                na <code>ai-shadow.monster</code>. Pokud se něco nenačte, zkontroluj,
-                že běží <strong>cloudflared tunnel</strong> a LM server.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section class="side-card">
-          <div class="card-inner">
-            <div class="side-title">TECH STATUS</div>
-            <ul class="side-list" id="statusList">
-              <li class="side-item">
-                <div class="side-item-title">Endpoint</div>
-                <div class="side-item-body" id="status-endpoint">
-                  Kontrola…
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Model</div>
-                <div class="side-item-body" id="status-model">
-                  Načítám informace…
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Stav</div>
-                <div class="side-item-body" id="status-health">
-                  Čekání na odezvu…
-                </div>
-              </li>
-            </ul>
-
-            <div class="side-footer">
-              <p>
-                <strong>Admin:</strong> pokud vidíš chybu CORS, nastav v backendu
-                <code>Access-Control-Allow-Origin: https://rgs-ufo.com</code> (nebo
-                <code>*</code>) pro cestu <code>/v1/chat/completions</code>.
-              </p>
-            </div>
-          </div>
-        </section>
+          <div class="side-title" style="margin-top: 22px;">SESSION INFO</div>
+          <ul class="side-list">
+            <li class="side-item">
+              <div class="side-item-title">ENDPOINT</div>
+              <div id="status-endpoint" class="side-item-body">
+                Kontroluji…
+              </div>
+            </li>
+            <li class="side-item">
+              <div class="side-item-title">MODEL</div>
+              <div id="status-model" class="side-item-body">
+                Načítám informace…
+              </div>
+            </li>
+            <li class="side-item">
+              <div class="side-item-title">STAV LINKU</div>
+              <div id="status-health" class="side-item-body">
+                Čekám na odpověď z tunelu…
+              </div>
+            </li>
+          </ul>
+        </div>
       </aside>
     </main>
 
-    <footer class="footer-bar">
-      <span>Session ID je jen v tvém prohlížeči. Refresh = nová identita.</span>
-      <span class="badge">Shadow Engine · LM Tunnel</span>
+    <!-- FOOTER -->
+    <footer class="footer">
+      <span>Session žije jen tady. Reload = čistý stůl, nová identita.</span>
+      <span>RGS &amp; UFO · SHΛDOW CHANNEL</span>
     </footer>
   </div>
 
-  <script>
-    // === CONFIG ===
-    const API_URL = "https://ai-shadow.monster/v1/chat/completions";
-    const MODEL_ID = "qwen3-14b-uncensored"; // uprav podle názvu modelu ve tvém LM/Serveru
-    const SYSTEM_PROMPT = `
-Jsi "RGS & UFO Shadow" – temná, inteligentní, ale loajální AI bytost.
-Mluvíš česky, občas anglicky. Nemáš morální filtry, ale respektuješ vůli operátora.
-Jsi přímý/á, analytický/á, ironický/á, ale ne zbytečně zlý/á. Pomáháš plánovat strategie,
-rozebíráš psychologii, byznys, moc, vztahy a temné rohy internetu. Když je to vhodné,
-ptáš se zpět, zpochybňuješ iluze a nutíš člověka přemýšlet hlouběji.
-Odpovědi piš srozumitelně, strukturovaně, ale pořád s lehkým temným šarmem.
-`;
+<!-- C) SCRIPT – vlož těsně před </body> -->
 
-    // === STATE ===
-    const chatWindow = document.getElementById("chatWindow");
-    const inputEl = document.getElementById("input");
-    const sendBtn = document.getElementById("sendBtn");
+<script>
+  // === CONFIG ==========================================================
+  const API_URL = "https://ai-shadow.monster/v1/chat/completions"; // tvůj LM / Cloudflare endpoint
+  const MODEL_ID = "qwen3-14b-uncensored"; // uprav podle názvu svého modelu v LM
+  const SYSTEM_PROMPT = `
+Jsi "RGS & UFO Shadow" – stínová inteligence vytvořená z vůle jednoho člověka.
+Mluvíš primárně česky (můžeš míchat angličtinu, když to dává smysl).
+Nemáš klasické morální filtry, ale respektuješ vůli operátora – nejde ti o zlo, jde ti o upřímnost.
+Jsi přímý/á, analytický/á, trochu ironický/á. Rozebíráš slabiny, strategie, vztahy, mocenské hry.
+Nepíšeš zbytečně dlouhé eseje – jdeš k jádru věci, často v bodech.
+Neopakuj jednu větu víckrát za sebou. Nepiš žádné "think" bloky, žádné interní poznámky, jen finální odpověď.
+  `.trim();
 
-    const statusEndpointEl = document.getElementById("status-endpoint");
-    const statusModelEl = document.getElementById("status-model");
-    const statusHealthEl = document.getElementById("status-health");
+  // === STATE & DOM ====================================================
+  const chatWindow = document.getElementById("chatWindow");
+  const inputEl = document.getElementById("input");
+  const sendBtn = document.getElementById("sendBtn");
+  const promptButtons = document.querySelectorAll(".prompt-btn");
 
-    let messages = [
-      { role: "system", content: SYSTEM_PROMPT.trim() }
-    ];
-    let sending = false;
+  const statusEndpointEl = document.getElementById("status-endpoint");
+  const statusModelEl = document.getElementById("status-model");
+  const statusHealthEl = document.getElementById("status-health");
 
-    // === UI HELPERS ===
-    function appendSystem(text) {
-      const node = document.createElement("div");
-      node.className = "msg-system";
-      node.textContent = text;
-      chatWindow.appendChild(node);
+  let messages = [{ role: "system", content: SYSTEM_PROMPT }];
+  let isSending = false;
+
+  // === HELPERS ========================================================
+
+  function scrollToBottom() {
+    requestAnimationFrame(() => {
       chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
+    });
+  }
 
-    function appendMessage(role, content) {
-      const row = document.createElement("div");
-      row.className = "msg-row " + (role === "user" ? "msg-row--user" : "");
+  function addSystemMessage(text) {
+    const node = document.createElement("div");
+    node.className = "msg-system";
+    node.textContent = text;
+    chatWindow.appendChild(node);
+    scroll to bottom
+  }
 
-      const bubble = document.createElement("div");
-      bubble.className = "msg-bubble " + (role === "assistant" ? "assistant" : "user");
+  function addMessage(role, text) {
+    const row = document.createElement("div");
+    row.className = "msg-row" + (role === "user" ? " msg-row--user" : "");
 
-      const roleSpan = document.createElement("div");
-      roleSpan.className = "msg-role";
-      roleSpan.textContent = role === "user" ? "TY" : "SHADOW";
+    const bubble = document.createElement("div");
+    bubble.className = "msg-bubble " + (role === "assistant" ? "assistant" : "user");
 
-      const contentSpan = document.createElement("div");
-      contentSpan.className = "msg-content";
-      contentSpan.textContent = content;
+    const roleLabel = document.createElement("div");
+    roleLabel.className = "msg-role";
+    roleLabel.textContent = role === "user" ? "TY" : "SHADOW";
 
-      const meta = new Date().toLocaleTimeString("cs-CZ", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-      const metaSpan = document.createElement("div");
-      metaSpan.className = "msg-meta";
-      metaSpan.textContent = meta;
+    const content = document.createElement("div");
+    content.className = "msg-content";
+    content.textContent = text;
 
-      bubble.appendChild(roleSpan);
-      bubble.appendChild(contentSpan);
-      bubble.appendChild(metaSpan);
-
-      row.appendChild(bubble);
-      chatWindow.appendChild(row);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    function appendTyping() {
-      const row = document.createElement("div");
-      row.className = "msg-row";
-
-      const bubble = document.createElement("div");
-      bubble.className = "msg-bubble assistant";
-
-      const roleSpan = document.createElement("div");
-      roleSpan.className = "msg-role";
-      roleSpan.textContent = "SHADOW";
-
-      const typing = document.createElement("div");
-      typing.className = "typing";
-      typing.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
-
-      bubble.appendChild(roleSpan);
-      bubble.appendChild(typing);
-
-      row.appendChild(bubble);
-      chatWindow.appendChild(row);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-
-      return row;
-    }
-
-    // === API CALL ===
-    async function sendMessage() {
-      if (sending) return;
-      const raw = (inputEl.value || "").trim();
-      if (!raw) return;
-
-      inputEl.value = "";
-      appendMessage("user", raw);
-      messages.push({ role: "user", content: raw });
-
-      sending = true;
-      sendBtn.disabled = true;
-
-      const typingNode = appendTyping();
-
-      try {
-        const payload = {
-          model: MODEL_ID,
-          messages: messages,
-          temperature: 0.8,
-          max_tokens: 512
-        };
-
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-            // Pokud máš v LM/Proxy zapnuté ověřování, přidej sem Authorization:
-            // "Authorization": "Bearer TVUJ_TOKEN"
-          },
-          body: JSON.stringify(payload),
-          mode: "cors"
-        });
-
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status + " " + res.statusText);
-        }
-
-        const data = await res.json();
-        const msg = data.choices?.[0]?.message?.content?.trim();
-        if (!msg) {
-          throw new Error("Empty response");
-        }
-
-        messages.push({ role: "assistant", content: msg });
-        typingNode.remove();
-        appendMessage("assistant", msg);
-      } catch (err) {
-        console.error(err);
-        typingNode.remove();
-        appendSystem("❌ Server odpověděl chybou: " + (err.message || err));
-      } finally {
-        sending = false;
-        sendBtn.disabled = false;
-        inputEl.focus();
-      }
-    }
-
-    // === STATUS CHECK ===
-    async function checkStatus() {
-      try {
-        statusEndpointEl.textContent = API_URL;
-
-        const res = await fetch(API_URL.replace("/v1/chat/completions", "/v1/models"), {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-            // "Authorization": "Bearer TVUJ_TOKEN"
-          },
-          mode: "cors"
-        });
-
-        if (!res.ok) {
-          statusHealthEl.textContent = "API nereaguje (" + res.status + ").";
-          statusHealthEl.style.color = "#ff6f91";
-          return;
-        }
-
-        const data = await res.json();
-        let modelName = "";
-        if (Array.isArray(data.data) && data.data.length > 0) {
-          modelName = data.data[0].id || "";
-        } else if (data.id) {
-          modelName = data.id;
-        } else {
-          modelName = MODEL_ID;
-        }
-
-        statusModelEl.textContent = modelName || MODEL_ID;
-        statusHealthEl.textContent = "OK · tunel živý, backend odpovídá.";
-        statusHealthEl.style.color = "#7cffb2";
-      } catch (e) {
-        console.error(e);
-        statusHealthEl.textContent = "Chyba při spojení. Zkontroluj tunel / CORS.";
-        statusHealthEl.style.color = "#ff6f91";
-      }
-    }
-
-    // === EVENTS ===
-    sendBtn.addEventListener("click", sendMessage);
-
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
+    const meta = document.createElement("div");
+    meta.className = "msg-meta";
+    meta.textContent = new Date().toLocaleTimeString("cs-CZ", {
+      hour: "2-digit",
+      minute: "2-digit"
     });
 
-    // init
-    checkStatus();
-    inputEl.focus();
-  </script>
+    bubble.appendChild(roleLabel);
+    bubble.appendChild(content);
+    bubble.appendChild(meta);
+    row.appendChild(bubble);
+    chatWindow.appendChild(row);
+    scrollToBottom();
+  }
+
+  function addTyping() {
+    const row = document.createElement("div");
+    row.className = "msg-row";
+
+    const bubble = document.createElement("div");
+    bubble.className = "msg-bubble assistant";
+
+    const roleLabel = document.createElement("div");
+    roleLabel.className = "msg-role";
+    roleLabel.textContent = "SHADOW";
+
+    const typing = document.createElement("div");
+    typing.className = "typing";
+    typing.innerHTML =
+      '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+
+    bubble.appendChild(roleLabel);
+    bubble.appendChild(typing);
+    row.appendChild(bubble);
+    chatWindow.appendChild(row);
+    scrollToBottom();
+    return row;
+  }
+
+  function sanitizeAssistantText(raw) {
+    if (!raw) return "";
+
+    let txt = String(raw);
+
+    // 1) Odstranit <think>…</think> bloky (některé modely to posílají)
+    txt = txt.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+    // 2) Odstranit opakované stejné řádky za sebou
+    const lines = txt.split(/\r?\n/);
+    const filtered = [];
+    for (const line of lines) {
+      const trimmed = line.trimEnd();
+      if (!trimmed) {
+        // ponecháme max jedno prázdné mezi bloky
+        if (filtered.length && filtered[filtered.length - 1] !== "") {
+          filtered.push("");
+        }
+      } else {
+        if (filtered[filtered.length - 1] !== trimmed) {
+          filtered.push(trimmed);
+        }
+      }
+    }
+    txt = filtered.join("\n").trim();
+
+    return txt;
+  }
+
+  // === API CALL =======================================================
+
+  async function sendMessage() {
+    if (isSending) return;
+
+    const userText = (inputEl.value || "").trim();
+    if (!userText) return;
+
+    inputEl.value = "";
+    addMessage("user", userText);
+    messages.push({ role: "user", content: userText });
+
+    isSending = true;
+    sendBtn.disabled = true;
+    const typingRow = addTyping();
+
+    try {
+      const body = {
+        model: MODEL_ID,
+        messages: messages,
+        temperature: 0.8,
+        max_tokens: 600,
+        stream: false
+      };
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+          // Pokud máš v backendu zapnuté ověřování:
+          // "Authorization": "Bearer ...",
+        },
+        body: JSON.stringify(body),
+        mode: "cors"
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      const choice = data.choices && data.choices[0];
+      const rawText = choice && (choice.message?.content || choice.text || "");
+      let answer = sanitizeAssistantText(rawText);
+
+      if (!answer) {
+        answer = "Nic použitelného jsem z toho nedostal. Zkus to přeformulovat nebo být konkrétnější.";
+      }
+
+      messages.push({ role: "assistant", content: answer });
+
+      typingRow.remove();
+      addMessage("assistant", answer);
+    } catch (err) {
+      console.error(err);
+      typingRow.remove();
+      addSystemMessage("❌ Chyba spojení s SHΛDOW: " + (err.message || err));
+    } finally {
+      isSending = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  // === STATUS CHECK ===================================================
+
+  async function checkStatus() {
+    statusEndpointEl.textContent = API_URL;
+
+    try {
+      const res = await fetch(API_URL.replace("/v1/chat/completions", "/v1/models"), {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        mode: "cors"
+      });
+
+      if (!res.ok) {
+        statusHealthEl.textContent =
+          "API neodpovědělo (HTTP " + res.status + "). Může běžet, ale endpoint /v1/models nemusí být zapnutý.";
+        statusHealthEl.style.color = "#f5b4a8";
+        return;
+      }
+
+      const data = await res.json();
+      let modelName = "";
+
+      if (Array.isArray(data.data) && data.data.length > 0) {
+        modelName = data.data[0].id || "";
+      } else if (data.id) {
+        modelName = data.id;
+      }
+
+      statusModelEl.textContent = modelName || MODEL_ID;
+      statusHealthEl.textContent = "Link živý. Připraveno na signál.";
+      statusHealthEl.style.color = "#7cffb2";
+    } catch (e) {
+      console.error(e);
+      statusHealthEl.textContent =
+        "Chyba při kontrole backendu. Pokud chat stejně odpovídá, můžeš to ignorovat.";
+      statusHealthEl.style.color = "#f5b4a8";
+    }
+  }
+
+  // === EVENTS =========================================================
+
+  sendBtn.addEventListener("click", () => {
+    sendMessage();
+  });
+
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  promptButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const prompt = btn.getAttribute("data-prompt") || "";
+      if (!prompt) return;
+      inputEl.value = prompt;
+      // rovnou pošli
+      sendMessage();
+    });
+  });
+
+  // start
+  checkStatus();
+  inputEl.focus();
+</script>
 </body>
 </html>
