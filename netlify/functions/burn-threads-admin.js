@@ -1,85 +1,102 @@
+// netlify/functions/burn-threads-admin.js
+// Admin panel pro Burn Lane v3 – seznam vláken + statistiky
+
 import { Client } from "pg";
 
-export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ ok: false, error: "Method not allowed" });
-  }
+// tajný klíč – musí sedět s Netlify env RGS_ADMIN_KEY
+const ADMIN_KEY = process.env.RGS_ADMIN_KEY;
 
-  const { RGS_ADMIN_KEY, PGHOST, PGDATABASE, PGUSER, PGPASSWORD, PGPORT } = process.env;
+// Neon DB URL
+const connectionString =
+  process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL;
 
-  if (!RGS_ADMIN_KEY) {
-    return res.status(500).json({ ok: false, error: "RGS_ADMIN_KEY not configured" });
-  }
-
-  const url = new URL(req.url, "http://localhost");
-  const key = url.searchParams.get("key");
-
-  if (!key || key !== RGS_ADMIN_KEY) {
-    return res.status(401).json({ ok: false, error: "Unauthorized" });
-  }
-
-  if (!PGHOST || !PGDATABASE || !PGUSER || !PGPASSWORD || !PGPORT) {
-    return res.status(500).json({ ok: false, error: "Database not configured" });
-  }
-
-  const client = new Client({
-    host: PGHOST,
-    database: PGDATABASE,
-    user: PGUSER,
-    password: PGPASSWORD,
-    port: Number(PGPORT)
-  });
-
+export async function handler(event) {
   try {
+    // pouze GET
+    if (event.httpMethod !== "GET") {
+      return {
+        statusCode: 405,
+        body: "Method Not Allowed"
+      };
+    }
+
+    // získat ?key=
+    const key = event.queryStringParameters?.key || "";
+
+    if (!ADMIN_KEY || key.trim() !== ADMIN_KEY.trim()) {
+      return {
+        statusCode: 401,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ok: false,
+          error: "Unauthorized"
+        })
+      };
+    }
+
+    if (!connectionString) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          ok: false,
+          error: "Missing DB connection string"
+        })
+      };
+    }
+
+    // připojit DB
+    const client = new Client({ connectionString });
     await client.connect();
 
-    const statsQuery = `
+    // list threads
+    const qThreads = await client.query(`
+      SELECT 
+        id,
+        token,
+        created_at,
+        expires_at,
+        closed_at
+      FROM burn_threads
+      ORDER BY created_at DESC
+      LIMIT 100
+    `);
+
+    // stats threads
+    const qStats = await client.query(`
       SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE escalated = true)::int AS escalated,
-        COUNT(*) FILTER (WHERE closed_at IS NULL AND expires_at > now())::int AS open,
-        COUNT(*) FILTER (WHERE closed_at IS NOT NULL OR expires_at <= now())::int AS closed,
-        COUNT(*) FILTER (WHERE created_at::date = current_date)::int AS today
-      FROM burn_threads;
-    `;
+        COUNT(*) AS total,
+        COUNT(*) FILTER (WHERE expires_at > now() AND closed_at IS NULL) AS active,
+        COUNT(*) FILTER (WHERE expires_at <= now()) AS expired,
+        COUNT(*) FILTER (WHERE closed_at IS NOT NULL) AS closed
+      FROM burn_threads
+    `);
 
-    const listQuery = `
-      SELECT
-        t.id,
-        t.token,
-        t.created_at,
-        t.expires_at,
-        t.closed_at,
-        t.escalated,
-        COALESCE(m.cnt, 0)::int AS message_count
-      FROM burn_threads t
-      LEFT JOIN (
-        SELECT thread_id, COUNT(*) AS cnt
-        FROM burn_thread_messages
-        GROUP BY thread_id
-      ) m ON m.thread_id = t.id
-      ORDER BY t.created_at DESC
-      LIMIT 50;
-    `;
+    await client.end();
 
-    const [statsResult, listResult] = await Promise.all([
-      client.query(statsQuery),
-      client.query(listQuery)
-    ]);
-
-    const stats = statsResult.rows[0] || {
-      total: 0,
-      escalated: 0,
-      open: 0,
-      closed: 0,
-      today: 0
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ok: true,
+        stats: {
+          total: Number(qStats.rows[0].total),
+          active: Number(qStats.rows[0].active),
+          expired: Number(qStats.rows[0].expired),
+          closed: Number(qStats.rows[0].closed)
+        },
+        threads: qThreads.rows
+      })
     };
 
-    return res.status(200).json({ ok: true, stats, threads: listResult.rows });
-  } catch (e) {
-    console.error("burn-threads-admin error", e);
-    return res.status(500).json({ ok: false, error: "Internal error" });
-  } finally {
-    await client.end().catch(() => {});
+  } catch (err) {
+    console.error("burn-threads-admin error:", err);
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ok: false,
+        error: err.message
+      })
+    };
   }
 }
