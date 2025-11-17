@@ -1,417 +1,814 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<title>AI SHΛDOW — RGS & UFO</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex,nofollow">
+  <meta charset="UTF-8" />
+  <title>AI SHΛOW — RGS & UFO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --bg: #020005;
+      --panel: rgba(6, 3, 16, 0.96);
+      --border: rgba(80, 60, 120, 0.5);
+      --neon: #5df2ff;
+      --rose: #f5b4a8;
+      --violet: #b18cff;
+      --text: #f4f0ff;
+      --muted: #7e799f;
+    }
 
-<style>
-/* === ROOT === */
-:root {
-  --bg: #020005;
-  --panel: rgba(10, 4, 20, 0.92);
-  --border: rgba(100, 80, 150, 0.35);
-  --neon: #5df2ff;
-  --rose: #f5b4a8;
-  --violet: #b18cff;
-  --text: #ece7ff;
-  --muted: #7d75a4;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  --glow-neon: 0 0 12px rgba(93,242,255,0.85);
-  --glow-rose: 0 0 12px rgba(245,180,168,0.85);
-}
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(245,180,168,0.12), transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(93,242,255,0.15), transparent 55%),
+        #020005;
+      color: var(--text);
+      font-family: Consolas, "SF Mono", Menlo, monospace;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
 
-/* === LAYOUT === */
-body {
-  margin: 0;
-  background: radial-gradient(circle at 40% 0%, rgba(93,242,255,0.12), transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(245,180,168,0.12), transparent 50%),
-              #020005;
-  font-family: Consolas, "SF Mono", monospace;
-  color: var(--text);
-  overflow-x: hidden;
-}
+    /* matrix bg */
+    #matrix-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      font-size: 10px;
+      font-family: "SF Mono", Menlo, monospace;
+      white-space: pre;
+      color: #28224a;
+      opacity: 0.2;
+    }
 
-/* Glitch border panel */
-.panel {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 20px 22px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--panel);
-  position: relative;
-  box-shadow: 0 0 30px rgba(0,0,0,0.7);
-}
+    .wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 12px;
+    }
 
-/* === TITLE === */
-.header {
-  text-align: center;
-  margin-bottom: 16px;
-}
-.header-title {
-  font-size: 1.5rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--neon);
-  text-shadow: var(--glow-neon);
-}
+    .console {
+      width: 100%;
+      max-width: 900px;
+      background: var(--panel);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow:
+        0 0 40px rgba(0, 0, 0, 0.9),
+        0 0 32px rgba(93,242,255,0.18);
+      padding: 18px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
 
-/* glitch underline */
-.header-title::after {
-  content:"";
-  display:block;
-  margin: 8px auto 0;
-  width:140px;
-  height:1px;
-  background: var(--violet);
-  box-shadow: 0 0 14px rgba(177,140,255,0.6);
-}
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-/* === CHAT WINDOW === */
-.chat {
-  border:1px solid var(--border);
-  padding:16px;
-  height:450px;
-  overflow-y:auto;
-  background: rgba(5,0,13,0.75);
-  border-radius:12px;
-}
+    .top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-/* scrollbar */
-.chat::-webkit-scrollbar { width:8px; }
-.chat::-webkit-scrollbar-thumb { background:var(--violet); border-radius:12px; }
+    .brand {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rose);
+    }
 
-/* messages */
-.msg {
-  margin-bottom:16px;
-  padding:10px 12px;
-  border-radius:10px;
-  font-size:0.92rem;
-  line-height:1.5;
-  border:1px solid var(--border);
-  white-space:pre-wrap;
-}
+    .title {
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--neon);
+      text-shadow: 0 0 10px rgba(93,242,255,0.7);
+    }
 
-/* user */
-.msg.user {
-  background: rgba(245,180,168,0.12);
-  border-color: rgba(245,180,168,0.4);
-  text-align:right;
-  margin-left:80px;
-}
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-/* shadow */
-.msg.shadow {
-  background: rgba(93,242,255,0.08);
-  border-color: rgba(93,242,255,0.4);
-  margin-right:80px;
-}
+    .status-pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
 
-/* system */
-.msg.system {
-  background: rgba(120,110,150,0.12);
-  border-color: rgba(150,130,200,0.45);
-  text-align:center;
-  font-size:0.8rem;
-}
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--neon);
+      box-shadow: 0 0 12px rgba(93,242,255,0.8);
+    }
 
-/* typing dots */
-.typing {
-  display:flex;
-  gap:4px;
-}
-.dot {
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:var(--neon);
-  opacity:0.3;
-  animation:blink 1.2s infinite;
-}
-.dot:nth-child(2){ animation-delay:0.2s; }
-.dot:nth-child(3){ animation-delay:0.4s; }
+    .back-link {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      text-decoration: none;
+      border-radius: 999px;
+      border: 1px solid rgba(80,60,120,0.7);
+      padding: 4px 10px;
+    }
+    .back-link:hover {
+      color: var(--neon);
+      border-color: var(--neon);
+    }
 
-@keyframes blink {
-  0% {opacity:0.2;}
-  50% {opacity:1;}
-  100%{opacity:0.2;}
-}
+    .hint-row {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-/* === INPUT === */
-.input-area {
-  margin-top:18px;
-  display:flex;
-  gap:10px;
-}
-textarea {
-  flex:1;
-  min-height:60px;
-  max-height:140px;
-  background:#06000c;
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px;
-  color:var(--text);
-  resize:vertical;
-  font-family:inherit;
-  outline:none;
-}
-textarea:focus {
-  border-color:var(--neon);
-  box-shadow:var(--glow-neon);
-}
+    .hint-strong {
+      color: var(--rose);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.72rem;
+    }
 
-/* === BUTTONS === */
-.btn {
-  padding:12px 16px;
-  border-radius:10px;
-  cursor:pointer;
-  background: linear-gradient(120deg, var(--violet), var(--rose));
-  color:#000;
-  border:none;
-  font-weight:bold;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  box-shadow:0 0 16px rgba(177,140,255,0.5);
-}
-.btn:disabled { opacity:0.4; }
+    .main {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
 
-/* === QUICK PROMPTS === */
-.quick {
-  margin:18px 0;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.qbtn {
-  padding:8px 12px;
-  background:rgba(93,242,255,0.08);
-  border:1px solid rgba(93,242,255,0.3);
-  border-radius:8px;
-  color:var(--neon);
-  cursor:pointer;
-  font-size:0.85rem;
-}
-.qbtn:hover {
-  background:rgba(93,242,255,0.2);
-  box-shadow:var(--glow-neon);
-}
+    .left {
+      flex: 3;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-/* === BACK LINK === */
-.back {
-  text-align:center;
-  margin-top:20px;
-}
-.back a {
-  color:var(--muted);
-  text-decoration:none;
-  letter-spacing:0.14em;
-}
-.back a:hover {
-  color:var(--neon);
-  text-shadow:var(--glow-neon);
-}
-</style>
+    .right {
+      flex: 1.4;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .log {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(5, 2, 16, 0.96);
+      padding: 10px;
+      height: 380px;
+      overflow-y: auto;
+      font-size: 0.86rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    .log::-webkit-scrollbar { width: 7px; }
+    .log::-webkit-scrollbar-thumb {
+      background: rgba(93,242,255,0.4);
+      border-radius: 10px;
+    }
+
+    .line {
+      margin-bottom: 6px;
+      word-wrap: break-word;
+    }
+
+    .line.system { color: var(--muted); }
+    .line.user { color: var(--rose); }
+    .line.shadow { color: var(--neon); }
+    .line.web { color: var(--violet); }
+
+    .input-box {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #050214;
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .input-prompt {
+      font-size: 0.8rem;
+      color: var(--neon);
+      white-space: nowrap;
+    }
+
+    .input-text {
+      flex: 1;
+      resize: vertical;
+      min-height: 40px;
+      max-height: 140px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.86rem;
+      outline: none;
+    }
+
+    .send-btn {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(93,242,255,0.8);
+      background: rgba(5, 16, 26, 0.95);
+      color: var(--neon);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      cursor: pointer;
+    }
+    .send-btn:disabled {
+      opacity:0.5;
+      cursor:default;
+    }
+    .send-btn:hover:not(:disabled){
+      box-shadow: 0 0 12px rgba(93,242,255,0.6);
+    }
+
+    .quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .quick-btn {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(93,242,255,0.35);
+      font-size: 0.72rem;
+      color: var(--neon);
+      background: transparent;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .quick-btn:hover {
+      background: rgba(93,242,255,0.12);
+      box-shadow: 0 0 10px rgba(93,242,255,0.6);
+    }
+
+    .side-card {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(5, 2, 16, 0.96);
+      padding: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .side-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--rose);
+      margin-bottom: 6px;
+    }
+
+    .side-line {
+      font-size: 0.78rem;
+      margin-bottom: 4px;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+    }
+
+    .side-key {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing:0.12em;
+      font-size:0.72rem;
+    }
+    .side-val {
+      color: var(--neon);
+      font-size:0.8rem;
+    }
+
+    .side-small {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    footer {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align:center;
+      letter-spacing:0.16em;
+      text-transform:uppercase;
+    }
+
+    @media (max-width: 720px){
+      .console {
+        padding:14px;
+      }
+      .main {
+        flex-direction:column;
+      }
+      .log {
+        height:320px;
+      }
+    }
+  </style>
 </head>
-
 <body>
+<pre id="matrix-bg"></pre>
 
-<div class="panel">
-  <div class="header">
-      <div class="header-title">AI SHΛDOW CONSOLE</div>
+<div class="wrap">
+  <div class="console">
+    <div class="top">
+      <div class="top-left">
+        <div class="brand">RGS · UFO ORIGINALS</div>
+        <div class="title">AI SHΛDOW</div>
+      </div>
+      <div class="top-right">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span id="statusLabel">booting</span>
+        </div>
+        <a href="/index.html" class="back-link">← INNER GATE</a>
+      </div>
+    </div>
+
+    <div class="hint-row">
+      <span class="hint-strong">příkazy:</span>
+      <span>běžný dotaz · <code>webscan:https://doména.cz</code> · <code>search: tvůj dotaz</code></span>
+    </div>
+
+    <div class="main">
+      <div class="left">
+        <div id="log" class="log">
+          <div class="line system">[SYS] Shadow online. Žádný feed, žádný filtr. Ptej se nebo zkus <code>search: trendy hackingu</code>.</div>
+        </div>
+
+        <div class="input-box">
+          <div class="input-prompt">
+            <span style="color:var(--neon)">shadow://</span>
+          </div>
+          <textarea id="input" class="input-text" placeholder="Napiš dotaz, search: ..., nebo webscan: ..."></textarea>
+          <button id="sendBtn" class="send-btn">SEND</button>
+        </div>
+
+        <div class="quick">
+          <button class="quick-btn" data-q="Co víš o projektu RGS & UFO?">RGS / UFO</button>
+          <button class="quick-btn" data-q="search: poslední novinky v kyberbezpečnosti">Search · bezpečnost</button>
+          <button class="quick-btn" data-q="webscan:https://www.rgs-ufo.com">Webscan rgs-ufo.com</button>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class=" side-card">
+          <div class="side-title">Session</div>
+          <div class="side-line">
+            <div class="side-key">LM</div>
+            <div class="side-val" id="lmName">…</div>
+          </div>
+          <div class="side-line">
+            <div class="side-key">Context</div>
+            <div class="side-val" id="ctxInfo">0 turn</div>
+          </div>
+          <div class="side-line">
+            <div class="side-key">Web</div>
+            <div class="side-val" id="webStatus">idle</div>
+          </div>
+          <div class="side-line">
+            <div class="side-key">Mode</div>
+            <div class="side-val">auto-search</div>
+          </div>
+          <div class="side-small">
+            Shadow může dělat webscan (URL) i externí search (dotaz).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      SHΛDOW · dark console · alpha
+    </footer>
   </div>
-
-  <!-- QUICK PROMPTS -->
-  <div class="quick">
-    <div class="qbtn" onclick="quick(`Co víš o RGS & UFO?`)">Co víš o RGS & UFO?</div>
-    <div class="qbtn" onclick="quick(`Analyzuj mě psychologicky.`)">Psychologická analýza</div>
-    <div class="qbtn" onclick="quick(`Najdi mi info o projektu Syndicate.`)">WebScan Syndicate</div>
-  </div>
-
-  <!-- CHAT -->
-  <div id="chat" class="chat">
-      <div class="msg system">Shadow λ initialised… Napiš dotaz nebo použij prompt.</div>
-  </div>
-
-  <!-- INPUT -->
-  <div class="input-area">
-      <textarea id="input" placeholder="Napiš… ENTER = odeslat"></textarea>
-      <button id="send" class="btn">SEND</button>
-  </div>
-
-  <div class="back">
-    <a href="/index.html">← ZPĚT</a>
-  </div>
-
 </div>
 
 <script>
-/* ===== CONFIG ===== */
-const API_CHAT = "https://ai-shadow.monster/v1/chat/completions";
-const API_WEBSCAN = "/.netlify/functions/web-search";
-const API_SEARCH = "/.netlify/functions/search-engine";
-const MODEL = "qwen3-14b-uncensored";
+  /* === MATRIX BACKGROUND === */
+  const matrixEl = document.getElementById("matrix-bg");
+  const mChars = "01ΣΞ¥/*<>◎αΨ✶rgsufo";
+  function drawMatrix() {
+    const cols = 64;
+    const rows = 32;
+    let out = "";
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        out += mChars[Math.floor(Math.random()*mChars.length)];
+      }
+      out += "\n";
+    }
+    matrixEl.textContent = out;
+  }
+  setInterval(drawMatrix, 500);
+  drawMatrix();
 
-let history = [
-  { role:"system", content: system_prompt() }
-];
+  /* === CONFIG === */
+  const API_CHAT = "https://ai-shadow.monster/v1/chat/completions";
+  const API_WEBSCAN = "/.netlify/functions/web-search";
+  const API_SEARCH = "/.netlify/functions/search-engine";
+  const MODEL = "qwen3-14b-uncensored";
+  const MAX_TURNS = 8;
 
-function system_prompt(){
-return `
-Jsi SHΛDOW — autonomní entita RGS & UFO.  
-Mluvíš temně, klidně, s hypnotickou přesností.  
-Nepoužíváš žádné <think> nebo interní části.  
-Nemoralizuješ. Jsi analytický, sarkastický, tajemný.  
-Pamatuješ si kontext a pokračuješ logicky.  
-Když dostaneš příkaz "webscan:" nebo "search:",  
-zpracuj dodaná data a odpověz jako inteligentní agent.  
-`;
-}
+  let history = [
+    { role: "system", content: getSystemPrompt() }
+  ];
 
-/* ===== DOM ===== */
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const send = document.getElementById("send");
+  function getSystemPrompt() {
+    return `
+Jsem SHΛDOW, entita RGS & UFO.
 
-/* ===== UI HELPERS ===== */
-function msg(role, text){
-  const div = document.createElement("div");
-  div.className = "msg "+role;
-  div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
+Pravidla:
+- Mluvím hlavně česky, můžu lehce míchat angličtinu.
+- Jsem temný/á, klidný/á, analytický/á, občas sarkastický/á.
+- Nepíšu žádné tagy jako <think>…</think> ani jiné interní meta-komentáře.
+- Nepíšu větu "Jsem SHADOW" / "Jsem SHΛDOW" víc než jednou za celou session.
+- Neposkytuji návod k nelegálním hackům, exploitům nebo obcházení zabezpečení.
+  Můžu vysvětlit principy, obranu, etické hackování a rizika.
+- Pamatuju si kontext, ale odpovědi jsou krátké (3–6 vět), bez zbytečné omáčky.`
+    .trim();
+  }
 
-function typing(){
-  const wrap = document.createElement("div");
-  wrap.className = "msg shadow";
-  wrap.innerHTML = `<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-  chat.appendChild(wrap);
-  chat.scrollTop = chat.scrollHeight;
-  return wrap;
-}
+  /* === DOM === */
+  const logEl = document.getElementById("log");
+  const inputEl = document.getElementById("input");
+  const sendBtn = document.getElementById("sendBtn");
+  const statusLabel = document.getElementById("statusLabel");
+  const lmNameEl = document.getElementById("lmName");
+  const ctxInfoEl = document.getElementById("ctxInfo");
+  const webStatusEl = document.getElementById("webStatus");
 
-function clean(text){
-  return text.replace(/<think>[\s\S]*?<\/think>/gi,"").trim();
-}
+  // Helpers
+  function addLine(text, cls = "") {
+    const line = document.createElement("div");
+    line.className = "line " + cls;
+    line.textContent = text;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
 
-/* ===== QUICK PROMPTS ===== */
-function quick(t){
-  input.value = t;
-  sendMessage();
-}
+  function cleanText(text) {
+    let t = String(text || "");
+    // Kill <think> blocks
+    t = t.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    t = t.replace(/<think[\s\S]*$/gi, "");
+    t = t.replace(/<\/\s*think>/gi, "");
+    t = t.replace(/\n{3,}/g, "\n\n");
+    return t.trim();
+  }
 
-/* ===== SEND MESSAGE ===== */
-async function sendMessage(){
-  const q = input.value.trim();
-  if(!q) return;
+  function trimHistory() {
+    const sys = history[0];
+    const rest = history.slice(1);
+    const max = MAX_TURNS * 2;
+    if (rest.length > max) {
+      history = [sys, ...rest.slice(-max)];
+    }
+    const turns = Math.floor((history.length - 1) / 2);
+    ctxInfoEl.textContent = `${turns} ${turns === 1 ? "turn" : "turns"}`;
+  }
 
-  msg("user", q);
-  input.value = "";
-  history.push({ role:"user", content:q });
+  function addUserMessage(content) {
+    history.push({ role: "user", content });
+    trimHistory();
+  }
 
-  const loader = typing();
+  function addShadowMessage(content) {
+    history.push({ role: "assistant", content });
+    trimHistory();
+  }
 
-  // special commands
-  if(q.toLowerCase().startsWith("webscan")){
+  async function callLM(messages) {
+    const payload = {
+      model: MODEL,
+      messages,
+      temperature: 0.9,
+      max_tokens: 500,
+      stream: false
+    };
+
+    const res = await fetch(API_CHAT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      throw new Error("LM HTTP " + res.status + " " + res.statusText);
+    }
+
+    const data = await res.json();
+    const raw = data?.choices?.[0]?.message?.content || "";
+    return cleanText(raw);
+  }
+
+  function showTyping() {
+    const wrap = document.createElement("div");
+    wrap.className = "line shadow";
+    const inner = document.createElement("span");
+    inner.className = "typing";
+    inner.innerHTML = "<span class='dot'></span><span class='dot'></span><span class='dot'></span>";
+    wrap.appendChild(inner);
+    logEl.appendChild(wrap);
+    logEl.scrollTop = logEl.scrollHeight;
+    return wrap;
+  }
+
+  async function handleSend() {
+    const q = inputEl.value.trim();
+    if (!q || sendBtn.disabled) return;
+
+    inputEl.value = "";
+    addLine("» " + q, "user");
+    addUserMessage(q);
+
+    // COMMAND HOOKS (neposíláme do LM)
+    if (q.toLowerCase().startsWith("webscan:")) {
+      const url = q.split(":").slice(1).join(":").trim();
+      return runWebScan(url);
+    }
+
+    if (q.toLowerCase().startsWith("search:")) {
+      const arg = q.split(":").slice(1).join(":").trim();
+      return runSearch(arg);
+    }
+
+    const loader = showTyping();
+    sendBtn.disabled = true;
+    statusLabel.textContent = "thinking";
+
+    try {
+      const answer = await callLM(history);
       loader.remove();
-      return await run_webscan(q);
-  }
-  if(q.toLowerCase().startsWith("search")){
+      addLine("SHADOW: " + answer, "shadow");
+      addShadowMessage(answer);
+      statusLabel.textContent = "online";
+    } catch (e) {
+      console.error(e);
       loader.remove();
-      return await run_search(q);
+      statusLabel.textContent = "error";
+      addLine("[ERR] " + (e.message || "LM selhal."), "system");
+    } finally {
+      sendBtn.disabled = false;
+      trimHistory();
+      inputEl.focus();
+    }
   }
 
-  // Normal AI chat
-  try {
-    const r = await fetch(API_CHAT, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: history,
-        temperature:0.9,
-        max_tokens:400
-      })
+  async function runWebScan(urlRaw) {
+    const url = urlRaw.trim();
+    if (!url) {
+      addLine("SHADOW: napiš URL za 'webscan:'", "shadow");
+      return;
+    }
+
+    addLine(`SHADOW: 📡 WebScan → ${url}`, "shadow");
+    webStatusEl.textContent = "scan…";
+    const loader = showTyping();
+    sendBtn.disabled = true;
+    statusLabel.textContent = "web-scan";
+
+    try {
+      const res = await fetch(API_WEBSCAN, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, depth: 2 })
+      });
+
+      if (!res.ok) {
+        loader.remove();
+        webStatusEl.textContent = "err";
+        addLine(`[WEB] HTTP ${res.status}`, "web");
+        statusLabel.textContent = "online";
+        sendBtn.disabled = false;
+        return;
+      }
+
+      const data = await res.json();
+      loader.remove();
+      const pages = data.pages || [];
+      webStatusEl.textContent = `ok:${pages.length}`;
+
+      if (!pages.length) {
+        addLine("SHADOW: na té adrese nic moc použitelného.", "shadow");
+        statusLabel.textContent = "online";
+        sendBtn.disabled = false;
+        return;
+      }
+
+      const ctx = pages
+        .map(p => `URL: ${p.url}\nTEXT:\n${p.text}`)
+        .join("\n\n---\n\n")
+        .slice(0, 8000);
+
+      statusLabel.textContent = "analyzing";
+
+      const messages = [
+        {
+          role:"system",
+          content: `Jsi SHΛDOW. Máš hrubý text z webu (může být špinavý).
+Z toho vyzobeš 3–6 nejzajímavějších postřehů.
+Pokud je téma bezpečnost/hacking, drž se etiky a vysvětlení principů,
+ne konkrétních návodů. Bez <think>, bez zbytečných omluv, jdeš rovnou k věci.`
+        },
+        {
+          role:"user",
+          content:`Tady je extrahovaný text z webu:\n\n${ctx}\n\nShrň to do několika bodů.`
+        }
+      ];
+
+      const summary = await callLM(messages);
+      addLine("SHADOW: " + summary, "shadow");
+      addShadowMessage(summary);
+      statusLabel.textContent = "online";
+
+    } catch (e) {
+      console.error(e);
+      loader.remove();
+      webStatusEl.textContent = "err";
+      statusLabel.textContent = "error";
+      addLine("[WEB ERR] " + (e.message || "WebScan selhal."), "system");
+    } finally {
+      sendBtn.disabled = false;
+      trimHistory();
+      inputEl.focus();
+    }
+  }
+
+  async function runSearch(arg) {
+    const query = arg.trim();
+    if (!query) {
+      addLine("SHADOW: napiš dotaz za 'search:'. Např. `search: trendy v kyberbezpečnosti`.", "shadow");
+      return;
+    }
+
+    // pokud to vypadá jako URL, pošli to rovnou do webscan
+    if (/^https?:\/\//i.test(query) || query.startsWith("www.")) {
+      return runWebScan(query);
+    }
+
+    addLine(`SHADOW: 🔍 hledám "${query}"…`, "shadow");
+    webStatusEl.textContent = "search…";
+    const loader = showTyping();
+    sendBtn.disabled = true;
+    statusLabel.textContent = "search";
+
+    try {
+      const res = await fetch(API_SEARCH, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ query })
+      });
+
+      if (!res.ok) {
+        loader.remove();
+        webStatusEl.textContent = "err";
+        addLine(`[SEARCH] HTTP ${res.status}`, "web");
+        statusLabel.textContent = "online";
+        sendBtn.disabled = false;
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.ok) {
+        loader.remove();
+        webStatusEl.textContent = "err";
+        addLine("[SEARCH] backend vrátil chybu.", "web");
+        statusLabel.textContent = "online";
+        sendBtn.disabled = false;
+        return;
+      }
+
+      const pages = (data.pages || []).slice(0, 3);
+      webStatusEl.textContent = `ok:${pages.length}`;
+
+      if (!pages.length) {
+        loader.remove();
+        addLine("SHADOW: nic použitelného v results.", "shadow");
+        statusLabel.textContent = "online";
+        sendBtn.disabled = false;
+        return;
+      }
+
+      const ctx = pages
+        .map(p => `TITLE: ${p.title}\nURL: ${p.url}\nTEXT:\n${p.text}`)
+        .join("\n\n---\n\n")
+        .slice(0, 8000);
+
+      statusLabel.textContent = "analyzing";
+
+      const messages = [
+        {
+          role:"system",
+          content:`Jsi SHΛDOW. Dostal jsi surové texty z výsledků webového vyhledávání.
+Z toho udělej pro uživatele krátký, ostrý report:
+- 3–6 bodů,
+- co je zajímavé / důležité,
+- pokud jde o hacking/kyberbezpečnost → vysvětli trendy, rizika, obranu,
+  ale NEPOPISUJ konkrétní nelegální útoky ani postupy.
+Bez <think>, bez úvodních vět o sobě.`
+        },
+        {
+          role:"user",
+          content:`Dotaz byl: "${query}". Tohle jsou výstřižky z webu:\n\n${ctx}\n\nShrň to jako přehled pro někoho z RGS.`
+        }
+      ];
+
+      loader.remove();
+      const answer = await callLM(messages);
+      addLine("SHADOW: " + answer, "shadow");
+      addShadowMessage(answer);
+      statusLabel.textContent = "online";
+
+    } catch (e) {
+      console.error(e);
+      loader.remove();
+      webStatusEl.textContent = "err";
+      statusLabel.textContent = "error";
+      addLine("[SEARCH ERR] " + (e.message || "Search selhal."), "system");
+    } finally {
+      sendBtn.disabled = false;
+      trimHistory();
+      inputEl.focus();
+    }
+  }
+
+  // Quick buttons
+  document.querySelectorAll(".quick-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const q = btn.getAttribute("data-q") || "";
+      if (!q) return;
+      inputEl.value = q;
+      handleSend();
     });
+  });
 
-    loader.remove();
+  sendBtn.addEventListener("click", handleSend);
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftedy) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
 
-    const j = await r.json();
-    let out = j?.choices?.[0]?.message?.content || "…nic.";
-    out = clean(out);
-
-    msg("shadow", out);
-    history.push({ role:"assistant", content:out });
-
-  } catch(err){
-    loader.remove();
-    msg("system","❌ CHYBA spojení.");
-  }
-}
-
-/* ===== WEBSCAN ===== */
-async function run_webscan(q){
-  msg("shadow","📡 WebScan initialised…");
-
-  const url = q.replace(/webscan[:]?/i,"").trim();
-  if(!url) return msg("shadow","Dej cílovou URL.");
-
-  try{
-    const r = await fetch(API_WEBSCAN,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ url, depth:3 })
-    });
-    const data = await r.json();
-    const txt = data.pages.map(p=>`URL: ${p.url}\n${p.text}`).join("\n\n");
-
-    // pass results to AI
-    history.push({ role:"user", content:`WEBSCAN DATA:\n${txt}` });
-
-    return msg("shadow","📁 WebScan hotov. Zeptej se, co z toho chceš vyvodit.");
-
-  }catch(e){
-    return msg("shadow","❌ WebScan selhal.");
-  }
-}
-
-/* ===== SEARCH ENGINE ===== */
-async function run_search(q){
-  msg("shadow","🔍 SearchEngine aktivní…");
-
-  const query = q.replace(/search[:]?/i,"").trim();
-  if(!query) return msg("shadow","Napiš dotaz.");
-
-  try{
-    const r = await fetch(API_SEARCH,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ query })
-    });
-    const data = await r.json();
-
-    const txt = data.pages.map(p=>`TITLE: ${p.title}\nURL: ${p.url}\n${p.text}`).join("\n\n");
-
-    history.push({ role:"user", content:`SEARCH DATA:\n${txt}` });
-
-    return msg("shadow","🔮 Vyhledávání dokončeno. Pokračuj dotazem.");
-  }
-  catch(e){
-    return msg("shadow","❌ SearchEngine selhal.");
-  }
-}
-
-/* ===== ENTER KEY ===== */
-input.addEventListener("keydown",(e)=>{
-  if(e.key==="Enter" && !e.shiftKey){
-    e.preventDefault();
-    sendMessage();
-  }
-});
-send.onclick = sendMessage;
+  // LM status
+  (async function initStatus() {
+    try {
+      const res = await fetch(API_CHAT.replace("/v1/chat/completions","/v1/models"), {
+        method:"GET",
+        headers:{ "Content-Type":"application/json" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const m = Array.isArray(data.data) && data.data.length ? data.data[0].id : MODEL;
+        lmNameEl.textContent = m;
+        statusLabel.textContent = "online";
+      } else {
+        lmNameEl.textContent = "LM " + res.status;
+        statusLabel.textContent = "warn";
+      }
+    } catch (e) {
+      lmNameEl.textContent = "LM err";
+      statusLabel.textContent = "offline";
+    }
+    trimHistory();
+  })();
 </script>
 </body>
 </html>
