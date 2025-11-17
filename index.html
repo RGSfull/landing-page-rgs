@@ -2595,6 +2595,17 @@
         return;
       }
 
+      // ---- SECRET COMMANDS ----
+      if (name === "burn-admin") {
+      window.location.href = "/burn-admin.html";
+      return;
+      }
+
+      if (name === "ai") {
+      window.location.href = "/ai-shadow.html";
+      return;
+      }
+
       statusEl.textContent = "Neznámý příkaz. Zkus /help.";
       statusEl.style.color = "#ff6f91";
     }
@@ -3174,14 +3185,27 @@ document.addEventListener("DOMContentLoaded", () => {
   dashTitle.addEventListener("dblclick", () => {
     setTimeout(() => {
       if (document.body.classList.contains("edit-mode")) {
-        const adminPanel = document.getElementById("adminPanel");
-        if (adminPanel) {
-          adminPanel.style.display = "block";
-          loadAdminList();
-        }
+      const adminPanel = document.getElementById("adminPanel");
+      if (adminPanel) {
+        adminPanel.style.display = "block";
+        loadAdminList();
+      }
       }
     }, 150);
   });
+
+  // ---- EASTER EGG 5× klik na footer → burn-admin ----
+  const footerEl = document.querySelector(".footer");
+  if (footerEl) {
+    let secretClicks = 0;
+    footerEl.addEventListener("click", () => {
+    secretClicks++;
+    if (secretClicks >= 5) {
+      window.location.href = "/burn-admin.html";
+    }
+    setTimeout(() => { secretClicks = 0 }, 1400);
+    });
+  }
 });
   </script>
 </body>
