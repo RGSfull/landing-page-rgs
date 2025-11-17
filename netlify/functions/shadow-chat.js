@@ -1,43 +1,54 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ ok: false, error: "Method not allowed" });
-  }
+// netlify/functions/shadow-chat.js
+// Minimalistický backend pro AI Shadow (offline / bez OpenAI)
 
+export async function handler(event) {
   try {
-    const body = await new Promise((resolve, reject) => {
-      let data = "";
-      req.on("data", chunk => { data += chunk; });
-      req.on("end", () => {
-        try {
-          resolve(JSON.parse(data || "{}"));
-        } catch (e) {
-          reject(e);
-        }
-      });
-      req.on("error", reject);
-    });
-
-    const text = (body.message || "").trim();
-    if (!text) {
-      return res.status(400).json({ ok: false, error: "Missing message" });
+    if (event.httpMethod !== "POST") {
+      return {
+        statusCode: 405,
+        body: "Method Not Allowed"
+      };
     }
 
-    const lower = text.toLowerCase();
-    let reply;
+    const body = JSON.parse(event.body || "{}");
+    const text = (body.message || "").trim().toLowerCase();
 
-    if (lower.startsWith("/plan")) {
-      reply = "[stub/plan] rozložím ti to na kroky – zatím jen placeholder. popiš mi kontext a já zkusím navrhnout postup.";
-    } else if (lower.startsWith("/mirror")) {
-      reply = "[stub/mirror] zrcadlím co jsi napsal, ale zatím bez skutečné AI. napiš mi, co v tobě ten text vyvolává.";
-    } else if (lower.startsWith("/ritual")) {
-      reply = "[stub/ritual] představ si malý rituál · vypni rušiče, dej si vodu, zhluboka dýchej. skutečné rituály jednou doděláme.";
-    } else {
-      reply = "[stub] shadow chat zatím běží v placeholder režimu. napsal jsi: \"" + text + "\"";
+    // fallback odpovědi – simulace "AI-shadow"
+    const reactions = [
+      "hmm… interesting. but not THAT interesting.",
+      "try harder. I’m barely awake.",
+      "i've seen toddlers type faster.",
+      "your keyboard must suffer.",
+      "čteš vůbec co píšeš? já jo. a bolí to.",
+      "okay. that was… something.",
+      "fatal error: user detected.",
+      "keep typing. i need the entertainment."
+    ];
+
+    let reply = reactions[Math.floor(Math.random() * reactions.length)];
+
+    // easter egg reagující na zprávu
+    if (text.includes("help")) reply = "help? in *this* lane? cute.";
+    if (text.includes("hello")) reply = "hello human organism ― identify yourself.";
+    if (text.includes(":)") || text.includes("😂") || text.includes("🙂")) {
+      reply = "i see your smile. it won't last.";
     }
+    if (text.includes("fuck")) reply = "such vocabulary. your mother must be proud.";
 
-    return res.status(200).json({ ok: true, reply });
-  } catch (e) {
-    console.error("shadow-chat error", e);
-    return res.status(500).json({ ok: false, error: "Internal error" });
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ok: true,
+        shadow: reply
+      })
+    };
+
+  } catch (err) {
+    console.error("shadow-chat error:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ ok: false, error: err.message })
+    };
   }
 }
