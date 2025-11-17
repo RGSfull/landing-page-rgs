@@ -611,30 +611,33 @@ Styl odpovědi:
     }
 
     async function callLM() {
-      const payload = {
-        model: MODEL_ID,
-        messages,
-        temperature: 0.8,
-        max_tokens: 600,
-        n: 1
-      };
+  // Minimalistický, „dietní“ OpenAI payload pro LM Studio
+  const payload = {
+    model: MODEL_ID,
+    messages,
+    temperature: 0.8,
+    max_tokens: 600,
+    stream: false // důležité – žádný streaming
+  };
 
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        mode: "cors",
-        body: JSON.stringify(payload)
-      });
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+      // pokud máš auth token v LM, přidej sem:
+      // "Authorization": "Bearer TVUJ_TOKEN"
+    },
+    body: JSON.stringify(payload)
+  });
 
-      if (!res.ok) {
-        throw new Error(`LM HTTP ${res.status} ${res.statusText}`);
-      }
+  if (!res.ok) {
+    throw new Error(`LM HTTP ${res.status} ${res.statusText}`);
+  }
 
-      const data = await res.json();
-      const raw = data?.choices?.[0]?.message?.content || "";
-      return cleanAssistantText(raw);
-    }
-
+  const data = await res.json();
+  const raw = data?.choices?.[0]?.message?.content || "";
+  return cleanAssistantText(raw);
+}
     // === MAIN SEND FLOW ===
     async function sendMessage() {
       if (sending) return;
@@ -777,3 +780,4 @@ Styl odpovědi:
   </script>
 </body>
 </html>
+
