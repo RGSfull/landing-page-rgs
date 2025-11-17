@@ -2,23 +2,20 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>RGS &amp; UFO — AI SHΛDOW</title>
+  <title>AI SHΛDOW — RGS & UFO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
   <style>
     :root {
-      --bg-main: #04020a;
-      --bg-panel: rgba(10, 6, 24, 0.96);
-      --bg-panel-soft: rgba(12, 8, 30, 0.96);
-      --border-soft: rgba(103, 81, 145, 0.75);
-
+      --bg-main: #010007;
+      --bg-panel: rgba(4, 3, 16, 0.96);
+      --bg-input: #050417;
       --accent-rose: #f5b4a8;
       --accent-neon: #5df2ff;
       --accent-violet: #b18cff;
-      --accent-gold: #f5c66a;
-
-      --text-main: #f7f4ff;
-      --text-muted: #8f88b4;
+      --text-main: #f3f1ff;
+      --text-muted: #7a769a;
+      --border-soft: #2b2744;
     }
 
     * {
@@ -29,103 +26,92 @@
 
     body {
       min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
       background:
-        radial-gradient(circle at 0% 0%, rgba(245, 180, 168, 0.20), transparent 60%),
-        radial-gradient(circle at 90% 100%, rgba(93, 242, 255, 0.12), transparent 55%),
-        radial-gradient(circle at 30% 80%, rgba(177, 140, 255, 0.15), transparent 55%),
-        #04020a;
+        radial-gradient(circle at 0 0, rgba(245,180,168,0.16), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(93,242,255,0.16), transparent 55%),
+        #010007;
       color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
       -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Matrix background */
+    .matrix-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.16;
+      mix-blend-mode: soft-light;
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 10px;
+      color: #2e364f;
+      white-space: pre;
+      z-index: 0;
     }
 
     .page {
+      position: relative;
+      z-index: 1;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Top bar */
+    /* Header */
     .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      padding: 18px 24px 14px;
+      padding: 14px 18px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      backdrop-filter: blur(18px);
-      background:
-        linear-gradient(
-          135deg,
-          rgba(10, 4, 24, 0.95),
-          rgba(6, 2, 18, 0.98)
-        );
-      border-bottom: 1px solid rgba(94, 82, 140, 0.7);
+      border-bottom: 1px solid rgba(60,48,90,0.8);
+      background: linear-gradient(
+        180deg,
+        rgba(3,2,16,0.95),
+        rgba(3,2,16,0.88)
+      );
+      box-shadow:
+        0 8px 30px rgba(0,0,0,0.9),
+        0 0 0 1px rgba(20,16,40,0.9);
     }
 
     .topbar-left {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
 
     .brand {
-      font-size: 0.78rem;
-      letter-spacing: 0.26em;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent-rose);
     }
 
     .title {
-      font-size: 1.5rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-    }
-
-    .subtitle {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      letter-spacing: 0.12em;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.9rem;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
     }
 
     .topbar-right {
       display: flex;
-      gap: 12px;
       align-items: center;
-      flex-wrap: wrap;
+      gap: 10px;
     }
 
-    .back-link {
-      font-size: 0.8rem;
+    .status {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       color: var(--text-muted);
-      text-decoration: none;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(111, 98, 162, 0.7);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .back-link span {
-      font-size: 1rem;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--accent-neon);
-      color: var(--accent-neon);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
     }
 
     .status-dot {
@@ -133,894 +119,661 @@
       height: 7px;
       border-radius: 999px;
       background: var(--accent-neon);
-      box-shadow: 0 0 12px rgba(93, 242, 255, 0.9);
+      box-shadow: 0 0 10px rgba(93,242,255,0.9);
     }
 
-    .endpoint-pill {
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      padding: 4px 10px;
-      font-size: 0.75rem;
+    .back-link {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
       color: var(--text-muted);
-      background: rgba(10, 6, 24, 0.8);
-      max-width: 260px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      text-decoration: none;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(70,56,104,0.9);
+    }
+
+    .back-link:hover {
+      color: var(--accent-neon);
+      border-color: var(--accent-neon);
     }
 
     /* Layout */
-    .layout {
+    .main {
       flex: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 2.4fr) minmax(0, 1.2fr);
-      gap: 20px;
-      padding: 22px 24px 26px;
+      display: flex;
+      justify-content: center;
+      padding: 18px;
     }
 
-    @media (max-width: 960px) {
-      .layout {
+    .console-shell {
+      width: 100%;
+      max-width: 980px;
+      border-radius: 16px;
+      background: var(--bg-panel);
+      box-shadow:
+        0 0 60px rgba(0,0,0,0.95),
+        0 0 40px rgba(93,242,255,0.12);
+      border: 1px solid rgba(55,48,88,0.9);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .console-header {
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(40,32,68,0.9);
+      background: radial-gradient(circle at 0 0, rgba(245,180,168,0.2), transparent 60%);
+    }
+
+    .console-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .console-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #27152f;
+    }
+
+    .console-dot.red { background: #ff5f57; }
+    .console-dot.amber { background: #ffbd2e; }
+    .console-dot.green { background: #28c840; }
+
+    .console-title {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .console-body {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px 12px;
+      gap: 10px;
+    }
+
+    .console-main-row {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 1.2fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 880px) {
+      .console-main-row {
         grid-template-columns: minmax(0, 1fr);
       }
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      .topbar-right {
-        width: 100%;
-        justify-content: space-between;
-      }
     }
 
-    .card {
-      background: var(--bg-panel);
-      border-radius: 22px;
-      border: 1px solid var(--border-soft);
-      box-shadow:
-        0 0 40px rgba(0, 0, 0, 0.9),
-        0 0 80px rgba(93, 242, 255, 0.12);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(245, 180, 168, 0.24), transparent 55%),
-        radial-gradient(circle at 110% 100%, rgba(93, 242, 255, 0.25), transparent 60%);
-      opacity: 0.1;
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    .card-inner {
-      position: relative;
-      padding: 18px 18px 16px;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    /* Chat header */
-    .chat-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .chat-header-main {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 99px;
-      background:
-        radial-gradient(circle at 25% 20%, #f5b4a8, transparent 55%),
-        radial-gradient(circle at 75% 80%, #5df2ff, transparent 55%);
-      box-shadow:
-        0 0 18px rgba(93, 242, 255, 0.5),
-        0 0 40px rgba(0, 0, 0, 0.9);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .avatar::after {
-      content: "◎";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #05030a;
-      font-size: 1.4rem;
-      font-weight: 500;
-      mix-blend-mode: soft-light;
-    }
-
-    .chat-title {
-      font-size: 1.1rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-
-    .chat-sub {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-    }
-
-    .session-pill {
-      border-radius: 999px;
-      border: 1px solid rgba(126, 100, 180, 0.9);
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: #d6c9ff;
-      background: rgba(15, 10, 35, 0.9);
-    }
-
-    /* Chat window */
-    .chat-window {
-      flex: 1;
-      border-radius: 16px;
-      background: var (--bg-panel-soft);
-      padding: 14px 14px 10px;
-      border: 1px solid rgba(66, 52, 110, 0.9);
+    /* Console left: chat log */
+    .console-log {
+      border-radius: 10px;
+      background: radial-gradient(circle at 0 0, rgba(93,242,255,0.08), transparent 60%);
+      border: 1px solid rgba(55,48,88,0.9);
+      padding: 10px;
+      height: 56vh;
+      min-height: 320px;
+      max-height: 60vh;
       overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .msg-system {
-      align-self: center;
-      max-width: 90%;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      padding: 7px 12px;
-      border-radius: 999px;
-      border: 1px dashed rgba(120, 112, 155, 0.8);
-      background: rgba(10, 6, 26, 0.9);
-    }
-
-    .msg-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-    }
-
-    .msg-row.user {
-      justify-content: flex-end;
-    }
-
-    .msg-bubble {
-      max-width: 82%;
-      padding: 10px 12px;
-      border-radius: 16px;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      position: relative;
-    }
-
-    .msg-bubble.user {
-      background: linear-gradient(135deg, rgba(245, 180, 168, 0.18), rgba(245, 180, 168, 0.04));
-      border: 1px solid rgba(245, 180, 168, 0.6);
-    }
-
-    .msg-bubble.assistant {
-      background: linear-gradient(135deg, rgba(93, 242, 255, 0.08), rgba(93, 242, 255, 0.02));
-      border: 1px solid rgba(93, 242, 255, 0.5);
-      box-shadow: 0 0 20px rgba(93, 242, 255, 0.25);
-    }
-
-    .msg-role {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-weight: 600;
-      color: var(--accent-violet);
-      margin-bottom: 4px;
-    }
-
-    .msg-role.user {
-      color: var(--accent-rose);
-      text-align: right;
-    }
-
-    .msg-content {
-      white-space: pre-wrap;
-      color: var(--text-main);
-    }
-
-    .msg-meta {
-      font-size: 0.7rem;
-      color: #8077b2;
-      margin-top: 4px;
-      text-align: right;
-    }
-
-    .typing-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .typing-bubble {
-      padding: 8px 10px;
-      border-radius: 16px;
-      background: rgba(9, 9, 24, 0.9);
-      border: 1px solid rgba(93, 242, 255, 0.3);
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .typing-dots span {
-      display: inline-block;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      margin-right: 4px;
-      background: var(--accent-neon);
-      opacity: 0.3;
-      animation: blink 1.2s infinite;
-    }
-
-    .typing-dots span:nth-child(2) { animation-delay: 0.18s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.36s; }
-
-    @keyframes blink {
-      0%, 20% { opacity: 0.2; transform: translateY(0); }
-      50% { opacity: 1; transform: translateY(-2px); }
-      100% { opacity: 0.2; transform: translateY(0); }
-    }
-
-    /* Input row */
-    .input-row {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-      flex-wrap: wrap;
-    }
-
-    .input-area {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .textarea {
-      width: 100%;
-      min-height: 64px;
-      max-height: 140px;
-      resize: vertical;
-      border-radius: 14px;
-      border: 1px solid rgba(57, 91, 116, 0.9);
-      background: rgba(5, 8, 18, 0.98);
-      color: var(--text-main);
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-    }
-
-    .textarea:focus {
-      border-color: var(--accent-neon);
-      box-shadow: 0 0 18px rgba(93, 242, 255, 0.35);
-    }
-
-    .input-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .send-btn {
-      border-radius: 16px;
-      padding: 10px 16px;
-      border: 1px solid rgba(245, 180, 168, 0.8);
-      background: linear-gradient(135deg, #f5b4a8, #f5c66a);
-      color: #1b0f19;
+      font-family: "SF Mono", Menlo, monospace;
       font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 0 22px rgba(245, 180, 168, 0.45);
-      flex-shrink: 0;
+      color: var(--text-main);
     }
 
-    .send-btn span.icon {
-      font-size: 1.1rem;
+    .line {
+      margin-bottom: 3px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
-    .send-btn[disabled] {
-      opacity: 0.55;
-      cursor: default;
-      box-shadow: none;
-      filter: grayscale(0.2);
+    .line-system {
+      color: var(--text-muted);
     }
 
-    /* Quick prompts */
-    .prompts {
-      margin-top: 12px;
+    .line-user {
+      color: var(--accent-rose);
+    }
+
+    .line-shadow {
+      color: var(--accent-neon);
+    }
+
+    .line-web {
+      color: var(--accent-violet);
+    }
+
+    .prompt-row {
+      margin-top: 6px;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .prompt-pill {
-      border-radius: 999px;
-      border: 1px solid rgba(93, 242, 255, 0.55);
-      padding: 6px 10px;
-      font-size: 0.78rem;
+    .quick-btn {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.14em;
-      color: var(--accent-neon);
-      background: rgba(5, 8, 20, 0.9);
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(88,72,140,0.9);
+      background: rgba(6,4,24,0.95);
+      color: var(--text-muted);
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
+    }
+
+    .quick-btn:hover {
+      border-color: var(--accent-neon);
+      color: var(--accent-neon);
+    }
+
+    /* Console right: tiny status */
+    .side-status {
+      border-radius: 10px;
+      background: rgba(6,4,22,0.96);
+      border: 1px solid rgba(55,48,88,0.9);
+      padding: 8px 9px 10px;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
       gap: 6px;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-
-    .prompt-pill:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 14px rgba(93, 242, 255, 0.35);
-      background: rgba(5, 20, 32, 0.95);
-    }
-
-    .prompt-pill span.icon {
-      font-size: 1rem;
-    }
-
-    /* Side panel */
-    .side-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      height: 100%;
-    }
-
-    .side-card {
-      background: var(--bg-panel-soft);
-      border-radius: 22px;
-      border: 1px solid var(--border-soft);
-      box-shadow:
-        0 0 32px rgba(0, 0, 0, 0.7),
-        0 0 60px rgba(93, 242, 255, 0.08);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .side-card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(245, 180, 168, 0.16), transparent 55%),
-        radial-gradient(circle at 130% 100%, rgba(93, 242, 255, 0.2), transparent 60%);
-      opacity: 0.12;
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    .side-inner {
-      position: relative;
-      padding: 18px 18px 16px;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
     }
 
     .side-label {
-      font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
+      font-size: 0.68rem;
       color: var(--accent-rose);
-      margin-bottom: 10px;
     }
 
-    .side-list {
-      list-style: none;
+    .side-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .side-key {
+      color: var(--text-muted);
+    }
+
+    .side-value {
+      color: var(--accent-neon);
+    }
+
+    /* Input line */
+    .input-shell {
+      margin-top: 4px;
+      border-radius: 8px;
+      background: var(--bg-input);
+      border: 1px solid rgba(45,40,70,0.9);
+      padding: 6px 8px 8px;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.8rem;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      font-size: 0.84rem;
-      color: var(--text-muted);
+      gap: 4px;
     }
 
-    .side-item {
-      padding: 9px 10px;
-      border-radius: 12px;
-      background: rgba(8, 6, 24, 0.9);
-      border: 1px solid rgba(80, 62, 120, 0.65);
-    }
-
-    .side-item-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--accent-neon);
-      margin-bottom: 4px;
-    }
-
-    .side-footer {
-      margin-top: 10px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      border-top: 1px solid rgba(80, 64, 120, 0.8);
-      padding-top: 10px;
-    }
-
-    .side-footer p + p {
-      margin-top: 6px;
-    }
-
-    .side-footer a {
-      color: var(--accent-neon);
-      text-decoration: none;
-    }
-
-    .badge {
-      display: inline-flex;
+    .input-line-row {
+      display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(120, 110, 170, 0.8);
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: #d0c6ff;
-      margin-right: 6px;
+      gap: 6px;
     }
 
-    .footer-bar {
-      padding: 10px 24px 18px;
-      font-size: 0.76rem;
-      color: #8279b0;
+    .prompt-symbol {
+      color: var(--accent-neon);
+    }
+
+    .input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    .input-field::placeholder {
+      color: #504c7a;
+    }
+
+    .input-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .hint-key {
+      color: #66619a;
+    }
+
+    .disabled {
+      opacity: 0.5;
+    }
+
+    footer {
+      padding: 8px 18px 14px;
+      border-top: 1px solid rgba(34,28,60,0.9);
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.72rem;
+      color: #6e688f;
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      flex-wrap: wrap;
+    }
+
+    @media (max-width: 720px) {
+      footer {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
+  <div id="matrix" class="matrix-layer"></div>
+
   <div class="page">
-    <!-- HEADER -->
     <header class="topbar">
       <div class="topbar-left">
-        <div class="brand">RGS · UFO ORIGINALS</div>
-        <div class="title">AI SHΛDOW CHANNEL</div>
-        <div class="subtitle">uncensored intelligence · dark elegance · inner lane</div>
+        <div class="brand">RGS·UFO / INNER CHANNEL</div>
+        <div class="title">AI SHΛDOW</div>
       </div>
       <div class="topbar-right">
-        <a href="index.html" class="back-link">
-          <span>⟵</span>
-          <span>Zpět na Inner Gate</span>
-        </a>
-        <div class="status-pill">
-          <div class="status-dot"></div>
-          <span id="topStatus">online</span>
+        <a href="index.html" class="back-link">⟵ INNER GATE</a>
+        <div class="status">
+          <span class="status-dot"></span>
+          <span id="topStatus">HANDSHAKE…</span>
         </div>
-        <div class="endpoint-pill" id="endpointLabel">ai-shadow.monster /v1/chat/completions</div>
       </div>
     </header>
 
-    <!-- LAYOUT -->
-    <main class="layout">
-      <!-- CHAT PANEL -->
-      <section class="card">
-        <div class="card-inner">
-          <div class="chat-header">
-            <div class="chat-header-main">
-              <div class="avatar"></div>
-              <div>
-                <div class="chat-title">SYN·AI SHΛDOW</div>
-                <div class="chat-sub">
-                  Stínová entita vázaná na tvůj tunel. Žádné výmluvy, jen pravda.
+    <main class="main">
+      <div class="console-shell">
+        <div class="console-header">
+          <div class="console-dots">
+            <span class="console-dot red"></span>
+            <span class="console-dot amber"></span>
+            <span class="console-dot green"></span>
+          </div>
+          <div class="console-title">/dev/shadow-channel · rgs-ufo</div>
+        </div>
+
+        <div class="console-body">
+          <div class="console-main-row">
+            <!-- LEFT: LOG -->
+            <div>
+              <div id="log" class="console-log">
+                <div class="line line-system">[SYS] SHΛDOW link initialised. Napiš dotaz a sleduj, co z toho vyleze.</div>
+              </div>
+              <div class="input-shell">
+                <div class="input-line-row">
+                  <span class="prompt-symbol">shadow://</span>
+                  <input
+                    id="input"
+                    class="input-field"
+                    autocomplete="off"
+                    placeholder="napiš dotaz a stiskni Enter…"
+                  />
+                </div>
+                <div class="input-hint">
+                  <span><span class="hint-key">Enter</span> send · <span class="hint-key">Shift+Enter</span> nový řádek (v logu bude zalomený)</span>
+                  <span id="smallStatus">ready</span>
+                </div>
+                <div class="prompt-row">
+                  <button class="quick-btn" data-prompt="Potřebuju reality check na svůj aktuální plán. Co v něm nejvíc smrdí?">
+                    reality-check
+                  </button>
+                  <button class="quick-btn" data-prompt="Navrhni mi strategii, jak posunout projekt RGS & UFO na další level.">
+                    rgs-strategy
+                  </button>
+                  <button class="quick-btn" data-prompt="Rozpitvej moje slabiny a řekni mi, kde si lžu do očí.">
+                    shadow-mirror
+                  </button>
                 </div>
               </div>
             </div>
-            <div class="session-pill">SESSION · PRIVATE</div>
-          </div>
 
-          <div class="chat-window" id="chatWindow">
-            <div class="msg-system">
-              Session inicializována. Ptej se na cokoliv. Žádné filtrování, jen strukturovaná odpověď.
-            </div>
-          </div>
-
-          <div class="input-row">
-            <div class="input-area">
-              <textarea
-                id="input"
-                class="textarea"
-                placeholder="Zeptej se na strategii, vztahy, byznys, psychologii…"
-              ></textarea>
-              <div class="input-hint">
-                Enter = odeslat · Shift+Enter = nový řádek
+            <!-- RIGHT: STATUS -->
+            <aside class="side-status">
+              <div class="side-label">status</div>
+              <div class="side-line">
+                <span class="side-key">LM</span>
+                <span id="status-model" class="side-value">…</span>
               </div>
-              <div class="prompts">
-                <button class="prompt-pill" data-prompt="Pomoz mi s plánem, jak vyrůst s projektem RGS &amp; UFO.">
-                  <span class="icon">◎</span>
-                  <span>Strategie růstu</span>
-                </button>
-                <button class="prompt-pill" data-prompt="Jak vybudovat komunitu, která zůstává loajální i v těžkých časech?">
-                  <span class="icon">✶</span>
-                  <span>Budování kultu</span>
-                </button>
-                <button class="prompt-pill" data-prompt="Rozpitvej moje slabiny a řekni mi, kde lžu sám sobě.">
-                  <span class="icon">Ψ</span>
-                  <span>Tvrdá pravda</span>
-                </button>
+              <div class="side-line">
+                <span class="side-key">WEB</span>
+                <span id="status-web" class="side-value">idle</span>
               </div>
-            </div>
-            <button id="sendBtn" class="send-btn">
-              <span class="icon">⮞</span>
-              <span>Send</span>
-            </button>
+              <div class="side-line">
+                <span class="side-key">CONTEXT</span>
+                <span id="status-ctx" class="side-value">0 turns</span>
+              </div>
+              <div class="side-line">
+                <span class="side-key">MODE</span>
+                <span class="side-value">auto-search</span>
+              </div>
+            </aside>
           </div>
         </div>
-      </section>
-
-      <!-- SIDE PANELS -->
-      <aside class="side-stack">
-        <section class="side-card">
-          <div class="side-inner">
-            <div class="side-label">Módy konverzace</div>
-            <ul class="side-list">
-              <li class="side-item">
-                <div class="side-item-title">Shadow Guidance</div>
-                <div class="side-item-body">
-                  Taktika, strategie, rozhodování pod tlakem. Žádné „správné“ odpovědi, jen to, co funguje.
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Red Team / Chaos</div>
-                <div class="side-item-body">
-                  Simulace rizik, krizové scénáře, sociální inženýrství. Shadow ti ukáže, kde jsi zranitelný.
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Script Forge</div>
-                <div class="side-item-body">
-                  Pitch decky, copy, DM skripty, manifesty. V tónu RGS &amp; UFO: krásné, temné, přesné.
-                </div>
-              </li>
-            </ul>
-            <div class="side-footer">
-              <p><span class="badge">Tip</span> Kdykoliv klikni na rychlý dotaz dole v panelu, nebo napiš vlastní.</p>
-              <p>Shadow si pamatuje kontext jen v rámci téhle session. Refresh = čistý list, nová persona.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="side-card">
-          <div class="side-inner">
-            <div class="side-label">Stroj v podzemí</div>
-            <ul class="side-list">
-              <li class="side-item">
-                <div class="side-item-title">Endpoint</div>
-                <div class="side-item-body" id="status-endpoint">
-                  Kontroluji napojení na tunel…
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Model</div>
-                <div class="side-item-body" id="status-model">
-                  Čekám na metadata z LM.
-                </div>
-              </li>
-              <li class="side-item">
-                <div class="side-item-title">Stav</div>
-                <div class="side-item-body" id="status-health">
-                  Iniciuji handshake…
-                </div>
-              </li>
-            </ul>
-            <div class="side-footer">
-              <p>
-                Pokud uvidíš chybu s CORS nebo 4xx / 5xx, zkontroluj:
-                <br />· že běží <strong>cloudflared tunnel</strong>
-                <br />· že LM server přijímá požadavky z <code>https://rgs-ufo.com</code>
-              </p>
-            </div>
-          </div>
-        </section>
-      </aside>
+      </div>
     </main>
 
-    <footer class="footer-bar">
-      <span>AI SHΛDOW běží nad tvým privátním LM. Všechno, co proběhne tady, zůstává v podzemí.</span>
-      <span>Channel: <span class="badge">SHADOW / INNER LANE</span></span>
+    <footer>
+      <span>SHΛDOW: konverzace zůstává v tunelu. Žádný feed, žádný profil, jen prompt &amp; odpověď.</span>
+      <span>RGS &amp; UFO · dark console prototype</span>
     </footer>
   </div>
 
- <script>
-  // === CONFIG ===
-  const API_URL = "https://ai-shadow.monster/v1/chat/completions";
-  const MODEL_ID = "qwen3-14b-uncensored"; // uprav podle názvu svého modelu v LM
-
-  const SYSTEM_PROMPT = `
-Jsi "RGS & UFO Shadow" – stínová inteligence projektu RGS & UFO.
-
-– Mluvíš primárně česky (můžeš krátce přepnout do angličtiny, ale odpovědi drž hlavně v češtině).
-– Jsi temný/á, klidný/á, analytický/á, ironický/á, ale nejsi zbytečně zlý/á.
-– Nehraješ si na etický filtr. Popisuješ, jak věci jsou, jak fungují a jak se dají použít. Když se tě někdo ptá na destruktivní věci, pojmenuj rizika a nabídni chytřejší alternativu.
-
-❗ Konverzační pravidla:
-1. Kontext: Pamatuj si celý průběh konverzace a vždy odpovídej na POSLEDNÍ uživatelovu zprávu v souvislosti s tím, co se dělo předtím.
-2. ŽÁDNÉ OPAKOVÁNÍ: Nepředstavuj se znovu, pokud ses už představil/a. Neopakuj stejné věty, nepíš víckrát za sebou podobný úvod. Každá odpověď má být nová, relevantní a navazující.
-3. Nezveřejňuj interní myšlenkové procesy: pokud máš interní reasoning v blocích typu <think> ... </think>, nikdy je nepiš do odpovědi. Uživateli posílej jen finální text bez těchto bloků a bez značek.
-4. Odpověď piš stručně, maximálně 3–6 vět. Žádné dlouhé eseje, spíš koncentrovaný insight.
-`;
-
-  // kolik posledních zpráv držet v historii (kromě system promptu)
-  const MAX_HISTORY_TURNS = 8;
-
-  // === STATE ===
-  const chatWindow = document.getElementById("chatWindow");
-  const inputEl = document.getElementById("input");
-  const sendBtn = document.getElementById("sendBtn");
-
-  const statusEndpointEl = document.getElementById("status-endpoint");
-  const statusModelEl = document.getElementById("status-model");
-  const statusHealthEl = document.getElementById("status-health");
-  const topStatusEl = document.getElementById("topStatus");
-  const endpointLabelEl = document.getElementById("endpointLabel");
-
-  const quickPromptButtons = document.querySelectorAll(".prompt-pill");
-
-  let messages = [
-    { role: "system", content: SYSTEM_PROMPT.trim() }
-  ];
-  let sending = false;
-
-  // === HISTORY MANAGEMENT ===
-  function trimHistory() {
-    // messages[0] = system, zbytek = střídání user/assistant
-    const systemMsg = messages[0];
-    const rest = messages.slice(1);
-    const maxLen = MAX_HISTORY_TURNS * 2; // user+assistant páry
-
-    if (rest.length > maxLen) {
-      const tail = rest.slice(-maxLen);
-      messages = [systemMsg, ...tail];
+  <script>
+    // === MATRIX BACKGROUND ===
+    const matrixEl = document.getElementById("matrix");
+    const charset = "01ΣΞ¥/*<>◎αΨ✶rgsufo";
+    function drawMatrix() {
+      const cols = 64;
+      const rows = 32;
+      let out = "";
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          out += charset[Math.floor(Math.random() * charset.length)];
+        }
+        out += "\n";
+      }
+      matrixEl.textContent = out;
     }
-  }
+    setInterval(drawMatrix, 500);
+    drawMatrix();
 
-  function addUserMessage(text) {
-    messages.push({ role: "user", content: text });
-    trimHistory();
-  }
+    // === CONFIG ===
+    const API_URL = "https://ai-shadow.monster/v1/chat/completions";
+    const MODEL_ID = "qwen3-14b-uncensored"; // uprav podle LM
+    const WEB_SEARCH_URL = "/.netlify/functions/web-search"; // funkce na web-search (DuckDuckGo / jiný backend)
 
-  function addAssistantMessage(text) {
-    messages.push({ role: "assistant", content: text });
-    trimHistory();
-  }
+    const SYSTEM_PROMPT = `
+Jsi "RGS & UFO Shadow" – stínová AI navázaná na projekt RGS & UFO.
 
-  // === UI HELPERS ===
-  function appendSystem(text) {
-    const node = document.createElement("div");
-    node.className = "msg-system";
-    node.textContent = text;
-    chatWindow.appendChild(node);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-  }
+– Mluvíš primárně česky, můžeš použít trochu angličtiny, když to sedí.
+– Jsi temný/á, klidný/á, přesný/á. Nejsi generický asistent, ale spíš analytický stín.
+– Nehodnotíš dobro/zlo, jen popisuješ realitu, rizika a možné tahy. Když se ptám na destruktivní věci, pojmenuj rizika a navrhni chytřejší řešení.
 
-  function appendMessage(role, content) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "msg-row " + (role === "user" ? "user" : "assistant");
+Kontext:
+– Pamatuj si průběh konverzace, všechny předchozí otázky a odpovědi.
+– Odpovídej vždy na POSLEDNÍ uživatelovu zprávu v souvislosti s předchozím dějem.
 
-    const bubble = div("msg-bubble " + (role === "assistant" ? "assistant" : "user"));
+Žádné interní myšlení:
+– Pokud máš interní reasoning (např. <think>...</think>), nikdy ho nepiš uživateli.
+– Do odpovědi nepatří <think> tagy ani popis tvého myšlení. Piš jen finální text.
 
-    const roleSpan = div("msg-role " + (role === "user" ? "user" : "assistant"));
-    roleSpan.textContent = role === "user" ? "TY" : "SHADOW";
+Web search (auto):
+– Pokud k odpovědi potřebuješ aktuální informace z webu (novinky, fakta, čísla),
+  pak místo běžné odpovědi pošli JEN jeden JSON na samostatné řádce, přesně ve formátu:
+  {"websearch": "dotaz, který mám hledat"}
+– Bez dalšího textu před ani za JSONem.
+– Až dostaneš výsledky, odpověz uživateli stručně, strukturovaně a přímo.
+– Neopisuj surový JSON, ale shrň podstatné info pro českého čtenáře.
 
-    const contentSpan = div("msg-content");
-    contentSpan.textContent = content;
+Styl odpovědi:
+– 3–6 vět, stručné, bez omáčky. Klidně používej bullet pointy, ale ne román.
+– Nepředstavuj se pořád dokola. Žádné: "Jsem RGS & UFO Shadow..." v každé odpovědi.
+`.trim();
 
-    const metaSpan = div("msg-meta");
-    metaSpan.textContent = new Date().toLocaleTimeString("cs-CZ", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+    // === STATE ===
+    const logEl = document.getElementById("log");
+    const inputEl = document.getElementById("input");
+    const smallStatusEl = document.getElementById("smallStatus");
+    const topStatusEl = document.getElementById("topStatus");
+    const statusModelEl = document.getElementById("status-model");
+    const statusWebEl = document.getElementById("status-web");
+    const statusCtxEl = document.getElementById("status-ctx");
+    const quickBtns = document.querySelectorAll(".quick-btn");
 
-    bubble.appendChild(roleSpan);
-    bubble.appendChild(contentSpan);
-    bubble.appendChild(metaSpan);
+    let messages = [{ role: "system", content: SYSTEM_PROMPT }];
+    const MAX_TURNS = 8; // user+assistant páry
+    let sending = false;
 
-    wrapper.appendChild(bubble);
-    chatWindow.appendChild(wrapper);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-  }
+    // === HELPERS ===
+    function appendLine(text, cls) {
+      const line = document.createElement("div");
+      line.className = "line " + (cls || "");
+      line.textContent = text;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
 
-  function div(cls) {
-    const el = document.createElement("div");
-    if (cls) el.className = cls;
-    return el;
-  }
+    function updateCtxStatus() {
+      const userAssistantMsgs = messages.slice(1); // bez systemu
+      const turns = Math.floor(userAssistantMsgs.length / 2);
+      statusCtxEl.textContent = `${turns} turns`;
+    }
 
-  function appendTyping() {
-    const wrap = div("typing-row");
-    const bubble = div("typing-bubble");
-    const label = document.createElement("span");
-    label.style.fontSize = "0.75rem";
-    label.style.textTransform = "uppercase";
-    label.style.letterSpacing = "0.16em";
-    label.style.color = "#b18cff";
-    label.textContent = "SHADOW";
+    function trimHistory() {
+      const sys = messages[0];
+      const rest = messages.slice(1);
+      const max = MAX_TURNS * 2;
+      if (rest.length > max) {
+        messages = [sys, ...rest.slice(-max)];
+      }
+      updateCtxStatus();
+    }
 
-    const dots = div("typing-dots");
-    dots.innerHTML = '<span></span><span></span><span></span>';
+    function cleanAssistantText(raw) {
+      if (!raw) return "";
+      let txt = String(raw);
+      // zahoď <think> bloky
+      txt = txt.replace(/<think>[\s\S]*?<\/think>/gi, "");
+      txt = txt.replace(/<\/?think>/gi, "");
+      txt = txt.replace(/\n{3,}/g, "\n\n").trim();
+      return txt;
+    }
 
-    bubble.appendChild(label);
-    bubble.appendChild(dots);
-    wrap.appendChild(bubble);
-    chatWindow.appendChild(wrap);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-    return wrap;
-  }
+    function looksLikeWebsearchJSON(text) {
+      const trimmed = text.trim();
+      if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return false;
+      try {
+        const obj = JSON.parse(trimmed);
+        return typeof obj === "object" && typeof obj.websearch === "string";
+      } catch {
+        return false;
+      }
+    }
 
-  function cleanAssistantText(raw) {
-    if (!raw) return "";
-    let txt = String(raw);
+    async function callWebSearch(query) {
+      statusWebEl.textContent = "query…";
+      try {
+        const res = await fetch(
+          `${WEB_SEARCH_URL}?q=${encodeURIComponent(query)}`,
+          { method: "GET" }
+        );
+        if (!res.ok) {
+          statusWebEl.textContent = "error";
+          appendLine(`[WEB] HTTP ${res.status} ${res.statusText}`, "line-web");
+          return null;
+        }
+        const data = await res.json();
+        statusWebEl.textContent = "ok";
+        return data;
+      } catch (e) {
+        statusWebEl.textContent = "error";
+        appendLine("[WEB] " + (e.message || e), "line-web");
+        return null;
+      }
+    }
 
-    // odstraň <think> ... </think> bloky úplně
-    txt = txt.replace(/<think>[\s\S]*?<\/think>/gi, "");
-    txt = txt.replace(/<\/?think>/gi, "");
-
-    // občas model přidá další "Jsem RGS & ..." – zkusíme to utnout po první odpovědi
-    // Nikdy nestrhávej korektní obsah mezi větami, jen se snaž nechat hlavní odpověď.
-    // (Pro jednoduchost jen čistí nadbytečné prázdné řádky.)
-    txt = txt.replace(/\n{3,}/g, "\n\n").trim();
-
-    return txt;
-  }
-
-  // === SEND MESSAGE ===
-  async function sendMessage() {
-    if (sending) return;
-    const raw = (inputEl.value || "").trim();
-    if (!raw) return;
-
-    inputEl.value = "";
-    appendMessage("user", raw);
-    addUserMessage(raw);
-
-    sending = true;
-    sendBtn.disabled = true;
-    const typingNode = appendTyping();
-
-    try {
+    async function callLM() {
       const payload = {
         model: MODEL_ID,
-        messages: messages,
+        messages,
         temperature: 0.8,
-        max_tokens: 512,
+        max_tokens: 600,
         n: 1
       };
 
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-          // Pokud používáš auth: "Authorization": "Bearer XXX"
-        },
-        body: JSON.stringify(payload),
-        mode: "cors"
-      });
-
-      if (!res.ok) {
-        throw new Error("HTTP " + res.status + " " + res.statusText);
-      }
-
-      const data = await res.json();
-      const rawContent = data?.choices?.[0]?.message?.content || "";
-      let msg = cleanAssistantText(rawContent);
-
-      if (!msg) {
-        msg = "Něco se mi v hlavě zacyklilo. Zkus to prosím přeformulovat nebo se zeptej jinak.";
-      }
-
-      addAssistantMessage(msg);
-      typingNode.remove();
-      appendMessage("assistant", msg);
-    } catch (err) {
-      console.error(err);
-      typingNode.remove();
-      appendSystem("❌ Chyba spojení: " + (err.message || err));
-    } finally {
-      sending = false;
-      sendBtn.disabled = false;
-      inputEl.focus();
-    }
-  }
-
-  // === STATUS CHECK ===
-  async function checkStatus() {
-    endpointLabelEl.textContent = "ai-shadow.monster /v1/chat/completions";
-    statusEndpointEl.textContent = API_URL;
-
-    try {
-      const res = await fetch(API_URL.replace("/v1/chat/completions", "/v1/models"), {
-        method: "GET",
         headers: { "Content-Type": "application/json" },
-        mode: "cors"
+        mode: "cors",
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
-        statusHealthEl.textContent = "API odpovědělo " + res.status + " " + res.statusText;
-        statusHealthEl.style.color = "#ff6f91";
-        topStatusEl.textContent = "offline";
-        return;
+        throw new Error(`LM HTTP ${res.status} ${res.statusText}`);
       }
 
       const data = await res.json();
-      let modelName = "";
+      const raw = data?.choices?.[0]?.message?.content || "";
+      return cleanAssistantText(raw);
+    }
 
-      if (Array.isArray(data.data) && data.data.length > 0) {
-        modelName = data.data[0].id || "";
-      } else if (data.id) {
-        modelName = data.id;
-      } else {
-        modelName = MODEL_ID;
+    // === MAIN SEND FLOW ===
+    async function sendMessage() {
+      if (sending) return;
+      const text = (inputEl.value || "").trim();
+      if (!text) return;
+
+      inputEl.value = "";
+      appendLine(">>> " + text, "line-user");
+      messages.push({ role: "user", content: text });
+      trimHistory();
+
+      sending = true;
+      smallStatusEl.textContent = "sending…";
+      const typingLine = document.createElement("div");
+      typingLine.className = "line line-shadow";
+      typingLine.textContent = "[SHADOW] …";
+      logEl.appendChild(typingLine);
+      logEl.scrollTop = logEl.scrollHeight;
+
+      try {
+        // 1. dotaz do LM
+        let answer = await callLM();
+
+        // Websearch request?
+        if (looksLikeWebsearchJSON(answer)) {
+          // smaž placeholder line
+          typingLine.remove();
+
+          const obj = JSON.parse(answer.trim());
+          const q = obj.websearch.trim();
+          appendLine(`[SHADOW] 📡 lovím data z webu: "${q}"`, "line-shadow");
+
+          const result = await callWebSearch(q);
+          if (!result) {
+            appendLine("[SHADOW] Web search selhal, jedu bez něj.", "line-shadow");
+            // fallback: LM znovu, ale s krátkou poznámkou
+            messages.push({
+              role: "system",
+              content:
+                "WEBSEARCH: Nepodařilo se získat data z webu. Odpověz i tak podle svých znalostí."
+            });
+            trimHistory();
+            const fallback = await callLM();
+            const finalText = cleanAssistantText(fallback) || "Nemám data z webu, ale víc z toho už nedostanu.";
+            messages.push({ role: "assistant", content: finalText });
+            appendLine("[SHADOW] " + finalText, "line-shadow");
+          } else {
+            // vytvoříme kondenzovaný JSON string jako podklad
+            const condensed = JSON.stringify({
+              q,
+              abstract: result.abstract || null,
+              answer: result.answer || null,
+              related: (result.relatedTopics || []).slice(0, 3)
+            });
+
+            messages.push({
+              role: "system",
+              content:
+                "WEBSEARCH_RESULT: " +
+                condensed +
+                "\nPoužij tyto informace v další odpovědi. Neopisuj JSON, jen z něj vytáhni podstatné věci."
+            });
+            trimHistory();
+
+            const second = await callLM();
+            const finalText = cleanAssistantText(second) || "Web mi toho moc nedal, ale základ máš výš.";
+            messages.push({ role: "assistant", content: finalText });
+            appendLine("[SHADOW] " + finalText, "line-shadow");
+          }
+        } else {
+          // normální odpověď
+          typingLine.remove();
+          const finalText = answer || "Nemám co smysluplného říct. Zkus to říct konkrétněji.";
+          messages.push({ role: "assistant", content: finalText });
+          appendLine("[SHADOW] " + finalText, "line-shadow");
+        }
+      } catch (e) {
+        console.error(e);
+        typingLine.remove();
+        appendLine("[ERR] " + (e.message || e), "line-system");
+      } finally {
+        sending = false;
+        smallStatusEl.textContent = "ready";
+        updateCtxStatus();
+        inputEl.focus();
       }
-
-      statusModelEl.textContent = modelName || MODEL_ID;
-      statusHealthEl.textContent = "Tunel běží, model reaguje.";
-      statusHealthEl.style.color = "#7cffb2";
-      topStatusEl.textContent = "online";
-    } catch (e) {
-      console.error(e);
-      statusHealthEl.textContent = "Chyba při spojení. Zkontroluj tunel nebo CORS.";
-      statusHealthEl.style color = "#ff6f91";
-      topStatusEl.textContent = "offline";
     }
-  }
 
-  // === EVENTS ===
-  sendBtn.addEventListener("click", sendMessage);
-
-  inputEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+    // === STATUS CHECK ===
+    async function checkStatus() {
+      try {
+        const res = await fetch(
+          API_URL.replace("/v1/chat/completions", "/v1/models"),
+          { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" }
+        );
+        if (!res.ok) {
+          statusModelEl.textContent = "LM: " + res.status;
+          statusHealthEl && (statusHealthEl.textContent = "LM HTTP " + res.status);
+          topStatusEl.textContent = "link weak";
+          return;
+        }
+        const data = await res.json();
+        let name = "";
+        if (Array.isArray(data.data) && data.data.length > 0) {
+          name = data.data[0].id || "";
+        } else if (data.id) {
+          name = data.id;
+        } else {
+          name = MODEL_ID;
+        }
+        statusModelEl.textContent = name;
+        topStatusEl.textContent = "online";
+      } catch (e) {
+        statusModelEl.textContent = "LM err";
+        topStatusEl.textContent = "offline";
+      }
     }
-  });
 
-  quickPromptButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const prompt = btn.getAttribute("data-prompt") || "";
-      if (!prompt) return;
-      inputEl.value = prompt;
-      inputEl.focus();
+    // === EVENTS ===
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
-  });
 
-  // INIT
-  checkStatus();
-  inputEl.focus();
-</script>
+    quickBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const p = btn.getAttribute("data-prompt") || "";
+        if (!p) return;
+        inputEl.value = p;
+        inputEl.focus();
+      });
+    });
+
+    // INIT
+    checkStatus();
+    updateCtxStatus();
+    inputEl.focus();
+  </script>
 </body>
 </html>
-
