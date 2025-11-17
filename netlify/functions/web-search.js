@@ -1,77 +1,42 @@
 // netlify/functions/web-search.js
-// Shadow Web Recon Agent – multi-scrape crawler (max depth 3)
-
-import fetch from "node-fetch";
-import { JSDOM } from "jsdom";
+// Shadow Web Recon Agent – jednoduchý multi-scrape (maxDepth = 3)
 
 export async function handler(event) {
   try {
+    if (event.method === "OPTIONS" || event.httpMethod === "OPTIONS") {
+      return {
+        statusCode: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      };
+    }
+
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };
     }
 
     const body = JSON.parse(event.body || "{}");
-    const url = (body.url || "").trim();
-    const depth = Math.min(body.depth || 2, 5);
-
+    let url = (body.url || "").trim();
+    let depth = typeof body.depth === "number" ? body.depth : 2;
     if (!url) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ ok: false, error: "Missing URL" })
+        body: JSON.stringify({ ok: false, error: "Missing url" })
       };
     }
 
-    const visited = new Set();
-    const results = [];
-
-    async function scrape(targetUrl, level = 0) {
-      if (level > depth) return;
-      if (visited.has(targetUrl)) return;
-
-      visited.add(targetUrl);
-
-      try {
-        const res = await fetch(targetUrl, { timeout: 8000 });
-        const html = await res.text();
-        const dom = new JSDOM(html);
-        const doc = dom.window.document;
-
-        const text = doc.body.textContent
-          .replace(/\s+/g, " ")
-          .trim()
-          .slice(0, 5000);
-
-        results.push({ url: targetUrl, text });
-
-        // follow links from same domain
-        const links = [...doc.querySelectorAll("a")]
-          .map(a => a.href)
-          .filter(href => href && href.startsWith(url.split("/")[2]))
-          .slice(0, 5);
-
-        for (const link of links) {
-          await scrape(link, level + 1);
-        }
-
-      } catch (err) {
-        console.error("SCRAPER ERROR:", err);
-      }
+    // pokud někdo napíše jen "rgs-ufo.com", přidej https://
+    if (!/^https?:\/\//i.test(url)) {
+      url = "https://" + url;
     }
 
-    await scrape(url, 0);
+    depth = Math.min(depth, 3);
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ok: true,
-        scanned: results.length,
-        pages: results
-      })
-    };
+    const visited = new Set();
+    const pages = [];
+    const origin = new URL(url).origin;
 
-  } catch (err) {
-    console.error("web-search error:", err);
-    return { statusCode: 500, body: "Server error" };
-  }
-}
+    async function crawl(targetUrl, level):
