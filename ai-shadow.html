@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <title>Shadow Chat · Inner Gate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 52%, #02010a 100%);
+      color: #e5e7eb;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h1 {
+      font-size: 1.7rem;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1.2fr);
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .chat-card, .side-card {
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.26), rgba(15, 23, 42, 0.94));
+      backdrop-filter: blur(10px);
+    }
+    .chat-inner {
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+    }
+    .chat-header {
+      padding: 12px 14px 8px;
+      border-bottom: 1px solid rgba(30, 64, 175, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .chat-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .chat-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .chat-sub {
+      font-size: 0.78rem;
+      opacity: 0.8;
+    }
+    .chat-legend {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+    }
+    .chat-window {
+      flex: 1;
+      padding: 12px 14px;
+      overflow-y: auto;
+      font-size: 0.86rem;
+    }
+    .msg-row {
+      display: flex;
+      margin-bottom: 6px;
+    }
+    .msg-row.me {
+      justify-content: flex-end;
+    }
+    .msg-bubble {
+      max-width: min(80%, 520px);
+      padding: 7px 10px;
+      border-radius: 12px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+    .msg-row.me .msg-bubble {
+      background: rgba(30, 64, 175, 0.9);
+      border-color: rgba(129, 140, 248, 0.9);
+    }
+    .msg-meta {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+    .chat-input-row {
+      padding: 8px 10px 10px;
+      border-top: 1px solid rgba(30, 64, 175, 0.7);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .chat-input-row textarea {
+      flex: 1;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      padding: 6px 8px;
+      font-family: inherit;
+      font-size: 0.86rem;
+    }
+    .chat-input-row button {
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.9);
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(30, 64, 175, 1));
+      color: #e5e7eb;
+      font-size: 0.86rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .chat-input-row button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .side-inner {
+      padding: 14px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .side-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+    }
+    .side-copy {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      line-height: 1.4;
+    }
+    .side-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+    .chip {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      opacity: 0.9;
+    }
+    .cmd-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .cmd-btn {
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.9);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .cmd-btn:hover {
+      background: rgba(30, 64, 175, 0.85);
+    }
+    .small-note {
+      font-size: 0.76rem;
+      opacity: 0.75;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>Shadow Chat</h1>
+    <div class="subtitle">AI side-kanál oddělený od Burn lane · vhodný na plánování, reflexi a rituály</div>
+
+    <div class="layout">
+      <div class="chat-card">
+        <div class="chat-inner">
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <div class="chat-title">shadow linka</div>
+              <div class="chat-sub">člověk ↔ shadow · model zatím jen placeholder</div>
+            </div>
+            <div class="chat-legend">/plan · /mirror · /ritual</div>
+          </div>
+          <div class="chat-window" id="chatWindow"></div>
+          <div class="chat-input-row">
+            <textarea id="chatInput" placeholder="/plan, /mirror, /ritual nebo cokoliv jiného…"></textarea>
+            <button id="chatSendBtn">poslat</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-inner">
+          <div class="side-title">jak s tím pracovat</div>
+          <div class="side-copy">
+            Shadow linka není chat s produkčním modelem, ale bezpečný prostor na hraní si se strukturou tvých myšlenek.
+          </div>
+          <div class="side-chip-row">
+            <div class="chip">oddělené od Burn lane</div>
+            <div class="chip">bez logů produkčních systémů</div>
+            <div class="chip">vhodné pro experimenty</div>
+          </div>
+          <div class="side-copy">
+            Pár doporučení:
+          </div>
+          <ul class="side-copy" style="margin-top: 0; padding-left: 18px;">
+            <li><strong>/plan</strong> – rozpůlí problém na kroky, ať víš kde začít.</li>
+            <li><strong>/mirror</strong> – vrátí ti zrcadlo toho, co píšeš.</li>
+            <li><strong>/ritual</strong> – mikro-rituál, když je toho moc.</li>
+          </ul>
+          <div class="cmd-btn-row">
+            <button class="cmd-btn" data-cmd="/plan">vložit /plan</button>
+            <button class="cmd-btn" data-cmd="/mirror">vložit /mirror</button>
+            <button class="cmd-btn" data-cmd="/ritual">vložit /ritual</button>
+          </div>
+          <div class="side-copy small-note">
+            Až budeš chtít, můžeme Shadow napojit na reálný model, nebo ho používat jako orchestrátora pro další nástroje.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatWindow = document.getElementById("chatWindow");
+    const chatInput = document.getElementById("chatInput");
+    const chatSendBtn = document.getElementById("chatSendBtn");
+    const cmdButtons = document.querySelectorAll(".cmd-btn");
+
+    function appendMessage(who, text) {
+      const row = document.createElement("div");
+      row.className = "msg-row" + (who === "me" ? " me" : "");
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg-bubble";
+      bubble.textContent = text;
+
+      const meta = document.createElement("div");
+      meta.className = "msg-meta";
+      meta.textContent = who === "me" ? "ty" : "shadow";
+
+      const wrap = document.createElement("div");
+      wrap.appendChild(bubble);
+      wrap.appendChild(meta);
+
+      row.appendChild(wrap);
+      chatWindow.appendChild(row);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = (chatInput.value || "").trim();
+      if (!text) return;
+      chatInput.value = "";
+      appendMessage("me", text);
+      chatSendBtn.disabled = true;
+
+      try {
+        const res = await fetch("/.netlify/functions/shadow-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
+        if (!res.ok) {
+          appendMessage("shadow", "[error] backend odmítl požadavek: " + res.status);
+          return;
+        }
+        const data = await res.json();
+        if (!data.ok) {
+          appendMessage("shadow", "[error] " + (data.error || "neznámá chyba"));
+          return;
+        }
+        appendMessage("shadow", data.reply || "(prázdná odpověď)");
+      } catch (e) {
+        console.error("shadow chat send error", e);
+        appendMessage("shadow", "[network] volání shadow backendu selhalo");
+      } finally {
+        chatSendBtn.disabled = false;
+        chatInput.focus();
+      }
+    }
+
+    chatSendBtn.addEventListener("click", () => {
+      sendMessage();
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    cmdButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cmd = btn.getAttribute("data-cmd");
+        if (!cmd) return;
+        if (!chatInput.value.trim()) {
+          chatInput.value = cmd + " ";
+        } else {
+          chatInput.value = cmd + " " + chatInput.value;
+        }
+        chatInput.focus();
+      });
+    });
+  </script>
+</body>
+</html>

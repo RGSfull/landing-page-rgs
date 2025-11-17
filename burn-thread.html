@@ -1070,6 +1070,9 @@
     chatInput.value = "";
     bumpActivity();
 
+    const lower = text.toLowerCase();
+    const isEscalate = lower.startsWith("/escalate");
+
     try {
       const { cipherB64, ivB64 } = await encryptText(threadKey, text);
       const signature = cipherB64 + "|" + ivB64;
@@ -1101,6 +1104,31 @@
           ? "server řekl ne. zkus to znova."
           : "server said no. try again.");
         return;
+      }
+
+      if (isEscalate && threadToken) {
+        try {
+          const escRes = await fetch("/.netlify/functions/thread-escalate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: threadToken })
+          });
+
+          if (escRes.ok) {
+            logShadow(shadowLang === "cs"
+              ? "escalate přijatý · vlákno je označené pro Syndikát."
+              : "escalate accepted · thread is flagged for the Syndicate.");
+          } else {
+            logShadow(shadowLang === "cs"
+              ? "escalate spadlo někde na backendu. zkus to znova nebo pingni lidi přes jiné kanály."
+              : "escalate failed somewhere in the backend. try again or ping humans via a different channel.");
+          }
+        } catch (e) {
+          console.error("thread-escalate error", e);
+          logShadow(shadowLang === "cs"
+            ? "escalate se rozpadlo cestou. jako kdyby někdo přeštípnul dráty."
+            : "escalate broke on the way. like someone cut the wires.");
+        }
       }
 
       const handled = handleSpecialTriggers(text);
