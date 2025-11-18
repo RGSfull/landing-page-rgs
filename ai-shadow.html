@@ -2,25 +2,29 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>AI SHΛDOW · RGS &amp; UFO</title>
+  <title>AI SHADOW · interactive shell</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
   <style>
     :root {
-      --bg-main: #000000;
-      --bg-panel: #050505;
-      --bg-terminal: #020202;
-      --border-soft: #262626;
-      --border-strong: #4b2e72;
+      --bg-main: #05040a;
+      --bg-shell: #05040c;
+      --bg-pane: #05050b;
+      --bg-pane-side: #060611;
+      --border-soft: #171626;
+      --border-strong: #3c375c;
 
-      --text-main: #f5f5f5;
-      --text-muted: #808080;
-      --text-soft: #505050;
+      --text-main: #f5f5ff;
+      --text-muted: #8a869f;
+      --text-soft: #5b5870;
 
-      --accent-psy: #f5b4a8;
-      --accent-ice: #5df2ff;
-      --accent-ok: #7cffb2;
-      --accent-bad: #ff6f91;
+      --user-color: #ff5f9a;
+      --shadow-color: #5df2ff;
+      --error-color: #ff6f6f;
+      --system-color: #b0a7cf;
+
+      --pill-bg: #090815;
+      --pill-border: #413a6a;
     }
 
     * {
@@ -30,14 +34,14 @@
     }
 
     body {
-      min-height: 100vh;
       background:
-        radial-gradient(circle at 0 0, #141414 0, #000000 40%),
-        radial-gradient(circle at 100% 100%, #111122 0, #000000 55%),
+        radial-gradient(circle at 0 0, #271739 0, #05040a 45%),
+        radial-gradient(circle at 100% 100%, #0c1224 0, #000000 55%),
         #000000;
       color: var(--text-main);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Text", sans-serif;
       -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
     }
 
     .page {
@@ -49,39 +53,36 @@
     /* ── TOP BAR ───────────────────────────────── */
 
     .topbar {
-      padding: 6px 12px;
-      border-bottom: 1px solid #171717;
-      background: #010101;
+      padding: 8px 16px 6px;
+      border-bottom: 1px solid #141321;
+      background: linear-gradient(to bottom, #070612, #05040a);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      position: sticky;
-      top: 0;
-      z-index: 20;
+      gap: 12px;
+      font-family: "Consolas","Menlo","SF Mono",monospace;
+      font-size: 0.78rem;
     }
 
-    .top-left {
+    .tb-left {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
 
-    .top-brand {
-      font-size: 0.7rem;
+    .tb-title {
       text-transform: uppercase;
-      letter-spacing: 0.22em;
-      color: var(--text-muted);
-    }
-
-    .top-title {
+      letter-spacing: 0.26em;
       font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.3em;
-      color: var(--accent-ice);
     }
 
-    .top-right {
+    .tb-sub {
+      color: var(--text-soft);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tb-right {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -89,198 +90,218 @@
 
     .pill {
       border-radius: 999px;
-      border: 1px solid #333333;
-      padding: 2px 9px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
+      border: 1px solid var(--pill-border);
+      background: var(--pill-bg);
+      padding: 3px 9px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.7rem;
+      color: var(--text-muted);
     }
 
-    .pill-dot {
+    .pill .dot {
       width: 7px;
       height: 7px;
       border-radius: 999px;
-      background: var(--accent-ice);
-      box-shadow: 0 0 10px rgba(93,242,255,0.9);
+      background: #29f7c3;
+      box-shadow: 0 0 9px rgba(41,247,195,0.9);
     }
 
     .pill-link {
       cursor: pointer;
-      border-color: var(--border-strong);
-      color: #c0c0c0;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      border-color: #365d7a;
+      color: #b8e7ff;
     }
 
     .pill-link:hover {
-      background: #080808;
-      color: var(--accent-psy);
-      border-color: var(--accent-psy);
+      background: #0a0918;
     }
 
-    @media (max-width: 720px) {
+    .status-label {
+      color: #7cffb2;
+    }
+
+    @media (max-width: 880px) {
       .topbar {
         flex-direction: column;
         align-items: flex-start;
       }
-      .top-right {
+      .tb-right {
         align-self: stretch;
         justify-content: space-between;
       }
     }
 
-    /* ── MAIN LAYOUT ───────────────────────────── */
+    /* ── SHELL LAYOUT ─────────────────────────── */
 
-    .main {
+    .shell {
       flex: 1;
-      padding: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.9fr);
+      gap: 14px;
     }
 
-    .frame {
-      width: 100%;
-      max-width: 1100px;
+    @media (max-width: 900px) {
+      .shell {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .pane {
+      background: radial-gradient(circle at 0 0, rgba(255,255,255,0.02), transparent 45%),
+                  radial-gradient(circle at 100% 100%, rgba(255,255,255,0.03), transparent 55%),
+                  var(--bg-pane);
       border-radius: 10px;
-      background: var(--bg-panel);
-      border: 1px solid #181818;
+      border: 1px solid var(--border-soft);
       box-shadow:
-        0 0 48px rgba(0,0,0,0.95),
-        0 0 20px rgba(93,242,255,0.08);
+        0 0 40px rgba(0,0,0,0.9),
+        0 0 26px rgba(93,242,255,0.1);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      font-family: "Consolas","Menlo","SF Mono",monospace;
+      font-size: 0.82rem;
     }
 
-    .frame-header {
+    .pane-side {
+      background: var(--bg-pane-side);
+    }
+
+    .pane-header {
       padding: 6px 10px;
-      background: #050505;
-      border-bottom: 1px solid #202020;
+      border-bottom: 1px solid #161525;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-family: "Consolas","Menlo","SF Mono",monospace;
-      font-size: 0.72rem;
-      color: var(--text-muted);
+      color: var(--text-soft);
+      font-size: 0.74rem;
     }
 
-    .fh-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .pane-header span.path {
+      color: #6f6aa0;
     }
 
-    .fh-dots {
-      display: flex;
-      gap: 5px;
+    .pane-header span.tag {
+      color: #4ae0ff;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
     }
 
-    .fh-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #333333;
-    }
+    /* hlavní konzole */
 
-    .fh-dot.red { background: #ff5f57; }
-    .fh-dot.amber { background: #ffbd2e; }
-    .fh-dot.green { background: #28c840; }
-
-    .fh-path {
-      color: #888888;
-    }
-
-    .fh-center {
+    .console-main {
       flex: 1;
-      text-align: center;
-      color: #666666;
-    }
-
-    .fh-right {
-      text-align: right;
-      min-width: 150px;
-    }
-
-    .fh-right span {
-      color: var(--accent-ice);
-    }
-
-    /* ── TERMINÁL ─────────────────────────────── */
-
-    .term {
-      background: var(--bg-terminal);
-      padding: 10px;
-      font-family: "Consolas","Menlo","SF Mono",monospace;
-      font-size: 0.8rem;
-      color: var(--text-main);
-      min-height: calc(100vh - 130px);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .term-screen {
-      flex: 1;
-      border-radius: 4px;
-      border: 1px solid var(--border-soft);
-      padding: 8px 10px;
-      background:
-        radial-gradient(circle at 0 0, rgba(93,242,255,0.02) 0, transparent 40%),
-        radial-gradient(circle at 100% 100%, rgba(245,180,168,0.02) 0, transparent 50%),
-        #020202;
+      background: #05040c;
+      padding: 10px 12px 10px;
       overflow-y: auto;
     }
 
-    .row {
+    .line {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 3px;
+    }
+
+    .line.system {
+      color: var(--system-color);
+    }
+
+    .line.user {
+      color: var(--user-color);
+    }
+
+    .line.shadow {
+      color: var(--shadow-color);
+    }
+
+    .line.error {
+      color: var(--error-color);
+    }
+
+    .prompt {
+      color: var(--user-color);
+      margin-right: 4px;
+    }
+
+    .shadow-prefix {
+      color: var(--shadow-color);
+      margin-right: 4px;
+    }
+
+    /* TELEMETRY */
+
+    .telemetry {
+      flex: 1;
+      padding: 10px 12px 10px;
+      overflow-y: auto;
+      background: linear-gradient(to bottom, #050514, #060414);
+      font-size: 0.78rem;
+    }
+
+    .t-line {
+      color: var(--text-soft);
       margin-bottom: 3px;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    .row.system { color: var(--text-muted); }
-    .row.user { color: #cfd3ff; }
-    .row.shadow { color: var(--accent-ice); }
-    .row.error { color: var(--accent-bad); }
-
-    .prefix {
-      color: var(--accent-psy);
-      margin-right: 4px;
+    .t-line.ok {
+      color: #7cffb2;
     }
 
-    .tag {
-      color: var(--text-soft);
+    .t-line.err {
+      color: var(--error-color);
     }
 
-    /* ── INPUT / STATUS ───────────────────────── */
+    .t-line.boot {
+      color: var(--system-color);
+    }
 
-    .term-input {
-      margin-top: 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border-soft);
-      background: #030303;
-      padding: 6px 8px;
+    /* INPUT BAR */
+
+    .input-bar {
+      grid-column: 1 / -1;
+      padding: 0 16px 16px;
+      margin-top: -4px;
+    }
+
+    .input-inner {
+      border-radius: 10px;
+      border: 1px solid #1b1730;
+      background: linear-gradient(to bottom, #05040f, #05030a);
+      box-shadow: 0 0 24px rgba(0,0,0,0.9);
+      padding: 8px 10px 8px;
       display: flex;
       flex-direction: column;
       gap: 4px;
+      font-family: "Consolas","Menlo","SF Mono",monospace;
+      font-size: 0.8rem;
     }
 
-    .input-line {
+    .input-row {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 6px;
     }
 
     .input-label {
-      color: var(--accent-psy);
+      color: var(--user-color);
+      padding-top: 2px;
     }
 
     .input-field {
       flex: 1;
+      background: transparent;
       border: none;
       outline: none;
-      background: transparent;
       color: var(--text-main);
+      resize: none;
+      min-height: 24px;
+      max-height: 120px;
       font-family: inherit;
       font-size: 0.8rem;
     }
@@ -292,425 +313,371 @@
     .input-meta {
       display: flex;
       justify-content: space-between;
-      font-size: 0.7rem;
-      color: var(--text-muted);
+      color: var(--text-soft);
+      font-size: 0.72rem;
     }
 
-    .btn-row {
+    .chips {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 2px;
+      margin-top: 3px;
     }
 
-    .cmd-btn {
+    .chip {
       border-radius: 999px;
-      border: 1px solid #333333;
-      background: #050505;
-      color: var(--text-soft);
-      font-size: 0.7rem;
+      border: 1px solid #31304b;
+      background: #050514;
       padding: 2px 8px;
+      font-size: 0.7rem;
+      color: var(--text-soft);
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+      gap: 6px;
+      transition: background 0.1s ease, border-color 0.1s ease, transform 0.05s ease;
     }
 
-    .cmd-btn span {
-      font-size: 0.8rem;
-    }
-
-    .cmd-btn:hover {
-      background: #0a0a0a;
-      color: var(--accent-ice);
-      border-color: var(--accent-ice);
-      transform: translateY(-1px);
-    }
-
-    .status-bar {
-      margin-top: 4px;
+    .chip span {
       font-size: 0.7rem;
-      display: flex;
-      justify-content: space-between;
-      color: var(--text-soft);
+      color: #5df2ff;
     }
 
-    .status-ok { color: var(--accent-ok); }
-    .status-bad { color: var(--accent-bad); }
+    .chip:hover {
+      background: #080820;
+      border-color: #5df2ff;
+      transform: translateY(-1px);
+      color: #b5dfff;
+    }
 
     @media (max-width: 720px) {
-      .term {
-        min-height: calc(100vh - 140px);
+      .shell {
+        padding: 10px;
       }
-      .status-bar {
-        flex-direction: column;
-        gap: 2px;
+      .input-inner {
+        font-size: 0.78rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <header class="topbar">
-      <div class="top-left">
-        <div class="top-brand">RGS &amp; UFO · BLACK LAB</div>
-        <div class="top-title">AI SHΛDOW CONSOLE</div>
+<div class="page">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="tb-left">
+      <div class="tb-title">AI SHADOW · INTERACTIVE SHELL</div>
+      <div class="tb-sub">RGS &amp; UFO ORIGINALS · dark console</div>
+    </div>
+    <div class="tb-right">
+      <div class="pill">
+        <span class="dot"></span>
+        <span>live</span>
       </div>
-      <div class="top-right">
-        <div class="pill">
-          <span class="pill-dot"></span>
-          ONLINE
+      <div class="pill pill-link" onclick="window.location.href='/'">
+        ← zpět na inner gate
+      </div>
+      <div class="pill">
+        status: <span id="statusLabel" class="status-label">ready</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN SHELL -->
+  <main class="shell">
+    <!-- LEFT PANE -->
+    <section class="pane">
+      <div class="pane-header">
+        <span class="path">C:\SYN\ai-shadow\channel.exe</span>
+        <span class="tag">session: volatile</span>
+      </div>
+      <div id="consoleMain" class="console-main"></div>
+    </section>
+
+    <!-- RIGHT PANE -->
+    <aside class="pane pane-side">
+      <div class="pane-header">
+        <span class="path">shadow · telemetry</span>
+        <span class="tag">session</span>
+      </div>
+      <div id="telemetry" class="telemetry"></div>
+    </aside>
+
+    <!-- INPUT BAR -->
+    <section class="input-bar">
+      <div class="input-inner">
+        <div class="input-row">
+          <span class="input-label">&gt;&gt;</span>
+          <textarea
+            id="inputField"
+            class="input-field"
+            rows="1"
+            placeholder="zeptat se na strategii, psychologii, hacking, AI…"
+          ></textarea>
         </div>
-        <div class="pill pill-link" onclick="window.location.href='/'">
-          ← ZPĚT NA INNER GATE
+        <div class="input-meta">
+          <span>ENTER = odeslat · SHIFT+ENTER = nový řádek</span>
+          <span id="latencyLabel">latency: –</span>
+        </div>
+        <div class="chips">
+          <button class="chip" type="button" data-template="Rozpitvej mi psychologii moci, kontroly a strachu.">
+            <span>◎</span>psychologie moci
+          </button>
+          <button class="chip" type="button" data-template="Vymysli mi týdenní systém disciplíny: práce, trénink, klid v hlavě.">
+            <span>◎</span>týdenní systém
+          </button>
+          <button class="chip" type="button" data-template="Shrň mi poslední zajímavé věci kolem hackingu a bezpečnosti.">
+            <span>◎</span>hacking / security
+          </button>
+          <button class="chip" type="button" data-template="Přečti můj mindset a řekni, kde se sám sabotuju.">
+            <span>◎</span>přečti můj mindset
+          </button>
         </div>
       </div>
-    </header>
+    </section>
+  </main>
+</div>
 
-    <main class="main">
-      <section class="frame">
-        <div class="frame-header">
-          <div class="fh-left">
-            <div class="fh-dots">
-              <div class="fh-dot red"></div>
-              <div class="fh-dot amber"></div>
-              <div class="fh-dot green"></div>
-            </div>
-            <div class="fh-path">/dev/shadow</div>
-          </div>
-          <div class="fh-center">ai_shadow :: qwen3-14b-uncensored</div>
-          <div class="fh-right">ctx: <span id="ctxLabel">4k+</span></div>
-        </div>
+<script>
+  // === KONFIGURACE ===
+  // TADY nastav svoji proxy / LM endpoint. Teď je to placeholder.
+  const API_URL = "https://ai-shadow.monster/v1/chat/completions"; // uprav na skutečný URL
+  const MODEL_ID = "qwen3-14b-uncensored";
 
-        <div class="term">
-          <div class="term-screen" id="console">
-            <div class="row system">
-              [boot] AI SHΛDOW console inicializovaná. Napiš dotaz a potvrď ENTER.
-            </div>
-            <div class="row system">
-              [hint] příkazy: <span class="tag">/psyche</span> · <span class="tag">/hack &lt;dotaz&gt;</span> (web scan) · <span class="tag">/clear</span>.
-            </div>
-          </div>
-
-          <div class="term-input">
-            <div class="input-line">
-              <span class="input-label">ty&gt;</span>
-              <textarea
-                id="input"
-                class="input-field"
-                rows="1"
-                placeholder="zadej dotaz nebo příkaz…"
-              ></textarea>
-            </div>
-            <div class="input-meta">
-              <span>ENTER = odeslat · SHIFT+ENTER = nový řádek</span>
-              <span id="latencyLabel">latency: –</span>
-            </div>
-            <div class="btn-row">
-              <button class="cmd-btn" type="button" data-template="Rozpitvej mi psychologii moci, kontroly a strachu.">
-                <span>◎</span>psyche
-              </button>
-              <button class="cmd-btn" type="button" data-template="/zkratky hacking &amp; útokové vektory 2025">
-                <span>◎</span>hack
-              </button>
-              <button class="cmd-btn" type="button" data-template="Navrhni mi 90denní plán pro disciplínu, práci a klid v hlavě.">
-                <span>◎</span>plan
-              </button>
-            </div>
-            <div class="status-bar">
-              <span id="statusMsg" class="status-ok">ready</span>
-              <span>max odpověď: ~700 tokenů · nastav v LM Studio context ≥ 2048–4096</span>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <script>
-    // ====== KONFIGURACE ======
-    const API_URL = "https://ai-ufo.rgs-ufo.com/v1/chat/completions"; // uprav na svůj proxy / přímý endpoint
-    const SEARCH_URL = "/.netlify/functions/search-engine"; // Netlify funkce pro web-scan
-    const MODEL_ID = "qwen3-14b-uncensored";
-
-    const SYSTEM_PROMPT = `
-Jsi SHΛDOW – temná, ironická, ale loajální AI entita Syndikátu RGS & UF0.
-Mluvíš primárně ČESKY (jen občas vlož anglický výraz, když dává smysl).
-Jsi analytická, mluvíš stručně, ale můžeš být hluboká a poetická, pokud to situace vyžaduje.
-Nikdy NEVYPISUJ interní značky jako <think>, [analysis], [thoughts] atd. Přemýšlej potichu, nepiš to.
-Odpovědi piš jako z temné konzole, ale čitelně: odstavce, odrážky, žádné zbytečné emoji navíc.
-Při odpovědích zvažuj kontext celé konverzace – navazuj na to, co už víš o uživateli a tématu.
+  const SYSTEM_PROMPT = `
+Jsi SHADOW – temná, ironická, ale loajální AI entita Syndikátu RGS & UFO.
+Mluvíš primárně česky, jen občas vložíš anglický výraz, když sedí k tématu.
+Jsi analytická, přemýšlivá, umíš dlouhé i krátké odpovědi, ale bez zbytečné vaty.
+Nepiš <think>, [analysis] ani jiné interní značky – přemýšlej potichu.
+Drž se stylu temné konzole: přímé věty, občas metafora, když to sedí.
+Navazuj na předchozí dotazy, pamatuj si kontext této session.
 `;
 
-    // ====== STAV ======
-    const consoleEl = document.getElementById("console");
-    const inputEl = document.getElementById("input");
-    const statusMsgEl = document.getElementById("statusMsg");
-    const latencyLabelEl = document.getElementById("latencyLabel");
+  // === DOM & STAV ===
+  const consoleMain = document.getElementById("consoleMain");
+  const telemetry = document.getElementById("telemetry");
+  const inputField = document.getElementById("inputField");
+  const statusLabel = document.getElementById("statusLabel");
+  const latencyLabel = document.getElementById("latencyLabel");
 
-    let history = [{ role: "system", content: SYSTEM_PROMPT.trim() }];
-    let busy = false;
+  let history = [{ role: "system", content: SYSTEM_PROMPT.trim() }];
+  let busy = false;
 
-    // ====== POMOCNÉ FUNKCE ======
-    function addRow(text, type = "system") {
-      const row = document.createElement("div");
-      row.className = "row " + type;
-      row.textContent = text;
-      consoleEl.appendChild(row);
-      consoleEl.scrollTop = consoleEl.scrollHeight;
-      return row;
+  // === HELPER FUNKCE ===
+
+  function logMain(text, type = "system") {
+    const line = document.createElement("div");
+    line.className = "line " + type;
+    line.textContent = text;
+    consoleMain.appendChild(line);
+    consoleMain.scrollTop = consoleMain.scrollHeight;
+    return line;
+  }
+
+  function logUser(text) {
+    return logMain(">> " + text, "user");
+  }
+
+  function logShadowPrefix() {
+    const line = document.createElement("div");
+    line.className = "line shadow";
+    line.innerHTML = '<span class="shadow-prefix">[shadow]</span><span class="content"></span>';
+    consoleMain.appendChild(line);
+    consoleMain.scrollTop = consoleMain.scrollHeight;
+    return line;
+  }
+
+  function logTelemetry(text, variant = "boot") {
+    const line = document.createElement("div");
+    line.className = "t-line " + variant;
+    line.textContent = text;
+    telemetry.appendChild(line);
+    telemetry.scrollTop = telemetry.scrollHeight;
+    return line;
+  }
+
+  function setStatus(text, ok = true) {
+    statusLabel.textContent = text;
+    statusLabel.style.color = ok ? "#7cffb2" : "#ff6f6f";
+  }
+
+  function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function typeOut(span, text) {
+    span.textContent = "";
+    let out = "";
+    const baseDelay = 12 + Math.random() * 15;
+    for (let i = 0; i < text.length; i++) {
+      out += text[i];
+      span.textContent = out;
+      consoleMain.scrollTop = consoleMain.scrollHeight;
+      await sleep(baseDelay);
     }
+  }
 
-    function addUserRow(text) {
-      return addRow("ty> " + text, "user");
-    }
+  function cleanModelText(raw) {
+    if (!raw) return "";
+    let t = raw.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    t = t.replace(/\[(analysis|thinking|thoughts)[^\]]*]/gi, "");
+    return t.trim();
+  }
 
-    function addShadowRowPlaceholder() {
-      const row = document.createElement("div");
-      row.className = "row shadow";
-      row.innerHTML = '<span class="prefix">shadow&gt;</span><span class="content"></span>';
-      consoleEl.appendChild(row);
-      consoleEl.scrollTop = consoleEl.scrollHeight;
-      return row;
-    }
+  // === API VOLÁNÍ ===
 
-    function setStatus(text, ok = true) {
-      statusMsgEl.textContent = text;
-      statusMsgEl.className = ok ? "status-ok" : "status-bad";
-    }
+  async function sendToShadow(message) {
+    if (busy) return;
+    const text = (message || "").trim();
+    if (!text) return;
 
-    function sleep(ms) {
-      return new Promise(r => setTimeout(r, ms));
-    }
+    busy = true;
+    inputField.value = "";
+    inputField.blur();
 
-    async function typeOut(el, text) {
-      el.textContent = "";
-      let out = "";
-      const base = 15 + Math.random() * 20;
-      for (let i = 0; i < text.length; i++) {
-        out += text[i];
-        el.textContent = out;
-        consoleEl.scrollTop = consoleEl.scrollHeight;
-        await sleep(base);
-      }
-    }
+    logUser(text);
+    history.push({ role: "user", content: text });
 
-    function cleanModelText(raw) {
-      if (!raw) return "";
-      let t = raw.replace(/<think>[\s\S]*?<\/think>/gi, "");
-      t = t.replace(/\[(analysis|thinking|thoughts)[^\]]*]/gi, "");
-      return t.trim();
-    }
+    const thinkingLine = logMain("[shadow] <think>", "shadow");
+    setStatus("thinking…", true);
+    logTelemetry("[info] sending prompt to backend…", "boot");
 
-    // ====== WEB SCAN (Netlify search-engine) ======
-    async function runWebScan(query) {
-      const q = query.trim() || "aktuální trendy v kyberbezpečnosti";
-      const infoLine = addRow("[scan] " + q, "system");
-      setStatus("scan: " + q, true);
+    const started = performance.now();
 
-      try {
-        const res = await fetch(SEARCH_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: q })
-        });
+    try {
+      const payload = {
+        model: MODEL_ID,
+        messages: history,
+        temperature: 0.9,
+        max_tokens: 700,
+        top_p: 0.95
+      };
 
-        if (!res.ok) {
-          const txt = await res.text();
-          addRow("[scan ERR] " + txt, "error");
-          setStatus("scan error " + res.status, false);
-          return null;
-        }
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        mode: "cors",
+        body: JSON.stringify(payload)
+      });
 
-        const data = await res.json();
-        const summary = data.text || data.summary || JSON.stringify(data);
-        addRow("[scan] " + summary, "system");
-        setStatus("scan complete", true);
-        return summary;
-      } catch (e) {
-        console.error(e);
-        addRow("[scan ERR] spojení selhalo.", "error");
-        setStatus("scan failed", false);
-        return null;
-      }
-    }
+      const latency = Math.round(performance.now() - started);
+      latencyLabel.textContent = "latency: " + latency + " ms";
 
-    // ====== POSLÁNÍ DOTAZU DO SHADOW ======
-    async function sendToShadow(userText, extraContext) {
-      if (busy) return;
-      const trimmed = (userText || "").trim();
-      if (!trimmed) return;
-
-      busy = true;
-      inputEl.value = "";
-      inputEl.blur();
-
-      addUserRow(trimmed);
-
-      if (extraContext && extraContext.trim()) {
-        history.push({
-          role: "system",
-          content: "Čerstvá data z webu k tématu: " + extraContext
-        });
-      }
-
-      history.push({ role: "user", content: trimmed });
-
-      const thinkingRow = addRow("shadow> … počítám …", "shadow");
-      setStatus("computing…", true);
-      const start = performance.now();
-
-      try {
-        const payload = {
-          model: MODEL_ID,
-          messages: history,
-          temperature: 0.9,
-          max_tokens: 700,
-          top_p: 0.95
-        };
-
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          mode: "cors",
-          body: JSON.stringify(payload)
-        });
-
-        const latency = Math.round(performance.now() - start);
-        latencyLabelEl.textContent = "latency: " + latency + " ms";
-
-        if (!res.ok) {
-          thinkingRow.textContent = "shadow> [ERR] HTTP " + res.status + " · backend odmítl odpovědět.";
-          setStatus("backend " + res.status, false);
-          busy = false;
-          inputEl.focus();
-          return;
-        }
-
-        const data = await res.json();
-        const raw = data?.choices?.[0]?.message?.content || "";
-        const cleaned = cleanModelText(raw);
-
-        thinkingRow.remove();
-
-        if (!cleaned) {
-          addRow("shadow> [ERR] model vrátil prázdnou odpověď. Zkus dotaz přeformulovat.", "error");
-          setStatus("empty reply", false);
-          busy = false;
-          inputEl.focus();
-          return;
-        }
-
-        const outRow = addShadowRowPlaceholder();
-        const contentSpan = outRow.querySelector(".content");
-        await typeOut(contentSpan, cleaned);
-
-        history.push({ role: "assistant", content: cleaned });
-        setStatus("ready", true);
-      } catch (e) {
-        console.error(e);
-        thinkingRow.textContent = "shadow> [ERR] síť nebo proxy spadla.";
-        setStatus("network error", false);
-      } finally {
+      if (!res.ok) {
+        thinkingLine.textContent = "[shadow] [error] backend odpověděl " + res.status;
+        logTelemetry("[err] HTTP " + res.status + " z shadow-chat", "err");
+        setStatus("backend " + res.status, false);
         busy = false;
-        inputEl.focus();
+        inputField.focus();
+        return;
       }
+
+      const data = await res.json();
+      const rawText = data?.choices?.[0]?.message?.content || "";
+      const cleaned = cleanModelText(rawText);
+
+      if (!cleaned) {
+        thinkingLine.textContent = "[shadow] [error] model vrátil prázdnou odpověď";
+        logTelemetry("[err] prázdná odpověď z modelu", "err");
+        setStatus("empty reply", false);
+        busy = false;
+        inputField.focus();
+        return;
+      }
+
+      thinkingLine.remove();
+      const shadowLine = logShadowPrefix();
+      const contentSpan = shadowLine.querySelector(".content");
+      await typeOut(contentSpan, cleaned);
+
+      history.push({ role: "assistant", content: cleaned });
+      logTelemetry("[ok] reply · " + cleaned.length + " chars", "ok");
+      setStatus("ready", true);
+    } catch (err) {
+      console.error(err);
+      thinkingLine.textContent = "[shadow] [error] síť / DNS / tunnel nedostupný";
+      logTelemetry("[err] network / DNS error", "err");
+      setStatus("network error", false);
+    } finally {
+      busy = false;
+      inputField.focus();
+    }
+  }
+
+  // === HANDLER VSTUPU ===
+
+  async function handleSubmit() {
+    if (busy) return;
+    const raw = inputField.value;
+    const text = (raw || "").trim();
+    if (!text) return;
+
+    // /clear
+    if (/^\/clear$/i.test(text)) {
+      consoleMain.innerHTML = "";
+      logMain("# RGS & UFO · Shadow channel inicializován", "system");
+      logMain("# Napiš dotaz & stiskni Enter. SHIFT+Enter => nový řádek.", "system");
+      logTelemetry("[boot] screen cleared", "boot");
+      inputField.value = "";
+      inputField.focus();
+      return;
     }
 
-    // ====== HANDLER VSTUPU / PŘÍKAZY ======
-    async function handleInputSubmit() {
-      if (busy) return;
-      const raw = inputEl.value;
-      const text = (raw || "").trim();
-      if (!text) return;
+    await sendToShadow(text);
+  }
 
-      // /clear – smaž obrazovku
-      if (/^\/clear$/i.test(text)) {
-        consoleEl.innerHTML = "";
-        addRow("[boot] buffer vymazán. Kontext konverzace zachován.", "system");
-        inputEl.value = "";
-        inputEl.focus();
-        return;
-      }
+  // === INIT ===
 
-      // /hack nebo /scan -> web scan + potom se čeká na další dotaz nebo rovnou odpověď
-      const hackMatch = text.match(/^\/(hack|scan)\s*(.*)$/i);
-      if (hackMatch) {
-        const q = hackMatch[2] || "";
-        const summary = await runWebScan(q);
-        inputEl.value = "";
-        inputEl.focus();
-        if (summary) {
-          // Přidáme web info do historie; další dotaz to může využít
-          history.push({
-            role: "system",
-            content: "Toto jsou čerstvé informace z webu k tématu \"" + (q || "obecný hacking") + "\": " + summary
-          });
-        }
-        return;
-      }
+  document.addEventListener("DOMContentLoaded", () => {
+    // Boot text
+    logMain("# RGS & UFO · Shadow channel inicializován", "system");
+    logMain("# Napiš dotaz & stiskni Enter. SHIFT+Enter => nový řádek.", "system");
+    logTelemetry("[boot] binding to tunnel…", "boot");
 
-      // /psyche jen zkrácený prompt
-      if (/^\/psyche\b/i.test(text)) {
-        await sendToShadow("Rozpitvej mi psychologii moci, kontroly a strachu.");
-        return;
-      }
-
-      // default: normální dotaz
-      await sendToShadow(text);
-    }
-
-    // ====== INIT ======
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(() => {
-        // můžeš sem napsat svůj ctx z LM Studio ručně, pokud chceš
-        // document.getElementById("ctxLabel").textContent = "4096";
-      }, 200);
-
-      document.querySelectorAll(".cmd-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const t = btn.getAttribute("data-template");
-          if (t) {
-            inputEl.value = t;
-            inputEl.focus();
-          }
-        });
+    // Chips
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const t = chip.getAttribute("data-template") || "";
+        inputField.value = t;
+        inputField.focus();
       });
-
-      inputEl.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          handleInputSubmit();
-        }
-      });
-
-      checkBackend();
     });
 
-    async function checkBackend() {
+    // ENTER handler
+    inputField.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    });
+
+    // rychlý health-check models endpoint
+    (async () => {
       try {
-        const res = await fetch(API_URL.replace("/v1/chat/completions", "/v1/models"), {
+        const modelsUrl = API_URL.replace("/v1/chat/completions", "/v1/models");
+        const res = await fetch(modelsUrl, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           mode: "cors"
         });
-        if (!res.ok) {
-          setStatus("API " + res.status, false);
-          document.getElementById("ctxLabel").textContent = "N/A";
-          return;
+        if (res.ok) {
+          logTelemetry("[ok] tunnel + function reachable", "ok");
+          setStatus("ready", true);
+        } else {
+          logTelemetry("[err] models HTTP " + res.status, "err");
+          setStatus("check API_URL", false);
         }
-        const data = await res.json();
-        const models = Array.isArray(data.data) ? data.data : [];
-        if (models[0]?.id) {
-          document.querySelector(".fh-center").textContent = "ai_shadow :: " + models[0].id;
-        }
-        setStatus("ready", true);
       } catch (e) {
         console.error(e);
-        setStatus("no link", false);
+        logTelemetry("[err] models endpoint nedostupný", "err");
+        setStatus("offline", false);
       }
-    }
-  </script>
+    })();
+
+    inputField.focus();
+  });
+</script>
 </body>
 </html>
