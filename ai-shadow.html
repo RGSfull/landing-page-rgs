@@ -594,21 +594,28 @@ Používej krátké odstavce, někdy bullet pointy. Občas se reptej zpátky, kd
         throw new Error("HTTP " + res.status + " " + res.statusText);
       }
 
-      const data = await res.json();
-      const text = stripThinkingBlocks(
-        data.choices?.[0]?.message?.content || ""
-      );
+     const data = await res.json();
 
-      thinkLine.remove();
+// log do konzole, ať vidíš, co opravdu leze z LM Studia
+const raw = data?.choices?.[0]?.message?.content ?? "";
+console.log("RAW_SHADOW_RESPONSE:", raw);
 
-      if (!text) {
-        addLine("Model něco spočítal, ale vylezlo prázdno. Zkus dotaz přeformulovat.", "error");
-      } else {
-        const line = addLine("", "shadow");
-        const span = line.querySelector(".shadow-text");
-        await typeWriter(span, text);
-        messages.push({ role: "assistant", content: text });
-      }
+// nejdřív zkus odstripovat think-bloky, když z toho nic nezbyde, použij raw
+let text = stripThinkingBlocks(raw);
+if (!text || !text.trim()) {
+  text = (raw || "").trim();
+}
+
+thinkLine.remove();
+
+if (!text) {
+  addLine("Model něco spočítal, ale vylezlo prázdno. Zkus dotaz přeformulovat.", "error");
+} else {
+  const line = addLine("", "shadow");
+  const span = line.querySelector(".shadow-text");
+  await typeWriter(span, text);
+  messages.push({ role: "assistant", content: text });
+}
     } catch (err) {
       console.error(err);
       thinkLine.remove();
@@ -674,3 +681,4 @@ Používej krátké odstavce, někdy bullet pointy. Občas se reptej zpátky, kd
 </script>
 </body>
 </html>
+
