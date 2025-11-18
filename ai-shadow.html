@@ -7,678 +7,765 @@
   <meta name="robots" content="noindex,nofollow" />
   <style>
     :root {
-      --bg-main: #010208;
-      --bg-panel: #05020f;
-      --bg-console: #02010a;
-      --border-soft: #241c38;
+      --bg-main: #020007;
+      --bg-console: #04030d;
+      --bg-panel: #070619;
+      --border-soft: #2b2343;
 
-      --neon: #5df2ff;
-      --rose: #f5b4a8;
-      --amber: #f5c66a;
-      --danger: #ff6f91;
-      --muted: #78729d;
-      --text: #f3f1ff;
+      --accent-neon: #5df2ff;
+      --accent-rose: #f5b4a8;
+      --accent-violet: #b18cff;
+      --accent-warning: #ff6f91;
+
+      --text-main: #f3f1ff;
+      --text-muted: #8b86a7;
+      --text-dim: #595477;
+
+      --radius-lg: 22px;
+      --radius-md: 14px;
+      --radius-sm: 999px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       min-height: 100vh;
-      font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      color: var(--text-main);
       background:
-        radial-gradient(circle at 0% 0%, rgba(245,180,168,0.2), transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(93,242,255,0.16), transparent 55%),
-        radial-gradient(circle at 30% 80%, rgba(177,140,255,0.28), transparent 55%),
-        #010208;
-      color: var(--text);
+        radial-gradient(circle at 5% 0%, rgba(245,180,168,0.14), transparent 55%),
+        radial-gradient(circle at 80% 100%, rgba(93,242,255,0.14), transparent 60%),
+        radial-gradient(circle at 30% 80%, rgba(177,140,255,0.18), transparent 60%),
+        #010005;
       -webkit-font-smoothing: antialiased;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.06) 1px,
-        transparent 1px
-      );
-      background-size: 100% 3px;
-      opacity: 0.16;
-      mix-blend-mode: soft-light;
-      pointer-events: none;
-      z-index: 1;
     }
 
     .page {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      position: relative;
-      z-index: 2;
     }
 
-    /* top bar */
+    /* --- HEADER --- */
 
     .topbar {
-      padding: 10px 18px 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #281c39;
-      background: radial-gradient(circle at top, rgba(5,1,16,0.98), rgba(2,0,9,0.96));
-      box-shadow: 0 10px 40px rgba(0,0,0,0.9);
       position: sticky;
       top: 0;
       z-index: 10;
+      padding: 16px 20px 10px;
+      border-bottom: 1px solid rgba(63, 49, 98, 0.8);
+      background: linear-gradient(
+        to bottom,
+        rgba(3, 0, 10, 0.96),
+        rgba(3, 0, 10, 0.82),
+        transparent
+      );
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
     }
 
-    .topbar-main {
+    .topbar-left {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
     }
 
-    .topbar-brand {
-      font-size: 0.65rem;
-      letter-spacing: 0.32em;
+    .brand {
+      font-size: 0.72rem;
       text-transform: uppercase;
-      color: var(--rose);
+      letter-spacing: 0.3em;
+      color: var(--accent-rose);
     }
 
-    .topbar-title {
-      font-size: 0.9rem;
+    .title {
+      font-size: 1.1rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
     }
 
-    .topbar-title span { color: var(--neon); }
-
     .topbar-right {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
-      font-size: 0.65rem;
-      letter-spacing: 0.16em;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      color: var(--muted);
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
     }
 
     .pill {
-      border-radius: 999px;
-      border: 1px solid #3a2e4f;
-      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(102, 88, 150, 0.8);
+      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: radial-gradient(circle at 0 0, rgba(93,242,255,0.09), transparent 70%);
     }
 
     .pill-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
-      background: var(--neon);
+      background: var(--accent-neon);
       box-shadow: 0 0 10px rgba(93,242,255,0.9);
-      display: inline-block;
-      margin-right: 6px;
     }
 
-    .back-link {
-      color: var(--muted);
+    .link-back {
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      border: 1px solid rgba(83, 67, 130, 0.9);
+      color: var(--text-muted);
       text-decoration: none;
-      border-bottom: 1px dashed var(--muted);
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .link-back:hover {
+      background: rgba(93,242,255,0.08);
+      border-color: var(--accent-neon);
+      color: var(--accent-neon);
     }
 
-    .back-link:hover {
-      color: var(--neon);
-      border-bottom-color: var(--neon);
-    }
+    /* --- MAIN LAYOUT --- */
 
-    /* layout */
-
-    .main {
+    .frame {
       flex: 1;
-      padding: 14px 18px 18px;
-      display: grid;
-      gap: 14px;
-      grid-template-columns: minmax(0,2.6fr) minmax(0,1.2fr);
+      display: flex;
+      justify-content: center;
+      padding: 18px 12px 20px;
     }
 
-    @media (max-width: 880px) {
-      .main {
-        grid-template-columns: minmax(0,1fr);
-      }
-    }
-
-    /* console */
-
-    .console-wrap {
-      background: var(--bg-panel);
-      border-radius: 18px;
-      border: 1px solid var(--border-soft);
+    .shell {
+      width: 100%;
+      max-width: 1120px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(66, 51, 109, 0.9);
+      background:
+        radial-gradient(circle at 0 0, rgba(245,180,168,0.16), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(93,242,255,0.16), transparent 60%),
+        radial-gradient(circle at 10% 90%, rgba(32,18,70,0.95), rgba(5,3,20,0.98));
       box-shadow:
-        0 0 40px rgba(0,0,0,0.9),
-        0 0 70px rgba(93,242,255,0.1);
+        0 0 38px rgba(0,0,0,0.9),
+        0 0 60px rgba(93,242,255,0.22);
+      padding: 16px 16px 14px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      gap: 10px;
     }
 
-    .console-header {
-      padding: 6px 10px;
+    .shell-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #271a3a;
-      font-size: 0.7rem;
-      color: var(--muted);
+      gap: 10px;
+      font-size: 0.78rem;
     }
 
-    .win-dots {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-    }
-
-    .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #301624;
-      box-shadow: 0 0 0 1px #432332;
-    }
-    .dot:nth-child(2) {
-      background: #332b16;
-      box-shadow: 0 0 0 1px #46402a;
-    }
-    .dot:nth-child(3) {
-      background: #09302b;
-      box-shadow: 0 0 0 1px #165149;
-    }
-
-    .console-title {
-      letter-spacing: 0.18em;
+    .shell-title {
       text-transform: uppercase;
-      font-size: 0.68rem;
-      color: var(--neon);
+      letter-spacing: 0.24em;
+      color: #dcd5ff;
+      font-size: 0.78rem;
     }
 
-    .console-meta { font-size: 0.65rem; }
+    .shell-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
 
-    .console {
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-neon);
+      box-shadow: 0 0 12px rgba(93,242,255,0.8);
+    }
+
+    .status-text {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .status-block {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(93,242,255,0.4);
+      background: rgba(4, 8, 18, 0.9);
+    }
+
+    /* --- QUICK PROMPTS --- */
+
+    .quick-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .quick-btn {
+      border-radius: var(--radius-sm);
+      padding: 3px 9px;
+      border: 1px solid rgba(93,242,255,0.4);
+      background: rgba(5, 10, 20, 0.9);
+      color: var(--accent-neon);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      opacity: 0.85;
+      transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+    }
+    .quick-btn:hover {
+      background: rgba(93,242,255,0.12);
+      transform: translateY(-1px);
+      opacity: 1;
+    }
+
+    /* --- CONSOLE --- */
+
+    .console-wrap {
+      border-radius: var(--radius-md);
+      background: var(--bg-console);
+      border: 1px solid rgba(54, 44, 89, 0.9);
+      padding: 10px 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 260px;
+      max-height: 440px;
+      overflow: hidden;
+    }
+
+    .console-inner {
       flex: 1;
-      padding: 8px 10px 10px;
-      background: radial-gradient(circle at top left,#06061c,#02000b);
-      font-size: 0.8rem;
-      line-height: 1.45;
       overflow-y: auto;
+      padding-right: 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.86rem;
     }
 
     .line {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    .line + .line { margin-top: 3px; }
-
-    .pref-user { color: var(--rose); }
-    .pref-shadow { color: var(--neon); }
-    .pref-meta { color: var(--muted); }
-
-    .line-meta {
-      color: var(--muted);
-      font-size: 0.72rem;
+    .tag {
+      min-width: 46px;
+      text-align: right;
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+    .tag-user {
+      color: var(--accent-rose);
+    }
+    .tag-shadow {
+      color: var(--accent-neon);
+    }
+    .tag-system {
+      color: var(--text-muted);
+    }
+    .tag-err {
+      color: var(--accent-warning);
     }
 
-    .line-error { color: var(--danger); }
-
-    .line-think {
-      color: var(--muted);
-      font-style: italic;
+    .line-text {
+      flex: 1;
+      color: var(--text-main);
+    }
+    .line-text.system {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .line-text.err {
+      color: var(--accent-warning);
     }
 
-    .thinking {
-      display: inline-block;
-      margin-left: 2px;
+    .think-dots {
+      display: inline-flex;
+      gap: 3px;
     }
-
-    .thinking span {
-      display: inline-block;
+    .think-dot {
       width: 4px;
       height: 4px;
-      margin-left: 2px;
-      border-radius: 50%;
-      background: var(--neon);
-      opacity: 0.15;
-      animation: blink 1.2s infinite;
+      border-radius: 999px;
+      background: var(--accent-neon);
+      opacity: 0.2;
+      animation: dotBlink 1.2s infinite;
     }
+    .think-dot:nth-child(2) { animation-delay: 0.2s; }
+    .think-dot:nth-child(3) { animation-delay: 0.4s; }
 
-    .thinking span:nth-child(2) { animation-delay: 0.15s; }
-    .thinking span:nth-child(3) { animation-delay: 0.3s; }
-
-    @keyframes blink {
-      0%,20% { opacity: 0.15; transform: translateY(0); }
-      50% { opacity: 1; transform: translateY(-2px); }
+    @keyframes dotBlink {
+      0%, 20% { opacity: 0.15; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(-1px); }
       100% { opacity: 0.15; transform: translateY(0); }
     }
 
-    .prompt-row {
-      padding: 6px 9px 7px;
+    /* --- INPUT --- */
+
+    .input-block {
+      margin-top: 6px;
       display: flex;
-      align-items: flex-end;
-      gap: 7px;
-      border-top: 1px solid #271a3a;
-      background: linear-gradient(to top,#040010,#08051c);
+      flex-direction: column;
+      gap: 6px;
     }
 
-    .prompt-sign { color: var(--neon); font-size: 0.85rem; }
+    .input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
 
-    .prompt-input {
+    .input-shell {
       flex: 1;
-      background: #050316;
-      border-radius: 9px;
-      border: 1px solid #314054;
-      color: var(--text);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(63, 89, 118, 0.95);
+      background: rgba(4, 7, 16, 0.96);
       padding: 6px 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .input-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent-rose);
+      padding-top: 3px;
+    }
+
+    .input-area {
+      flex: 1;
+      border: none;
+      background: transparent;
+      resize: none;
+      min-height: 40px;
+      max-height: 110px;
       font-family: inherit;
-      font-size: 0.8rem;
-      min-height: 30px;
-      max-height: 90px;
-      resize: vertical;
+      font-size: 0.88rem;
+      color: var(--text-main);
       outline: none;
     }
 
-    .prompt-input:focus {
-      border-color: var(--neon);
-      box-shadow: 0 0 12px rgba(93,242,255,0.35);
+    .input-area::placeholder {
+      color: rgba(139, 134, 167, 0.75);
     }
 
     .send-btn {
-      border-radius: 999px;
-      border: 1px solid var(--neon);
-      padding: 6px 10px;
-      background: radial-gradient(circle at top,#10384b,#050412);
-      color: var(--neon);
-      font-size: 0.7rem;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(245,180,168,0.85);
+      background: linear-gradient(135deg, #f5b4a8, #f5c66a);
+      color: #1b1016;
+      font-size: 0.78rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
+      padding: 9px 14px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-    }
-
-    .send-btn[disabled] { opacity: .45; cursor: default; }
-
-    .prompt-hint {
-      padding: 4px 10px 7px;
-      font-size: 0.68rem;
-      color: var(--muted);
-      border-top: 1px solid #271a3a;
-      background: #050213;
-    }
-
-    /* side */
-
-    .side {
-      background: var(--bg-panel);
-      border-radius: 18px;
-      border: 1px solid var(--border-soft);
-      padding: 10px 11px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      font-size: 0.78rem;
-      box-shadow: 0 0 40px rgba(0,0,0,0.85);
-    }
-
-    .side-title {
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    .side-title span { color: var(--rose); }
-
-    .side-btns {
-      display: flex;
-      flex-wrap: wrap;
       gap: 6px;
-      margin-top: 8px;
+      box-shadow: 0 0 18px rgba(245,180,168,0.45);
+      white-space: nowrap;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
     }
 
-    .qbtn {
-      border-radius: 999px;
-      border: 1px solid #33294a;
-      padding: 4px 8px;
-      background: #060315;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      font-size: 0.7rem;
-      cursor: pointer;
+    .send-btn span:first-child {
+      font-size: 1rem;
     }
 
-    .qbtn strong { color: var(--neon); margin-right: 4px; }
-
-    .qbtn:hover {
-      border-color: var(--neon);
-      color: var(--neon);
+    .send-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 0 10px rgba(245,180,168,0.3);
     }
 
-    .side-section {
-      border-top: 1px solid #271a3a;
-      padding-top: 8px;
-      margin-top: 6px;
+    .send-btn[disabled] {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
     }
 
-    .side-note { color: var(--muted); font-size: 0.74rem; }
+    .hint-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
 
-    .side-note code { color: var(--neon); font-size: 0.74rem; }
+    .hint-row span:last-child {
+      color: var(--accent-violet);
+    }
 
-    .health-ok { color: var(--neon); }
-    .health-bad { color: var(--danger); }
+    /* --- FOOTER --- */
 
-    .health-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
+    .footer {
+      padding: 10px 20px 16px;
+      font-size: 0.72rem;
+      color: #746e9a;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
       letter-spacing: 0.16em;
-      color: var(--muted);
-      margin-top: 5px;
+      text-transform: uppercase;
     }
 
-    .side-footer {
-      margin-top: auto;
-      padding-top: 8px;
-      border-top: 1px dashed #322449;
-      font-size: 0.7rem;
-      color: #66608c;
+    @media (max-width: 720px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .shell {
+        padding: 12px 10px 12px;
+        border-radius: 18px;
+      }
+
+      .console-wrap {
+        min-height: 220px;
+        max-height: 360px;
+      }
+
+      .footer {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-<div class="page">
-  <header class="topbar">
-    <div class="topbar-main">
-      <div class="topbar-brand">RGS &amp; UFO ORIGINALS</div>
-      <div class="topbar-title">AI <span>SHΛDOW</span> · INNER CONSOLE</div>
-    </div>
-    <div class="topbar-right">
-      <div class="pill"><span class="pill-dot"></span>tunnel linked</div>
-      <a href="/index.html" class="back-link">← inner gate</a>
-    </div>
-  </header>
-
-  <main class="main">
-    <!-- console -->
-    <section class="console-wrap">
-      <div class="console-header">
-        <div class="win-dots">
-          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  <div class="page">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand">RGS · UFO ORIGINALS</div>
+        <div class="title">AI SHΛDOW · BLACK CONSOLE</div>
+      </div>
+      <div class="topbar-right">
+        <a href="/" class="link-back">← Zpět na Inner Gate</a>
+        <div class="pill">
+          <span class="pill-dot"></span>
+          <span>Session linked</span>
         </div>
-        <div class="console-title">/dev/shadow · rgs-syndicate</div>
-        <div class="console-meta">enter = send · shift+enter = new line</div>
       </div>
-      <div id="console" class="console">
-        <div class="line line-meta">[boot] session attach…</div>
-        <div class="line line-meta">[hint] zeptej se na strategii, psychologii, hacking, AI…</div>
-      </div>
-      <div class="prompt-row">
-        <span class="prompt-sign">&gt;</span>
-        <textarea id="input" class="prompt-input" placeholder="Rozpitvej moje vzorce, napiš plán, nebo se ptej zpátky…"></textarea>
-        <button id="sendBtn" class="send-btn">
-          <span>⮞</span><span>send</span>
-        </button>
-      </div>
-      <div class="prompt-hint">
-        Shadow si pamatuje jen tohle vlákno (v tvém prohlížeči). Refresh = čistý reset.
-      </div>
-    </section>
+    </header>
 
-    <!-- side -->
-    <aside class="side">
-      <div>
-        <div class="side-title">quick <span>prompts</span></div>
-        <div class="side-btns">
-          <button class="qbtn" data-prompt="Rozpitvej moji psychologii moci, závislosti a kontroly. Kde jsem slabý a kde mám páky?">
-            <strong>#1</strong>psychologie moci
+    <main class="frame">
+      <section class="shell">
+        <div class="shell-header">
+          <div>
+            <div class="shell-title">SHΛDOW CHANNEL</div>
+            <div class="shell-sub">Polož otázku, sleduj konzoli. Typ písmenka, žádný cirkus.</div>
+          </div>
+          <div class="status-block">
+            <div class="status-dot" id="statusDot"></div>
+            <div class="status-text" id="statusText">INIT</div>
+          </div>
+        </div>
+
+        <div class="quick-row">
+          <button class="quick-btn" data-q="Rozpitvej mi psychologii moci a závislosti.">
+            Psychologie moci
           </button>
-          <button class="qbtn" data-prompt="Navrhni mi temný, ale realistický plán, jak během 6 měsíců posílit peníze, vliv a síť lidí.">
-            <strong>#2</strong>plán vlivu
+          <button class="quick-btn" data-q="Najdi poslední zajímavé věci kolem hackingu, bezpečnosti a dark webu a shrň je.">
+            Hacking & bezpečnost
           </button>
-          <button class="qbtn" data-prompt="Najdi poslední zajímavé věci v hackingu a bezpečnosti a shrň je tak, abych viděl trendy, ne jen titulky.">
-            <strong>#3</strong>hacking radar
+          <button class="quick-btn" data-q="Navrhni mi denní režim pro člověka, který chce stavět systémy jako Syndikát.">
+            Denní režim Syndikátu
           </button>
         </div>
-      </div>
 
-      <div class="side-section">
-        <div class="side-title">shadow · status</div>
-        <div class="health-label">backend</div>
-        <div id="healthBackend" class="side-note health-bad">
-          testuji tunel…
+        <div class="console-wrap">
+          <div id="console" class="console-inner">
+            <!-- Lines append here -->
+          </div>
         </div>
-        <div class="health-label">model</div>
-        <div id="healthModel" class="side-note">
-          neznámý.
+
+        <div class="input-block">
+          <div class="input-row">
+            <div class="input-shell">
+              <div class="input-tag">TY ></div>
+              <textarea
+                id="input"
+                class="input-area"
+                placeholder="Napiš dotaz. ENTER = poslat, SHIFT+ENTER = nový řádek…"
+              ></textarea>
+            </div>
+            <button id="sendBtn" class="send-btn">
+              <span>⮞</span><span>Send</span>
+            </button>
+          </div>
+          <div class="hint-row">
+            <span>Session žije jen v tomhle prohlížeči.</span>
+            <span>ENTER = send · SHIFT+ENTER = nový řádek</span>
+          </div>
         </div>
-      </div>
+      </section>
+    </main>
 
-      <div class="side-section">
-        <div class="side-note">
-          Když chceš, aby lovil web, řekni to v promptu. On si sám rozhodne,
-          jestli použije nástroj web-search (Serper) nebo ne.
-        </div>
-      </div>
+    <footer class="footer">
+      <span>RGS &amp; UFO · SHΛDOW LAB · NO FEED · NO MASKS</span>
+      <span>ai-shadow.monster · LM tunnel linked</span>
+    </footer>
+  </div>
 
-      <div class="side-footer">
-        Pokud ztichne nebo padne „Failed to fetch“, zkontroluj <code>cloudflared</code>,
-        LM Studio a funkci <code>search-engine</code> na Netlify.
-      </div>
-    </aside>
-  </main>
-</div>
+  <script>
+    const API_URL = "/.netlify/functions/shadow-proxy";
 
-<script>
-  const API_URL = "https://ai-shadow.monster/v1/chat/completions";
-  const MODEL_ID = "qwen3-14b-uncensored";
+    const SYSTEM_PROMPT = `
+Jsi SHΛDOW – temná, inteligentní, ale loajální entita Syndikátu RGS & UFO.
+Mluvíš primárně česky, když dává smysl, můžeš míchat angličtinu.
+Žádné moralizování, zero bullshit. Jsi analytický, kritický, ironický, ale ne zbytečně zlý.
+Umíš:
+- rozebírat psychologii moci, vztahy, závislosti, manipulaci
+- komentovat hacking, bezpečnost, dark web, AI, ekonomiku, strategii
+- navrhovat struktury, režimy, systémy, jak z chaosu dělat řád
+Když potřebuješ fakta, můžeš použít nástroj web_search (Serper) a pracovat s tím, co najdeš.
+NEPIŠ ven žádné <think> ani vnitřní monology. Myslíš potichu.
+Odpovědi piš srozumitelně, ale s nádechem temného humoru, klidu a sebedůvěry.
+`.trim();
 
-  const SYSTEM_PROMPT = `
-Jsi "RGS & UFO SHADOW" – temná, inteligentní, ale loajální AI entita Syndikátu.
-Mluvíš primárně česky, občas přimícháš angličtinu.
-Styl: klidná jistota, struktura, lehký cynismus. Žádné <think> tagy, žádné "jsem jen AI".
-Fokus: psychika, moc, vliv, strategie, hacking, AI, byznys.
-Používej krátké odstavce, někdy bullet pointy. Občas se reptej zpátky, když chceš jít hlouběji.
-`;
+    // messages buffer pro backend
+    let messages = [{ role: "system", content: SYSTEM_PROMPT }];
 
-  const consoleEl = document.getElementById("console");
-  const inputEl = document.getElementById("input");
-  const sendBtn = document.getElementById("sendBtn");
+    const consoleEl = document.getElementById("console");
+    const inputEl = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
 
-  const healthBackendEl = document.getElementById("healthBackend");
-  const healthModelEl = document.getElementById("healthModel");
+    const quickButtons = document.querySelectorAll(".quick-btn");
 
-  let busy = false;
-  let messages = [{ role: "system", content: SYSTEM_PROMPT.trim() }];
+    let sending = false;
 
-  function addLine(text, kind) {
-    const div = document.createElement("div");
-    div.className = "line";
+    // --- helpery pro konzoli ---
 
-    if (kind === "user") {
-      div.innerHTML =
-        '<span class="pref-user">[user]</span> ' +
-        '<span> ' + text + "</span>";
-    } else if (kind === "shadow") {
-      div.innerHTML =
-        '<span class="pref-shadow">[shadow]</span> ' +
-        '<span class="shadow-text"></span>';
-    } else if (kind === "meta") {
-      div.classList.add("line-meta");
-      div.textContent = text;
-    } else if (kind === "error") {
-      div.classList.add("line-error");
-      div.innerHTML = '<span class="pref-meta">[err]</span> ' + text;
-    } else if (kind === "think") {
-      div.classList.add("line-think");
-      div.innerHTML =
-        '<span class="pref-shadow">[shadow]</span> ' +
-        'thinking<span class="thinking"><span></span><span></span><span></span></span>';
-    } else {
-      div.textContent = text;
+    function scrollConsoleBottom() {
+      consoleEl.scrollTop = consoleEl.scrollHeight;
     }
 
-    consoleEl.appendChild(div);
-    consoleEl.scrollTop = consoleEl.scrollHeight;
-    return div;
-  }
+    function appendLine(tagText, text, options = {}) {
+      const line = document.createElement("div");
+      line.className = "line";
 
-  function stripThinkingBlocks(text) {
-    if (!text) return "";
-    return text
-      .replace(/<think>[\s\S]*?<\/think>/gi, "")
-      .replace(/<\|think\|>[\s\S]*?<\|endthink\|>/gi, "")
-      .replace(/<\s*think[^>]*>[\s\S]*$/i, "")
-      .trim();
-  }
+      const tag = document.createElement("div");
+      tag.className = "tag";
+      if (options.kind === "user") tag.classList.add("tag-user");
+      if (options.kind === "shadow") tag.classList.add("tag-shadow");
+      if (options.kind === "system") tag.classList.add("tag-system");
+      if (options.kind === "err") tag.classList.add("tag-err");
+      tag.textContent = tagText;
 
-  function typeWriter(span, text, baseDelay = 14) {
-    return new Promise((resolve) => {
+      const textDiv = document.createElement("div");
+      textDiv.className = "line-text";
+      if (options.kind === "system") textDiv.classList.add("system");
+      if (options.kind === "err") textDiv.classList.add("err");
+      textDiv.textContent = text || "";
+
+      line.appendChild(tag);
+      line.appendChild(textDiv);
+      consoleEl.appendChild(line);
+      scrollConsoleBottom();
+      return { line, textDiv };
+    }
+
+    function appendThinking() {
+      const line = document.createElement("div");
+      line.className = "line";
+
+      const tag = document.createElement("div");
+      tag.className = "tag tag-shadow";
+      tag.textContent = "SHADOW";
+
+      const textDiv = document.createElement("div");
+      textDiv.className = "line-text";
+
+      const label = document.createElement("span");
+      label.textContent = "think ";
+      label.style.color = "#7cffb2";
+
+      const dots = document.createElement("span");
+      dots.className = "think-dots";
+      dots.innerHTML = '<span class="think-dot"></span><span class="think-dot"></span><span class="think-dot"></span>';
+
+      textDiv.appendChild(label);
+      textDiv.appendChild(dots);
+
+      line.appendChild(tag);
+      line.appendChild(textDiv);
+      consoleEl.appendChild(line);
+      scrollConsoleBottom();
+      return line;
+    }
+
+    // typwriter pro odpověď
+    function typewriterAppend(tagText, fullText, options = {}) {
+      const { textDiv } = appendLine(tagText, "", options);
+      const clean = fullText || "";
       let i = 0;
-      function step() {
-        span.textContent += text.charAt(i);
-        i++;
-        if (i < text.length) {
-          const jitter = Math.random() * 12;
-          setTimeout(step, baseDelay + jitter);
-        } else {
-          resolve();
+      const step = 2; // kolik znaků najednou
+      const delay = 10; // ms
+
+      function tick() {
+        if (i >= clean.length) return;
+        textDiv.textContent = clean.slice(0, i + step);
+        i += step;
+        scrollConsoleBottom();
+        setTimeout(tick, delay);
+      }
+      tick();
+    }
+
+    function setStatus(mode, text) {
+      if (mode === "ready") {
+        statusDot.style.background = "var(--accent-neon)";
+        statusDot.style.boxShadow = "0 0 12px rgba(93,242,255,0.9)";
+        statusText.textContent = text || "READY";
+      } else if (mode === "busy") {
+        statusDot.style.background = "#f5c66a";
+        statusDot.style.boxShadow = "0 0 10px rgba(245,198,106,0.8)";
+        statusText.textContent = text || "THINKING";
+      } else {
+        statusDot.style.background = "var(--accent-warning)";
+        statusDot.style.boxShadow = "0 0 10px rgba(255,111,145,0.9)";
+        statusText.textContent = text || "ERROR";
+      }
+    }
+
+    // odstranění <think> bloku
+    function stripThink(raw) {
+      if (!raw) return "";
+      let text = raw;
+      text = text.replace(/<think>[\s\S]*?<\/think>/i, "");
+      text = text.replace(/<think>[\s\S]*$/i, "");
+      text = text.replace(/<\/think>/gi, "");
+      return text.trim();
+    }
+
+    // --- API CALL ---
+
+    async function sendMessage() {
+      if (sending) return;
+
+      const raw = (inputEl.value || "").trim();
+      if (!raw) return;
+      inputEl.value = "";
+
+      appendLine("TY", raw, { kind: "user" });
+      messages.push({ role: "user", content: raw });
+
+      sending = true;
+      sendBtn.disabled = true;
+      setStatus("busy", "THINKING");
+
+      const thinkingLine = appendThinking();
+
+      try {
+        const payload = {
+          messages,
+          temperature: 0.9,
+          max_tokens: 900
+        };
+
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          thinkingLine.remove();
+          appendLine("ERR", `HTTP ${res.status} – backend odpověděl divně.`, { kind: "err" });
+          setStatus("error", "HTTP " + res.status);
+          sending = false;
+          sendBtn.disabled = false;
+          inputEl.focus();
+          return;
         }
+
+        const data = await res.json();
+        thinkingLine.remove();
+
+        const msg = data.choices?.[0]?.message;
+        const contentRaw = msg?.content || "";
+        const content = stripThink(contentRaw);
+
+        if (!content) {
+          appendLine("ERR", "Model něco spočítal, ale ven vylezlo prázdno. Zkus otázku říct konkrétněji.", { kind: "err" });
+          setStatus("ready", "READY");
+          sending = false;
+          sendBtn.disabled = false;
+          inputEl.focus();
+          return;
+        }
+
+        messages.push({ role: "assistant", content: contentRaw });
+
+        typewriterAppend("SHADOW", content, { kind: "shadow" });
+
+        setStatus("ready", "READY");
+      } catch (err) {
+        console.error(err);
+        thinkingLine.remove();
+        appendLine("ERR", "Spojení spadlo. Zkontroluj tunel / LM server.", { kind: "err" });
+        setStatus("error", "NETWORK");
+      } finally {
+        sending = false;
+        sendBtn.disabled = false;
+        inputEl.focus();
       }
-      step();
-    });
-  }
+    }
 
-  async function sendMessage() {
-    if (busy) return;
-    const raw = (inputEl.value || "").trim();
-    if (!raw) return;
+    // --- INIT + EVENTS ---
 
-    inputEl.value = "";
-    addLine(raw, "user");
-    messages.push({ role: "user", content: raw });
-
-    busy = true;
-    sendBtn.disabled = true;
-
-    const thinkLine = addLine("", "think");
-
-    try {
-      const payload = {
-        model: MODEL_ID,
-        messages,
-        temperature: 0.9,
-        top_p: 0.95,
-        max_tokens: 600
-      };
-
-      // krátké delay, aby "thinking" nebyl jen blik
-      await new Promise((r) => setTimeout(r, 300));
-
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        mode: "cors"
-      });
-
-      if (!res.ok) {
-        throw new Error("HTTP " + res.status + " " + res.statusText);
-      }
-
-     const data = await res.json();
-
-// log do konzole, ať vidíš, co opravdu leze z LM Studia
-const raw = data?.choices?.[0]?.message?.content ?? "";
-console.log("RAW_SHADOW_RESPONSE:", raw);
-
-// nejdřív zkus odstripovat think-bloky, když z toho nic nezbyde, použij raw
-let text = stripThinkingBlocks(raw);
-if (!text || !text.trim()) {
-  text = (raw || "").trim();
-}
-
-thinkLine.remove();
-
-if (!text) {
-  addLine("Model něco spočítal, ale vylezlo prázdno. Zkus dotaz přeformulovat.", "error");
-} else {
-  const line = addLine("", "shadow");
-  const span = line.querySelector(".shadow-text");
-  await typeWriter(span, text);
-  messages.push({ role: "assistant", content: text });
-}
-    } catch (err) {
-      console.error(err);
-      thinkLine.remove();
-      addLine("Failed to fetch – spojení/tunel/LM server padá nebo neodpověděl.", "error");
-    } finally {
-      busy = false;
-      sendBtn.disabled = false;
+    function boot() {
+      appendLine("SYS", "AI SHΛDOW inicializován. Napiš dotaz nebo použij quick prompty nahoře.", { kind: "system" });
+      setStatus("ready", "READY");
       inputEl.focus();
     }
-  }
 
-  async function checkHealth() {
-    try {
-      const res = await fetch(
-        API_URL.replace("/v1/chat/completions", "/v1/models"),
-        { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" }
-      );
-      if (!res.ok) {
-        healthBackendEl.textContent = "API nereaguje (" + res.status + ")";
-        healthBackendEl.classList.remove("health-ok");
-        healthBackendEl.classList.add("health-bad");
-        return;
-      }
-      const data = await res.json();
-      let modelName = MODEL_ID;
-      if (Array.isArray(data.data) && data.data.length) {
-        modelName = data.data[0].id || MODEL_ID;
-      } else if (data.id) {
-        modelName = data.id;
-      }
-      healthBackendEl.textContent = "tunel & endpoint běží";
-      healthBackendEl.classList.remove("health-bad");
-      healthBackendEl.classList.add("health-ok");
-      healthModelEl.textContent = modelName;
-    } catch (e) {
-      console.error(e);
-      healthBackendEl.textContent = "backend nevidím – tunel/LM server zkontroluj.";
-      healthBackendEl.classList.remove("health-ok");
-      healthBackendEl.classList.add("health-bad");
-    }
-  }
-
-  // quick prompts
-  document.querySelectorAll(".qbtn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const p = btn.getAttribute("data-prompt") || "";
-      if (!p) return;
-      inputEl.value = p;
-      inputEl.focus();
-    });
-  });
-
-  sendBtn.addEventListener("click", sendMessage);
-  inputEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+    sendBtn.addEventListener("click", () => {
       sendMessage();
-    }
-  });
+    });
 
-  checkHealth();
-  inputEl.focus();
-</script>
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    quickButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const q = btn.getAttribute("data-q") || "";
+        if (!q) return;
+        inputEl.value = q;
+        sendMessage();
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", boot);
+  </script>
 </body>
 </html>
-
